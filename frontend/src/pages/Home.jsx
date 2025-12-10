@@ -48,6 +48,14 @@ const Home = () => {
     setDealerForm({ name: '', email: '', phone: '', businessName: '', location: '', experience: '' });
   };
 
+  // Show welcome popup on page load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowWelcomePopup(true);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
