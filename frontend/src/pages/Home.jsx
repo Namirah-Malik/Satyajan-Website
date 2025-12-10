@@ -60,6 +60,35 @@ const Home = () => {
     <div className="min-h-screen bg-white">
       <Header />
 
+      {/* Welcome Popup */}
+      {showWelcomePopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md mx-4 p-6 relative animate-in zoom-in duration-300">
+            <button
+              onClick={() => setShowWelcomePopup(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MessageCircle className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Welcome!</h3>
+              <p className="text-gray-600 mb-6">
+                Welcome to Satyajan Energy Solutions — Your reliable partner for power backup and solar solutions!
+              </p>
+              <Button
+                onClick={() => setShowWelcomePopup(false)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Explore Our Solutions
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section id="hero" className="relative pt-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-green-50"></div>
