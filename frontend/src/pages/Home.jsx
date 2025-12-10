@@ -552,6 +552,18 @@ const Home = () => {
                   </div>
                 </div>
 
+                {/* WhatsApp CTA Button */}
+                <div className="mt-8">
+                  <Button
+                    size="lg"
+                    className="w-full bg-green-600 hover:bg-green-700 text-white text-lg"
+                    onClick={() => window.open('https://wa.me/918019179159', '_blank')}
+                  >
+                    <MessageCircle className="mr-2 w-5 h-5" />
+                    WhatsApp Now
+                  </Button>
+                </div>
+
                 {/* Map Placeholder */}
                 <div className="mt-8 h-64 bg-gray-200 rounded-xl overflow-hidden">
                   <iframe
