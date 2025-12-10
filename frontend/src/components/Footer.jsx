@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Mail, MapPin, Facebook, Twitter, Linkedin, Instagram, ExternalLink } from 'lucide-react';
+import { Phone, Mail, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 import { companyInfo } from '../mock/data';
 
 const Footer = () => {
@@ -19,10 +19,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">S</span>
-              </div>
+            <div className="flex items-center gap-3 mb-4">
+              <img 
+                src="https://via.placeholder.com/50x50/0066CC/FFFFFF?text=SE" 
+                alt="Satyajan Energy Solutions Logo" 
+                className="w-10 h-10 rounded-lg object-cover"
+              />
               <div className="flex flex-col">
                 <span className="font-bold text-white text-lg leading-tight">Satyajan</span>
                 <span className="text-xs text-gray-400 leading-tight">Energy Solutions</span>
@@ -31,11 +33,6 @@ const Footer = () => {
             <p className="text-sm text-gray-400 mb-4">
               Your trusted partner for solar solutions, power backup systems, and battery management across India.
             </p>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-semibold">
-                Authorized Microtek Partner
-              </div>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -80,11 +77,12 @@ const Footer = () => {
             <h3 className="text-white font-semibold text-lg mb-4">Our Products</h3>
             <ul className="space-y-2 text-sm">
               <li className="text-gray-400 hover:text-white transition-colors cursor-pointer">Solar Solutions</li>
-              <li className="text-gray-400 hover:text-white transition-colors cursor-pointer">Home Inverters</li>
-              <li className="text-gray-400 hover:text-white transition-colors cursor-pointer">Jumbo/Home UPS</li>
+              <li className="text-gray-400 hover:text-white transition-colors cursor-pointer">Inverter / Home UPS</li>
+              <li className="text-gray-400 hover:text-white transition-colors cursor-pointer">Jumbo UPS</li>
               <li className="text-gray-400 hover:text-white transition-colors cursor-pointer">Online UPS</li>
-              <li className="text-gray-400 hover:text-white transition-colors cursor-pointer">Tubular Batteries</li>
+              <li className="text-gray-400 hover:text-white transition-colors cursor-pointer">Tubular Battery</li>
               <li className="text-gray-400 hover:text-white transition-colors cursor-pointer">Lithium Batteries</li>
+              <li className="text-gray-400 hover:text-white transition-colors cursor-pointer">Combos</li>
             </ul>
           </div>
 

@@ -2,14 +2,14 @@
 
 export const companyInfo = {
   name: "Satyajan Energy Solutions Pvt Ltd",
-  tagline: "Your Trusted Power Backup & Solar Partner – Authorized Microtek Distributor",
-  description: "Satyajan Energy Solutions provides comprehensive suite of Solar Equipment, battery maintenance and Power backup solutions. We provide a Battery Management program that helps companies achieve immediate cost savings and supports corporate-wide sustainability goals.",
+  tagline: "Your Trusted Power Backup & Solar Partner",
+  description: "Satyajan Energy Solutions is an authorized channel partner providing reliable power backup and solar solutions. We offer a wide range of inverters, batteries, UPS systems, and solar solutions to ensure uninterrupted power for homes and businesses. With years of experience and a commitment to quality, we deliver energy-efficient and future-ready solutions. Our team provides fast delivery, expert installation, and strong after-sales support. Trusted by dealers and customers across the region, we combine competitive pricing with excellent service. At Satyajan Energy Solutions, your needs are our top priority.",
   mission: "Innovating the way India powers up with reliable, sustainable energy solutions.",
   contact: {
-    phone: "+91 98765 43210",
+    phone: "+91 8019179159",
     email: "info@satyajan.com",
-    whatsapp: "+91 98765 43210",
-    address: "123 Energy Street, Tech Park, Bangalore, Karnataka 560001"
+    whatsapp: "+918019179159",
+    address: "Plot No. 47, Green Lands Colony, Karmanghat, LB Nagar, Hyderabad 500079"
   },
   stats: [
     { icon: "Users", value: "10,000+", label: "Happy Customers" },
@@ -34,24 +34,24 @@ export const products = [
   },
   {
     id: 2,
-    name: "Home Inverters",
+    name: "Inverter / Home UPS",
     category: "inverter",
     image: "https://images.unsplash.com/photo-1613665813446-82a78c468a1d",
-    description: "Pure sine wave inverters with intelligent battery management for uninterrupted home power backup.",
+    description: "Pure sine wave inverters with intelligent battery management for uninterrupted home power backup. Capacity range from 700VA to 2000VA.",
     features: [
       "Pure sine wave output for sensitive electronics",
-      "Capacity range from 850VA to 3.5KVA",
+      "Capacity range from 700VA to 2000VA",
       "Smart battery charging with multi-stage technology"
     ]
   },
   {
     id: 3,
-    name: "Jumbo/Home UPS",
+    name: "Jumbo UPS",
     category: "jumbo-ups",
     image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d",
-    description: "High-capacity UPS designed for running higher loads for longer hours with overload protection.",
+    description: "High capacity 2KVA to 10KVA for extended backup. Designed for running higher loads for longer hours with overload protection.",
     features: [
-      "High capacity 5KVA to 10KVA for extended backup",
+      "High capacity 2KVA to 10KVA for extended backup",
       "Smart overload sense and short circuit protection",
       "Perfect for offices, shops, and large homes"
     ]
@@ -61,7 +61,7 @@ export const products = [
     name: "Online UPS",
     category: "online-ups",
     image: "https://images.unsplash.com/photo-1589276534126-adef63a95e05",
-    description: "Wide range of Online UPS from 1KVA to 40KVA based on world's latest technology.",
+    description: "Wide range of Online UPS from 1KVA to 120KVA using the world's latest technology.",
     features: [
       "True online double conversion technology",
       "Zero transfer time for critical equipment protection",
@@ -70,7 +70,7 @@ export const products = [
   },
   {
     id: 5,
-    name: "Tubular Batteries",
+    name: "Tubular Battery",
     category: "battery",
     image: "https://images.unsplash.com/photo-1592318348310-f31b61a931c8",
     description: "Long-lasting tubular inverter batteries with capacities from 80Ah to 220Ah.",
@@ -91,14 +91,26 @@ export const products = [
       "50% lighter and compact compared to lead-acid",
       "Fast charging with built-in Battery Management System"
     ]
+  },
+  {
+    id: 7,
+    name: "Combos",
+    category: "combos",
+    image: "https://images.unsplash.com/photo-1548337138-e87d889cc369",
+    description: "Complete power backup solutions combining inverters and batteries for hassle-free installation.",
+    features: [
+      "Pre-matched inverter and battery combinations",
+      "Cost-effective package deals with warranty",
+      "Ready-to-install solutions for immediate backup"
+    ]
   }
 ];
 
 export const benefits = [
   {
     icon: "Shield",
-    title: "Authorized Microtek Distributor",
-    description: "Official channel partner ensuring genuine products with full manufacturer warranty and support."
+    title: "Authorized Channel Partner",
+    description: "Official partner ensuring genuine products with full manufacturer warranty and support."
   },
   {
     icon: "Award",
@@ -147,17 +159,17 @@ export const testimonials = [
   {
     id: 3,
     name: "Amit Patel",
-    role: "Dealer Partner, Ahmedabad",
+    role: "Dealer Partner, Hyderabad",
     image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
     rating: 5,
-    text: "Being a Satyajan dealer has transformed my business. The product quality is outstanding, margins are good, and the company support is excellent. My customers are extremely satisfied with Microtek products."
+    text: "Being a Satyajan dealer has transformed my business. The product quality is outstanding, margins are good, and the company support is excellent. My customers are extremely satisfied with the products."
   }
 ];
 
 export const faqs = [
   {
     question: "What services does Satyajan Energy Solutions offer?",
-    answer: "We provide comprehensive solar solutions, home inverters, UPS systems (including Jumbo and Online UPS), tubular and lithium batteries for homes and businesses. Our team handles everything from consultation to installation and maintenance."
+    answer: "We provide comprehensive solar solutions, home inverters, UPS systems (including Jumbo and Online UPS), tubular and lithium batteries, and combo packages for homes and businesses. Our team handles everything from consultation to installation and maintenance."
   },
   {
     question: "How much can I save on electricity bills with solar?",
@@ -180,8 +192,8 @@ export const faqs = [
     answer: "As a dealer, you get competitive margins, marketing support, technical training, fast delivery, and access to our complete product range. We support our dealers with promotional materials and lead generation."
   },
   {
-    question: "Are Microtek products covered under warranty?",
-    answer: "Yes! All Microtek products come with manufacturer warranty ranging from 2-5 years for inverters/UPS, 3-5 years for batteries, and 25 years for solar panels. We provide hassle-free warranty service through our network."
+    question: "Are the products covered under warranty?",
+    answer: "Yes! All products come with manufacturer warranty ranging from 2-5 years for inverters/UPS, 3-5 years for batteries, and 25 years for solar panels. We provide hassle-free warranty service through our network."
   },
   {
     question: "How do I know what solar system size I need?",
@@ -195,5 +207,5 @@ export const dealerBenefits = [
   "Marketing support with promotional materials and digital assets",
   "Fast delivery and logistics support across India",
   "Dedicated dealer support team for queries and assistance",
-  "Access to latest Microtek products and technologies"
+  "Access to latest products and technologies"
 ];

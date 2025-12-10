@@ -41,9 +41,9 @@ const Header = () => {
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center text-sm">
             <div className="flex items-center gap-4">
-              <a href="tel:+919876543210" className="flex items-center gap-2 hover:text-blue-200 transition-colors">
+              <a href="tel:+918019179159" className="flex items-center gap-2 hover:text-blue-200 transition-colors">
                 <Phone className="w-4 h-4" />
-                <span className="hidden sm:inline">+91 98765 43210</span>
+                <span className="hidden sm:inline">+91 8019179159</span>
               </a>
               <a href="mailto:info@satyajan.com" className="flex items-center gap-2 hover:text-blue-200 transition-colors">
                 <Mail className="w-4 h-4" />
@@ -51,7 +51,7 @@ const Header = () => {
               </a>
             </div>
             <div className="text-xs sm:text-sm font-medium">
-              Authorized Microtek Channel Partner
+              Reliable Power & Solar Solutions
             </div>
           </div>
         </div>
@@ -61,10 +61,12 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollToSection('hero')}>
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">S</span>
-            </div>
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
+            <img 
+              src="https://via.placeholder.com/50x50/0066CC/FFFFFF?text=SE" 
+              alt="Satyajan Energy Solutions Logo" 
+              className="w-12 h-12 rounded-lg object-cover"
+            />
             <div className="flex flex-col">
               <span className="font-bold text-gray-900 text-lg leading-tight">Satyajan</span>
               <span className="text-xs text-gray-600 leading-tight">Energy Solutions</span>
@@ -95,10 +97,10 @@ const Header = () => {
               Get Quote
             </Button>
             <Button
-              onClick={() => window.open('https://wa.me/919876543210', '_blank')}
+              onClick={() => window.open('https://wa.me/918019179159', '_blank')}
               className="bg-green-600 hover:bg-green-700 text-white"
             >
-              WhatsApp Us
+              WhatsApp Now
             </Button>
           </div>
 
@@ -137,10 +139,10 @@ const Header = () => {
                 Get Quote
               </Button>
               <Button
-                onClick={() => window.open('https://wa.me/919876543210', '_blank')}
+                onClick={() => window.open('https://wa.me/918019179159', '_blank')}
                 className="w-full bg-green-600 hover:bg-green-700 text-white"
               >
-                WhatsApp Us
+                WhatsApp Now
               </Button>
             </div>
           </nav>
