@@ -264,9 +264,9 @@ const Home = () => {
                   </ul>
                   <Button
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+                    onClick={() => document.getElementById('products').scrollIntoView({ behavior: 'smooth' })}
                   >
-                    Enquire Now
+                    Visit Products
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 </CardContent>
