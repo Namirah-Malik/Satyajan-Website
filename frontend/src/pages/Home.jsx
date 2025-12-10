@@ -103,8 +103,7 @@ const Home = () => {
               </div>
               
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                {companyInfo.tagline.split('–')[0]}
-                <span className="text-blue-600">{companyInfo.tagline.split('–')[1]}</span>
+                {companyInfo.tagline}
               </h1>
               
               <p className="text-lg text-gray-600">
