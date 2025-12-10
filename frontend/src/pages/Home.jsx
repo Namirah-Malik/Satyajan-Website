@@ -123,10 +123,10 @@ const Home = () => {
                   size="lg"
                   variant="outline"
                   className="border-2 border-green-600 text-green-600 hover:bg-green-50 text-lg px-8 py-6"
-                  onClick={() => window.open('https://wa.me/919876543210', '_blank')}
+                  onClick={() => window.open('https://wa.me/918019179159', '_blank')}
                 >
-                  <Phone className="mr-2 w-5 h-5" />
-                  WhatsApp Us
+                  <MessageCircle className="mr-2 w-5 h-5" />
+                  WhatsApp Now
                 </Button>
               </div>
 
