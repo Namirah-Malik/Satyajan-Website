@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Phone, Mail } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Menu, X, Phone, Mail, ShoppingCart } from 'lucide-react';
 import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { useCart } from '../context/CartContext';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
