@@ -108,8 +108,27 @@ const Header = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
+            {/* Cart Icon */}
+            <button
+              onClick={() => navigate('/cart')}
+              className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors"
+            >
+              <ShoppingCart className="w-6 h-6" />
+              {cartCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 min-w-[20px] h-5 flex items-center justify-center">
+                  {cartCount}
+                </Badge>
+              )}
+            </button>
+
             <Button
-              onClick={() => scrollToSection('contact')}
+              onClick={() => {
+                if (location.pathname !== '/') {
+                  navigate('/', { state: { scrollTo: 'contact' } });
+                } else {
+                  scrollToSection('contact');
+                }
+              }}
               variant="outline"
               className="border-blue-600 text-blue-600 hover:bg-blue-50"
             >
