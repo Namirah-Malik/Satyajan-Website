@@ -264,7 +264,7 @@ const Home = () => {
                   </ul>
                   <Button
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={() => document.getElementById('products').scrollIntoView({ behavior: 'smooth' })}
+                    onClick={() => window.location.href = '/products'}
                   >
                     Visit Products
                     <ArrowRight className="ml-2 w-4 h-4" />
