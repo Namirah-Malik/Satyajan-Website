@@ -42,6 +42,8 @@ const Header = () => {
   const handleNavClick = (link) => {
     if (link.path === '/products') {
       navigate('/products');
+    } else if (link.path === '/blogs') {
+      navigate('/blogs');
     } else if (location.pathname !== '/') {
       navigate('/', { state: { scrollTo: link.id } });
     } else {
