@@ -6,8 +6,13 @@ import { Badge } from './ui/badge';
 import { useCart } from '../context/CartContext';
 
 const Header = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { getCartCount } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  const cartCount = getCartCount();
 
   useEffect(() => {
     const handleScroll = () => {
