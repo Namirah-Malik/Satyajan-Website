@@ -9,6 +9,7 @@ export const blogCategories = [
   { id: 'tips', name: 'Tips', slug: 'tips' },
 ];
 
+// Sample blog posts - Replace content with actual blog articles
 export const blogPosts = [
   {
     id: 'best-inverter-2025',
