@@ -97,7 +97,7 @@ const Header = () => {
             {navLinks.map((link) => (
               <button
                 key={link.id}
-                onClick={() => scrollToSection(link.id)}
+                onClick={() => handleNavClick(link)}
                 className="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group"
               >
                 {link.name}
