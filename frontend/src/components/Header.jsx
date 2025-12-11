@@ -159,7 +159,7 @@ const Header = () => {
             {navLinks.map((link) => (
               <button
                 key={link.id}
-                onClick={() => scrollToSection(link.id)}
+                onClick={() => handleNavClick(link)}
                 className="text-left py-2 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
               >
                 {link.name}
@@ -168,7 +168,27 @@ const Header = () => {
             <div className="flex flex-col gap-2 mt-2">
               <Button
                 onClick={() => {
-                  scrollToSection('contact');
+                  navigate('/cart');
+                  setIsMobileMenuOpen(false);
+                }}
+                variant="outline"
+                className="w-full border-gray-600 text-gray-600 relative"
+              >
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                Cart
+                {cartCount > 0 && (
+                  <Badge className="ml-2 bg-red-500 text-white">
+                    {cartCount}
+                  </Badge>
+                )}
+              </Button>
+              <Button
+                onClick={() => {
+                  if (location.pathname !== '/') {
+                    navigate('/', { state: { scrollTo: 'contact' } });
+                  } else {
+                    scrollToSection('contact');
+                  }
                   setIsMobileMenuOpen(false);
                 }}
                 variant="outline"
