@@ -31,12 +31,23 @@ const Header = () => {
   };
 
   const navLinks = [
-    { name: 'Home', id: 'hero' },
-    { name: 'About', id: 'about' },
-    { name: 'Products', id: 'products' },
-    { name: 'Dealers', id: 'dealers' },
-    { name: 'Contact', id: 'contact' }
+    { name: 'Home', id: 'hero', path: '/' },
+    { name: 'About', id: 'about', path: '/' },
+    { name: 'Products', id: 'products', path: '/products' },
+    { name: 'Dealers', id: 'dealers', path: '/' },
+    { name: 'Contact', id: 'contact', path: '/' }
   ];
+
+  const handleNavClick = (link) => {
+    if (link.path === '/products') {
+      navigate('/products');
+    } else if (location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: link.id } });
+    } else {
+      scrollToSection(link.id);
+    }
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <header
