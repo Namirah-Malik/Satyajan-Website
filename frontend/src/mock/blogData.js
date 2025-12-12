@@ -653,3 +653,6 @@ const existingBlogs = [
     ]
   }
 ];
+
+// Merge existing and new blog posts
+export const blogPosts = [...newBlogPosts, ...existingBlogs];
