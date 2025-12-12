@@ -44,6 +44,8 @@ const Header = () => {
       navigate('/products');
     } else if (link.path === '/blogs') {
       navigate('/blogs');
+    } else if (link.path === '/careers') {
+      navigate('/careers');
     } else if (location.pathname !== '/') {
       navigate('/', { state: { scrollTo: link.id } });
     } else {
