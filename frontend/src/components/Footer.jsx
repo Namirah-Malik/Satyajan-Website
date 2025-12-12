@@ -69,6 +69,11 @@ const Footer = () => {
                   FAQs
                 </button>
               </li>
+              <li>
+                <button onClick={() => navigate('/careers')} className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Careers
+                </button>
+              </li>
             </ul>
           </div>
 
