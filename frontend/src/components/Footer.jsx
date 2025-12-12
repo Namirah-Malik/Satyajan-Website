@@ -4,6 +4,8 @@ import { Phone, Mail, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'luc
 import { companyInfo } from '../mock/data';
 
 const Footer = () => {
+  const navigate = useNavigate();
+  
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
