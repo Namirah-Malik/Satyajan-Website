@@ -10,6 +10,9 @@ import Cart from "./pages/Cart";
 import Blogs from "./pages/Blogs";
 import BlogDetail from "./pages/BlogDetail";
 import AdminBlogs from "./pages/AdminBlogs";
+import Careers from "./pages/Careers";
+import JobDetail from "./pages/JobDetail";
+import JobApplication from "./pages/JobApplication";
 
 function App() {
   return (
@@ -24,6 +27,9 @@ function App() {
             <Route path="/blogs" element={<Blogs />} />
             <Route path="/blog/:slug" element={<BlogDetail />} />
             <Route path="/admin/blogs" element={<AdminBlogs />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/career/:jobId" element={<JobDetail />} />
+            <Route path="/career/apply" element={<JobApplication />} />
           </Routes>
           <Toaster position="top-right" richColors />
         </BrowserRouter>
