@@ -9,8 +9,11 @@ export const blogCategories = [
   { id: 'tips', name: 'Tips', slug: 'tips' },
 ];
 
-// Sample blog posts - Replace content with actual blog articles
-export const blogPosts = [
+// Import new blog posts
+import { newBlogPosts } from './newBlogData';
+
+// Existing sample blog posts
+const existingBlogs = [
   {
     id: 'best-inverter-2025',
     slug: 'best-inverter-2025',
