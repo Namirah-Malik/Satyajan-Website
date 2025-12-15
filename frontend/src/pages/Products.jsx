@@ -30,9 +30,12 @@ const Products = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
+        console.log('Fetching products from:', `${API_URL}/api/products`);
         const response = await fetch(`${API_URL}/api/products`);
+        console.log('Response status:', response.status);
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
+        console.log('Products received:', data.length);
         setProducts(data);
         setError(null);
       } catch (err) {
