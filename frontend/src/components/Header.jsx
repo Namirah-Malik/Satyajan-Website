@@ -43,6 +43,8 @@ const Header = () => {
   const handleNavClick = (link) => {
     if (link.path === '/products') {
       navigate('/products');
+    } else if (link.path === '/services') {
+      navigate('/services');
     } else if (link.path === '/blogs') {
       navigate('/blogs');
     } else if (link.path === '/careers') {
