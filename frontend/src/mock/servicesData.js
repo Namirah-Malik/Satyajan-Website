@@ -48,12 +48,12 @@ export const powerBackupServices = [
 
 export const batteryServices = [
   {
-    icon: 'Stethoscope',
+    icon: 'Activity',
     title: 'Battery Health Check & Diagnostics',
     description: 'Capacity testing and performance evaluation. Advanced testing equipment measures actual battery health and remaining lifespan accurately.'
   },
   {
-    icon: 'Tool',
+    icon: 'Wrench',
     title: 'Battery Maintenance Services',
     description: 'Life extension and efficiency improvement programs. Proper maintenance can extend battery life by 30-40% through timely water top-ups and terminal cleaning.'
   },
