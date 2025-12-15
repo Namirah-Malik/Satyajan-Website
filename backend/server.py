@@ -117,6 +117,99 @@ async def get_status_checks():
     
     return status_checks
 
+
+# Product API Endpoints
+
+@api_router.get("/products", response_model=List[Product])
+async def get_products(category: Optional[str] = None):
+    """Get all products or filter by category"""
+    query = {} if not category or category == 'all' else {"category": category}
+    products = await db.products.find(query, {"_id": 0}).to_list(1000)
+    
+    # Convert ISO string timestamps back to datetime objects
+    for product in products:
+        if isinstance(product.get('createdAt'), str):
+            product['createdAt'] = datetime.fromisoformat(product['createdAt'])
+        if isinstance(product.get('updatedAt'), str):
+            product['updatedAt'] = datetime.fromisoformat(product['updatedAt'])
+    
+    return products
+
+
+@api_router.get("/products/{product_id}", response_model=Product)
+async def get_product(product_id: str):
+    """Get a single product by ID"""
+    product = await db.products.find_one({"id": product_id}, {"_id": 0})
+    
+    if not product:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Convert ISO strings to datetime
+    if isinstance(product.get('createdAt'), str):
+        product['createdAt'] = datetime.fromisoformat(product['createdAt'])
+    if isinstance(product.get('updatedAt'), str):
+        product['updatedAt'] = datetime.fromisoformat(product['updatedAt'])
+    
+    return product
+
+
+@api_router.post("/products", response_model=Product)
+async def create_product(input: ProductCreate):
+    """Create a new product"""
+    product_dict = input.model_dump()
+    product_obj = Product(**product_dict)
+    
+    # Convert to dict and serialize datetime to ISO string for MongoDB
+    doc = product_obj.model_dump()
+    doc['createdAt'] = doc['createdAt'].isoformat()
+    doc['updatedAt'] = doc['updatedAt'].isoformat()
+    
+    await db.products.insert_one(doc)
+    return product_obj
+
+
+@api_router.put("/products/{product_id}", response_model=Product)
+async def update_product(product_id: str, input: ProductUpdate):
+    """Update an existing product"""
+    from fastapi import HTTPException
+    
+    # Check if product exists
+    existing_product = await db.products.find_one({"id": product_id}, {"_id": 0})
+    if not existing_product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Get only the fields that were provided
+    update_data = {k: v for k, v in input.model_dump().items() if v is not None}
+    
+    if update_data:
+        update_data['updatedAt'] = datetime.now(timezone.utc).isoformat()
+        await db.products.update_one({"id": product_id}, {"$set": update_data})
+    
+    # Fetch and return updated product
+    updated_product = await db.products.find_one({"id": product_id}, {"_id": 0})
+    
+    # Convert ISO strings to datetime
+    if isinstance(updated_product.get('createdAt'), str):
+        updated_product['createdAt'] = datetime.fromisoformat(updated_product['createdAt'])
+    if isinstance(updated_product.get('updatedAt'), str):
+        updated_product['updatedAt'] = datetime.fromisoformat(updated_product['updatedAt'])
+    
+    return updated_product
+
+
+@api_router.delete("/products/{product_id}")
+async def delete_product(product_id: str):
+    """Delete a product"""
+    from fastapi import HTTPException
+    
+    result = await db.products.delete_one({"id": product_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    return {"message": "Product deleted successfully", "id": product_id}
+
 # Include the router in the main app
 app.include_router(api_router)
 
