@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Zap, CheckCircle, Shield, Truck, Star, MapPin } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Zap, CheckCircle, Shield, Truck, Star, MapPin, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -8,8 +8,9 @@ import { Input } from '../components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { mockProducts } from '../mock/productData';
 import { useCart } from '../context/CartContext';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -18,14 +19,54 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [pincode, setPincode] = useState('');
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const product = mockProducts.find((p) => p.id === productId);
+  // Fetch product from backend
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_URL}/api/products/${productId}`);
+        if (!response.ok) {
+          if (response.status === 404) {
+            setError('Product not found');
+          } else {
+            throw new Error('Failed to fetch product');
+          }
+        } else {
+          const data = await response.json();
+          setProduct(data);
+          setError(null);
+        }
+      } catch (err) {
+        console.error('Error fetching product:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!product) {
+    fetchProduct();
+  }, [productId]);
+
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h2>
+          <Loader2 className="w-12 h-12 mx-auto text-blue-600 animate-spin mb-4" />
+          <p className="text-gray-600">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">{error || 'Product Not Found'}</h2>
           <Button onClick={() => navigate('/products')}>Back to Products</Button>
         </div>
       </div>
