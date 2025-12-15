@@ -22,7 +22,7 @@ const Services = () => {
       'Calendar': Calendar,
       'Activity': Activity,
       'Stethoscope': Activity, // Using Activity as placeholder
-      'Tool': Tool,
+      'Tool': Wrench, // Using Wrench as Tool icon
       'RefreshCw': RefreshCw,
       'Recycle': Recycle,
       'MapPin': MapPin,
