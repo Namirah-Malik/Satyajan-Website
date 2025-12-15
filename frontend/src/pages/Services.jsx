@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Compass, Wrench, Settings, FileText, Calculator, Zap, Calendar, Activity, Tool, RefreshCw, Recycle, MapPin, AlertCircle, TrendingUp, Headphones, Users, Clock, ShieldCheck, IndianRupee, MessageCircle, Phone } from 'lucide-react';
+import { ArrowRight, Compass, Wrench, Settings, FileText, Calculator, Zap, Calendar, Activity, RefreshCw, Recycle, MapPin, AlertCircle, TrendingUp, Headphones, Users, Clock, ShieldCheck, IndianRupee, MessageCircle, Phone } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
