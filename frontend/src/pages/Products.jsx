@@ -48,7 +48,7 @@ const Products = () => {
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let filtered = mockProducts;
+    let filtered = products;
 
     // Filter by category
     if (selectedCategory !== 'all') {
