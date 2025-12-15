@@ -164,14 +164,35 @@ const Products = () => {
             </p>
           </div>
 
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-16">
+              <Loader2 className="w-12 h-12 mx-auto text-blue-600 animate-spin mb-4" />
+              <p className="text-gray-600">Loading products...</p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="text-center py-16">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+                <p className="text-red-600 font-semibold mb-2">Error loading products</p>
+                <p className="text-red-500 text-sm">{error}</p>
+              </div>
+            </div>
+          )}
+
           {/* Products Grid */}
-          {filteredProducts.length > 0 ? (
+          {!loading && !error && filteredProducts.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
-          ) : (
+          )}
+
+          {/* No Products Found */}
+          {!loading && !error && filteredProducts.length === 0 && (
             <div className="text-center py-16">
               <div className="text-gray-400 mb-4">
                 <Search className="w-16 h-16 mx-auto" />
