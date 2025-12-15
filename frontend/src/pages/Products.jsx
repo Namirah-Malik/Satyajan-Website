@@ -86,7 +86,7 @@ const Products = () => {
     }
 
     return filtered;
-  }, [selectedCategory, searchQuery, sortBy]);
+  }, [products, selectedCategory, searchQuery, sortBy]);
 
   const getCategoryName = (id) => {
     const category = productCategories.find((cat) => cat.id === id);
