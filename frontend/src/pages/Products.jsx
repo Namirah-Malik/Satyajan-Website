@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import ProductCard from '../components/ProductCard';
+import EMICalculator from '../components/EMICalculator';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { productCategories } from '../mock/productData';
