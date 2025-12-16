@@ -183,6 +183,13 @@ const Products = () => {
             </div>
           )}
 
+          {/* EMI Calculator - Only show for Solar category */}
+          {!loading && !error && selectedCategory === 'solar' && (
+            <div className="mb-8">
+              <EMICalculator />
+            </div>
+          )}
+
           {/* Products Grid */}
           {!loading && !error && filteredProducts.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
