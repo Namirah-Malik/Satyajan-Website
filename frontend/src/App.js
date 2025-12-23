@@ -37,6 +37,7 @@ function App() {
             <Route path="/career/apply" element={<JobApplication />} />
           </Routes>
           <Toaster position="top-right" richColors />
+          <CallbackPopup />
         </BrowserRouter>
       </CartProvider>
     </div>
