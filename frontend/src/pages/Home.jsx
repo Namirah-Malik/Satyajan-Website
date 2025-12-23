@@ -473,28 +473,92 @@ const Home = () => {
       {/* FAQ Section */}
       <section id="faq" className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-lg text-gray-600">
-                Everything you need to know about our products and services
-              </p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-lg text-gray-600">
+              Everything you need to know about our products and services
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+            {/* Left side: FAQ Accordion */}
+            <div>
+              <Accordion type="single" collapsible className="space-y-4">
+                {faqs.map((faq, index) => (
+                  <AccordionItem 
+                    key={index} 
+                    value={`item-${index}`} 
+                    className="border-2 border-gray-200 rounded-lg px-6 bg-white hover:border-blue-300 transition-colors"
+                  >
+                    <AccordionTrigger className="text-left font-semibold text-gray-900 hover:text-blue-600 py-5">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-gray-600 pb-5">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+
+              {/* Ask a Question Form */}
+              <Card className="mt-8 border-2 border-blue-200 bg-white">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">
+                    Still have questions?
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Ask us anything and our team will get back to you shortly.
+                  </p>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.target);
+                      const question = formData.get('question');
+                      if (question.trim()) {
+                        alert('Thank you! Our team will get back to you shortly.');
+                        e.target.reset();
+                      }
+                    }}
+                    className="space-y-4"
+                  >
+                    <Input
+                      name="question"
+                      placeholder="Type your question here..."
+                      required
+                      className="border-2"
+                    />
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+                      <Send className="w-4 h-4 mr-2" />
+                      Submit Question
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
             </div>
 
-            <Accordion type="single" collapsible className="space-y-4">
-              {faqs.map((faq, index) => (
-                <AccordionItem key={index} value={`item-${index}`} className="border-2 border-gray-200 rounded-lg px-6 bg-white">
-                  <AccordionTrigger className="text-left font-semibold text-gray-900 hover:text-blue-600">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-gray-600">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+            {/* Right side: High-quality Solar Energy Image */}
+            <div className="relative h-full min-h-[600px] lg:min-h-[700px]">
+              <div className="sticky top-24">
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                  <img
+                    src="https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80"
+                    alt="Solar Energy Solutions"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+                    <h3 className="text-2xl font-bold mb-2">
+                      Powering a Sustainable Future
+                    </h3>
+                    <p className="text-blue-100">
+                      Professional solar and power backup solutions for homes and businesses
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
