@@ -55,252 +55,299 @@ const SolarQuotation = () => {
   };
 
   const generatePDF = () => {
-    const doc = new jsPDF();
-    const quotationNumber = generateQuotationNumber();
-    const date = new Date().toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
+    try {
+      const doc = new jsPDF();
+      const quotationNumber = generateQuotationNumber();
+      const date = new Date().toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      });
 
-    // Company Header with gradient effect
-    doc.setFillColor(0, 102, 204);
-    doc.rect(0, 0, 210, 45, 'F');
+      // Calculate solar estimates
+      const systemCapacityNum = parseFloat(formData.systemCapacity) || 0;
+      const monthlyUnitsGenerated = Math.round(systemCapacityNum * 4.5 * 30); // Avg 4.5 hrs/day
+      const ratePerUnit = 8; // Average ₹8 per unit
+      const monthlyBillNum = parseFloat(formData.monthlyBill) || 0;
+      const monthlySavings = Math.min(monthlyUnitsGenerated * ratePerUnit, monthlyBillNum);
+      const systemCost = calculateTotal();
+      const paybackYears = systemCost > 0 && monthlySavings > 0 
+        ? (systemCost / (monthlySavings * 12)).toFixed(1) 
+        : 0;
 
-    // Add solar icon representation
-    doc.setFillColor(255, 193, 7);
-    doc.circle(190, 20, 8, 'F');
-    
-    // Company Name
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(26);
-    doc.setFont('helvetica', 'bold');
-    doc.text('SATYAJAN ENERGY SOLUTIONS', 105, 22, { align: 'center' });
+      // Company Header with gradient effect
+      doc.setFillColor(0, 102, 204);
+      doc.rect(0, 0, 210, 45, 'F');
 
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Private Limited', 105, 30, { align: 'center' });
-    doc.text('Professional Solar & Power Backup Solutions', 105, 37, { align: 'center' });
+      // Add solar icon (sun)
+      doc.setFillColor(255, 193, 7);
+      doc.circle(20, 22, 10, 'F');
+      
+      // Add rays around sun
+      for (let i = 0; i < 8; i++) {
+        const angle = (i * Math.PI) / 4;
+        const x1 = 20 + Math.cos(angle) * 12;
+        const y1 = 22 + Math.sin(angle) * 12;
+        const x2 = 20 + Math.cos(angle) * 16;
+        const y2 = 22 + Math.sin(angle) * 16;
+        doc.setDrawColor(255, 193, 7);
+        doc.setLineWidth(2);
+        doc.line(x1, y1, x2, y2);
+      }
+      
+      // Company Name
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.setFont('helvetica', 'bold');
+      doc.text('SATYAJAN ENERGY SOLUTIONS', 105, 20, { align: 'center' });
 
-    // Reset text color
-    doc.setTextColor(0, 0, 0);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Private Limited', 105, 28, { align: 'center' });
+      doc.text('Professional Solar & Power Backup Solutions', 105, 35, { align: 'center' });
+      doc.text('Clean Energy for a Sustainable Future', 105, 41, { align: 'center' });
 
-    // Solar Quotation Title
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 102, 204);
-    doc.text('SOLAR QUOTATION', 105, 60, { align: 'center' });
-    doc.setTextColor(0, 0, 0);
-
-    // Quotation Details Box
-    doc.setFillColor(245, 245, 245);
-    doc.roundedRect(135, 70, 65, 28, 2, 2, 'F');
-    doc.setDrawColor(0, 102, 204);
-    doc.setLineWidth(0.5);
-    doc.roundedRect(135, 70, 65, 28, 2, 2, 'S');
-    
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Quotation No:', 138, 76);
-    doc.text('Date:', 138, 84);
-    doc.text('Valid Until:', 138, 92);
-
-    doc.setFont('helvetica', 'normal');
-    doc.text(quotationNumber, 165, 76);
-    doc.text(date, 165, 84);
-    const validUntil = new Date();
-    validUntil.setDate(validUntil.getDate() + 30);
-    doc.text(validUntil.toLocaleDateString('en-IN'), 165, 92);
-
-    // Customer Details
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 102, 204);
-    doc.text('Bill To:', 15, 76);
-
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text(formData.customerName || 'Customer Name', 15, 84);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Phone: ${formData.phone || 'N/A'}`, 15, 90);
-    doc.text(`Email: ${formData.email || 'N/A'}`, 15, 96);
-
-    // Solar System Details Table
-    const tableData = [
-      [
-        'Solar System Type',
-        formData.systemType,
-        '',
-        '',
-      ],
-      [
-        'System Capacity',
-        `${formData.systemCapacity} kW`,
-        '',
-        '',
-      ],
-      [
-        'Panel Type',
-        formData.panelType || 'N/A',
-        '',
-        '',
-      ],
-      [
-        'Inverter Type',
-        formData.inverterType || 'N/A',
-        '',
-        '',
-      ],
-      [
-        'Complete Solar System',
-        `Quantity: ${formData.quantity}`,
-        `₹${formData.price.toLocaleString('en-IN')}`,
-        `₹${calculateSubtotal().toLocaleString('en-IN')}`,
-      ],
-    ];
-
-    doc.autoTable({
-      startY: 108,
-      head: [['Description', 'Specification', 'Unit Price', 'Amount']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: {
-        fillColor: [0, 102, 204],
-        textColor: [255, 255, 255],
-        fontStyle: 'bold',
-        fontSize: 10,
-        halign: 'center',
-      },
-      bodyStyles: {
-        fontSize: 9,
-      },
-      columnStyles: {
-        0: { cellWidth: 55, fontStyle: 'bold' },
-        1: { cellWidth: 60 },
-        2: { cellWidth: 35, halign: 'right' },
-        3: { cellWidth: 35, halign: 'right' },
-      },
-      didParseCell: function (data) {
-        if (data.row.index === 4 && data.column.index === 0) {
-          data.cell.styles.fillColor = [240, 248, 255];
-          data.cell.styles.fontStyle = 'bold';
-        }
-      },
-    });
-
-    // Calculations
-    const finalY = doc.lastAutoTable.finalY + 10;
-    const subtotal = calculateSubtotal();
-    const gst = calculateGST();
-    const total = calculateTotal();
-
-    // Summary Box
-    const summaryX = 115;
-    const summaryY = finalY;
-    
-    doc.setFillColor(245, 245, 245);
-    doc.roundedRect(summaryX, summaryY - 5, 80, 35, 2, 2, 'F');
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Subtotal:', summaryX + 5, summaryY + 2);
-    doc.text(`GST (${formData.gstRate}%):`, summaryX + 5, summaryY + 10);
-
-    // Grand Total Box
-    doc.setFillColor(0, 102, 204);
-    doc.roundedRect(summaryX, summaryY + 15, 80, 12, 2, 2, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(12);
-    doc.text('Grand Total:', summaryX + 5, summaryY + 23);
-
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`₹${subtotal.toLocaleString('en-IN')}`, 190, summaryY + 2, { align: 'right' });
-    doc.text(`₹${gst.toLocaleString('en-IN')}`, 190, summaryY + 10, { align: 'right' });
-
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(13);
-    doc.text(`₹${total.toLocaleString('en-IN')}`, 190, summaryY + 23, { align: 'right' });
-
-    // Notes
-    if (formData.notes) {
+      // Reset text color
       doc.setTextColor(0, 0, 0);
+
+      // Solar Quotation Title
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 102, 204);
+      doc.text('SOLAR SYSTEM QUOTATION', 105, 58, { align: 'center' });
+      doc.setTextColor(0, 0, 0);
+
+      // Quotation Details Box
+      doc.setFillColor(250, 250, 250);
+      doc.roundedRect(135, 65, 65, 28, 2, 2, 'F');
+      doc.setDrawColor(0, 102, 204);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(135, 65, 65, 28, 2, 2, 'S');
+      
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Quotation No:', 138, 71);
+      doc.text('Date:', 138, 79);
+      doc.text('Valid Until:', 138, 87);
+
+      doc.setFont('helvetica', 'normal');
+      doc.text(quotationNumber, 165, 71);
+      doc.text(date, 165, 79);
+      const validUntil = new Date();
+      validUntil.setDate(validUntil.getDate() + 30);
+      doc.text(validUntil.toLocaleDateString('en-IN'), 165, 87);
+
+      // Customer Details Box
+      doc.setFillColor(245, 248, 255);
+      doc.roundedRect(10, 65, 120, 28, 2, 2, 'F');
+      doc.setDrawColor(0, 102, 204);
+      doc.roundedRect(10, 65, 120, 28, 2, 2, 'S');
+
       doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(0, 102, 204);
-      doc.text('Special Notes:', 15, finalY + 40);
+      doc.text('Customer Details:', 13, 71);
+
       doc.setTextColor(0, 0, 0);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text(formData.customerName || 'Customer Name', 13, 79);
       doc.setFont('helvetica', 'normal');
+      doc.text(`Phone: ${formData.phone || 'N/A'}`, 13, 85);
+      doc.text(`Email: ${formData.email || 'N/A'}`, 13, 91);
+
+      // Energy Consumption & Savings Box
+      doc.setFillColor(255, 251, 235);
+      doc.roundedRect(10, 98, 190, 25, 2, 2, 'F');
+      doc.setDrawColor(255, 193, 7);
+      doc.setLineWidth(1);
+      doc.roundedRect(10, 98, 190, 25, 2, 2, 'S');
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(204, 102, 0);
+      doc.text('Energy Analysis & Savings Estimate', 13, 105);
+
+      doc.setTextColor(0, 0, 0);
       doc.setFontSize(9);
-      const notesLines = doc.splitTextToSize(formData.notes, 180);
-      doc.text(notesLines, 15, finalY + 47);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Current Monthly Bill: ₹${monthlyBillNum.toLocaleString('en-IN')}`, 13, 112);
+      doc.text(`Recommended System: ${systemCapacityNum} kW`, 13, 118);
+      doc.text(`Est. Monthly Generation: ${monthlyUnitsGenerated} units`, 80, 112);
+      doc.text(`Est. Monthly Savings: ₹${monthlySavings.toLocaleString('en-IN')}`, 80, 118);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 128, 0);
+      doc.text(`Payback Period: ~${paybackYears} years`, 150, 115);
+
+      // Solar System Specifications Table
+      doc.setTextColor(0, 0, 0);
+      const tableData = [
+        ['System Type', formData.systemType, '', ''],
+        ['System Capacity', `${formData.systemCapacity} kW`, '', ''],
+        ['Solar Panel Type', formData.panelType || 'N/A', '', ''],
+        ['Inverter Type', formData.inverterType || 'N/A', '', ''],
+        ['Complete Solar System', `Qty: ${formData.quantity}`, `₹${formData.price.toLocaleString('en-IN')}`, `₹${calculateSubtotal().toLocaleString('en-IN')}`],
+      ];
+
+      doc.autoTable({
+        startY: 128,
+        head: [['Component', 'Specification', 'Unit Price', 'Amount']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: {
+          fillColor: [0, 102, 204],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 10,
+          halign: 'center',
+        },
+        bodyStyles: {
+          fontSize: 9,
+        },
+        columnStyles: {
+          0: { cellWidth: 55, fontStyle: 'bold' },
+          1: { cellWidth: 60 },
+          2: { cellWidth: 35, halign: 'right' },
+          3: { cellWidth: 35, halign: 'right' },
+        },
+        didParseCell: function (data) {
+          if (data.row.index === 4) {
+            data.cell.styles.fillColor = [240, 248, 255];
+            if (data.column.index === 0) {
+              data.cell.styles.fontStyle = 'bold';
+            }
+          }
+        },
+      });
+
+      // Pricing Summary
+      const finalY = doc.lastAutoTable.finalY + 8;
+      const subtotal = calculateSubtotal();
+      const gst = calculateGST();
+      const total = calculateTotal();
+
+      const summaryX = 115;
+      
+      doc.setFillColor(248, 248, 248);
+      doc.roundedRect(summaryX, finalY, 80, 30, 2, 2, 'F');
+      doc.setDrawColor(200, 200, 200);
+      doc.roundedRect(summaryX, finalY, 80, 30, 2, 2, 'S');
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Subtotal:', summaryX + 5, finalY + 7);
+      doc.text(`GST (${formData.gstRate}%):`, summaryX + 5, finalY + 14);
+
+      doc.setFillColor(0, 102, 204);
+      doc.roundedRect(summaryX, finalY + 18, 80, 12, 2, 2, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.text('GRAND TOTAL:', summaryX + 5, finalY + 26);
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`₹${subtotal.toLocaleString('en-IN')}`, summaryX + 75, finalY + 7, { align: 'right' });
+      doc.text(`₹${gst.toLocaleString('en-IN')}`, summaryX + 75, finalY + 14, { align: 'right' });
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text(`₹${total.toLocaleString('en-IN')}`, summaryX + 75, finalY + 26, { align: 'right' });
+
+      // Notes Section
+      let notesEndY = finalY + 35;
+      if (formData.notes) {
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 102, 204);
+        doc.text('Special Notes:', 10, notesEndY);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        const notesLines = doc.splitTextToSize(formData.notes, 185);
+        doc.text(notesLines, 10, notesEndY + 6);
+        notesEndY += 6 + (notesLines.length * 5) + 5;
+      }
+
+      // Terms & Conditions
+      const termsY = notesEndY;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 102, 204);
+      doc.text('Terms & Conditions:', 10, termsY);
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      const terms = [
+        '• Quotation valid for 30 days from date of issue.',
+        '• Payment: 50% advance, 50% on installation completion.',
+        '• Prices inclusive of GST. Installation included (standard conditions).',
+        '• Solar panels: 25-year performance warranty.',
+        '• Inverter: 5-10 years warranty (as per manufacturer).',
+        '• Structure: 10-year warranty against rust/corrosion.',
+        '• Free maintenance for first year. Annual maintenance available.',
+        '• Net metering assistance provided (government subsidy support available).',
+      ];
+      
+      let currentY = termsY + 6;
+      terms.forEach((term) => {
+        doc.text(term, 10, currentY);
+        currentY += 4.5;
+      });
+
+      // Signature and Stamp Section
+      const sigY = 255;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text('For Satyajan Energy Solutions Pvt Ltd', 10, sigY);
+      
+      doc.setDrawColor(0, 102, 204);
+      doc.setLineWidth(0.5);
+      doc.line(10, sigY + 12, 70, sigY + 12);
+      
+      doc.setFontSize(8);
+      doc.text('Authorized Signatory', 10, sigY + 17);
+      
+      // Company Stamp Placeholder
+      doc.setDrawColor(150, 150, 150);
+      doc.setLineWidth(1);
+      doc.setLineDash([3, 3]);
+      doc.roundedRect(130, sigY - 5, 35, 25, 2, 2, 'S');
+      doc.setLineDash([]);
+      doc.setFontSize(7);
+      doc.setTextColor(120, 120, 120);
+      doc.text('Company', 147, sigY + 5, { align: 'center' });
+      doc.text('Stamp', 147, sigY + 10, { align: 'center' });
+
+      // Footer
+      doc.setFillColor(0, 102, 204);
+      doc.rect(0, 287, 210, 10, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text(
+        'Phone: +91 8019179159 | Email: info@satyajanenergy.com | www.satyajanenergy.com',
+        105,
+        293,
+        { align: 'center' }
+      );
+
+      // Generate filename and save
+      const fileName = `Solar_Quotation_${quotationNumber}_${formData.customerName.replace(/\s+/g, '_')}.pdf`;
+      
+      // Save the PDF - this triggers immediate download
+      doc.save(fileName);
+      
+      console.log('PDF generated successfully:', fileName);
+      alert('Solar quotation PDF downloaded successfully!');
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please check all fields and try again.');
     }
-
-    // Terms & Conditions
-    const termsY = finalY + (formData.notes ? 65 : 45);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 102, 204);
-    doc.text('Terms & Conditions:', 15, termsY);
-
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    const terms = [
-      '1. This quotation is valid for 30 days from the date of issue.',
-      '2. Payment Terms: 50% advance payment, 50% on completion of installation.',
-      '3. All prices are inclusive of GST.',
-      '4. Installation charges included (subject to standard site conditions).',
-      '5. Solar panel warranty: 25 years performance warranty.',
-      '6. Inverter warranty: As per manufacturer (typically 5-10 years).',
-      '7. Structure warranty: 10 years against rust and corrosion.',
-      '8. Free maintenance for the first year post-installation.',
-    ];
-    terms.forEach((term, index) => {
-      doc.text(term, 15, termsY + 8 + index * 5);
-    });
-
-    // Signature Section
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('For Satyajan Energy Solutions Pvt Ltd', 15, 260);
-    
-    doc.setDrawColor(0, 102, 204);
-    doc.setLineWidth(0.5);
-    doc.line(15, 273, 75, 273);
-    
-    doc.setFontSize(9);
-    doc.text('Authorized Signatory', 15, 278);
-    
-    // Stamp placeholder
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(1);
-    doc.setLineDash([2, 2]);
-    doc.roundedRect(120, 255, 35, 25, 2, 2, 'S');
-    doc.setFontSize(7);
-    doc.setTextColor(150, 150, 150);
-    doc.text('Company', 137, 265, { align: 'center' });
-    doc.text('Stamp', 137, 270, { align: 'center' });
-
-    // Footer
-    doc.setFillColor(0, 102, 204);
-    doc.rect(0, 287, 210, 10, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    doc.text(
-      'Phone: +91 8019179159 | Email: info@satyajanenergy.com | www.satyajanenergy.com',
-      105,
-      293,
-      { align: 'center' }
-    );
-
-    // Save PDF
-    const fileName = `Solar_Quotation_${quotationNumber}_${formData.customerName.replace(/\s+/g, '_')}.pdf`;
-    doc.save(fileName);
   };
 
   return (
