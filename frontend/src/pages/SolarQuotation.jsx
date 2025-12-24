@@ -15,6 +15,7 @@ const SolarQuotation = () => {
     customerName: '',
     phone: '',
     email: '',
+    monthlyBill: '',
     systemType: 'On-grid',
     systemCapacity: '',
     panelType: '',
