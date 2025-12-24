@@ -313,42 +313,70 @@ const SolarQuotation = () => {
                     <span className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full flex items-center justify-center text-lg mr-3">
                       3
                     </span>
-                    Pricing & Quantity
+                    Pricing & Cost Calculation
                   </h2>
                   
-                  <div className="grid md:grid-cols-3 gap-6 mb-6">
-                    <div>
-                      <Label htmlFor="quantity" className="text-sm font-semibold mb-2">
-                        Quantity
-                      </Label>
-                      <Input
-                        id="quantity"
-                        name="quantity"
-                        type="number"
-                        min="1"
-                        value={formData.quantity}
-                        onChange={handleInputChange}
-                        className="border-2 border-gray-300 focus:border-blue-500"
-                      />
-                    </div>
+                  {/* Pricing Information Cards */}
+                  <div className="grid md:grid-cols-3 gap-4 mb-6">
+                    <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200">
+                      <CardContent className="p-4">
+                        <div className="text-center">
+                          <p className="text-xs text-gray-600 mb-1">Rate per kW</p>
+                          <p className="text-2xl font-bold text-blue-700">
+                            ₹{pricingRates[formData.systemType].toLocaleString('en-IN')}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">{formData.systemType} System</p>
+                        </div>
+                      </CardContent>
+                    </Card>
 
-                    <div>
-                      <Label htmlFor="price" className="text-sm font-semibold mb-2">
-                        Unit Price (₹) *
-                      </Label>
-                      <Input
-                        id="price"
-                        name="price"
-                        type="number"
-                        min="0"
-                        value={formData.price}
-                        onChange={handleInputChange}
-                        placeholder="Enter price"
-                        required
-                        className="border-2 border-gray-300 focus:border-blue-500"
-                      />
-                    </div>
+                    <Card className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
+                      <CardContent className="p-4">
+                        <div className="text-center">
+                          <p className="text-xs text-gray-600 mb-1">System Capacity</p>
+                          <p className="text-2xl font-bold text-green-700">
+                            {formData.systemCapacity || '0'} kW
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">Selected Capacity</p>
+                        </div>
+                      </CardContent>
+                    </Card>
 
+                    <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200">
+                      <CardContent className="p-4">
+                        <div className="text-center">
+                          <p className="text-xs text-gray-600 mb-1">System Cost</p>
+                          <p className="text-2xl font-bold text-purple-700">
+                            ₹{calculatePrice().toLocaleString('en-IN')}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">Auto-Calculated</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Pricing Formula Display */}
+                  <Card className="bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-gray-300 mb-6">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-center gap-4 text-sm">
+                        <span className="font-semibold text-gray-700">Calculation:</span>
+                        <span className="text-blue-600 font-bold">
+                          {formData.systemCapacity || '0'} kW
+                        </span>
+                        <span className="text-gray-500">×</span>
+                        <span className="text-green-600 font-bold">
+                          ₹{pricingRates[formData.systemType].toLocaleString('en-IN')}/kW
+                        </span>
+                        <span className="text-gray-500">=</span>
+                        <span className="text-purple-600 font-bold text-lg">
+                          ₹{calculatePrice().toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* GST Rate */}
+                  <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="gstRate" className="text-sm font-semibold mb-2">
                         GST Rate (%)
@@ -364,10 +392,21 @@ const SolarQuotation = () => {
                         className="border-2 border-gray-300 focus:border-blue-500"
                       />
                     </div>
+
+                    {/* Quantity Display (Locked) */}
+                    <div>
+                      <Label className="text-sm font-semibold mb-2">
+                        Quantity
+                      </Label>
+                      <div className="h-11 px-3 py-2 border-2 border-gray-200 rounded-md bg-gray-50 flex items-center">
+                        <span className="font-semibold text-gray-700">1 System</span>
+                        <span className="ml-auto text-xs text-gray-500">(Fixed)</span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Pricing Summary Card */}
-                  <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300">
+                  <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300 mt-6">
                     <CardContent className="p-6">
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
