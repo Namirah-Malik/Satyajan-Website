@@ -95,6 +95,22 @@ class ProductUpdate(BaseModel):
     warranty: Optional[str] = None
     inStock: Optional[bool] = None
 
+
+# Solar Quotation Model
+class SolarQuotationRequest(BaseModel):
+    customerName: str
+    phone: str
+    email: Optional[str] = None
+    monthlyBill: float
+    systemType: str
+    systemCapacity: float
+    panelType: str
+    inverterType: str
+    quantity: int = 1
+    price: float
+    gstRate: float = 18
+    notes: Optional[str] = None
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
