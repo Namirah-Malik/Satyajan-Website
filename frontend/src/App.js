@@ -13,6 +13,7 @@ import Blogs from "./pages/Blogs";
 import BlogDetail from "./pages/BlogDetail";
 import AdminBlogs from "./pages/AdminBlogs";
 import AdminProducts from "./pages/AdminProducts";
+import Quotation from "./pages/Quotation";
 import Careers from "./pages/Careers";
 import JobDetail from "./pages/JobDetail";
 import JobApplication from "./pages/JobApplication";
