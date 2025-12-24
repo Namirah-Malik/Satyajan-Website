@@ -33,6 +33,7 @@ function App() {
             <Route path="/blog/:slug" element={<BlogDetail />} />
             <Route path="/admin/blogs" element={<AdminBlogs />} />
             <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/solar-quotation" element={<SolarQuotation />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/career/:jobId" element={<JobDetail />} />
             <Route path="/career/apply" element={<JobApplication />} />
