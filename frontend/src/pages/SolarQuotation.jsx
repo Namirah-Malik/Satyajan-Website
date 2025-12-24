@@ -423,6 +423,26 @@ const SolarQuotation = () => {
                       />
                     </div>
                   </div>
+                  
+                  <div className="mt-4">
+                    <Label htmlFor="monthlyBill" className="text-sm font-semibold mb-2">
+                      Average Monthly Electricity Bill (₹) *
+                    </Label>
+                    <Input
+                      id="monthlyBill"
+                      name="monthlyBill"
+                      type="number"
+                      min="0"
+                      value={formData.monthlyBill}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 5000"
+                      required
+                      className="border-2 border-gray-300 focus:border-blue-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      This helps us calculate your potential savings with solar
+                    </p>
+                  </div>
                 </div>
 
                 {/* Solar System Details */}
