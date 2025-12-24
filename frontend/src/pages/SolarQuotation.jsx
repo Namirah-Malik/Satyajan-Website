@@ -469,7 +469,7 @@ const SolarQuotation = () => {
                       !formData.systemCapacity ||
                       !formData.panelType ||
                       !formData.inverterType ||
-                      formData.price === 0
+                      calculatePrice() === 0
                     }
                   >
                     <Download className="w-6 h-6 mr-2" />
