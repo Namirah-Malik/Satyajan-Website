@@ -24,10 +24,30 @@ const SolarQuotation = () => {
     notes: '',
   });
 
+  // Pricing per kW based on system type
+  const pricingRates = {
+    'On-grid': 55000,      // ₹55,000 per kW
+    'Off-grid': 75000,     // ₹75,000 per kW  
+    'Hybrid': 65000,       // ₹65,000 per kW
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  // Calculate price automatically when capacity or system type changes
+  const calculatePrice = () => {
+    const capacity = parseFloat(formData.systemCapacity) || 0;
+    const pricePerKw = pricingRates[formData.systemType] || 0;
+    return capacity * pricePerKw;
+  };
+
+  // Update price whenever capacity or system type changes
+  React.useEffect(() => {
+    const autoPrice = calculatePrice();
+    setFormData((prev) => ({ ...prev, price: autoPrice }));
+  }, [formData.systemCapacity, formData.systemType]);
 
   const calculateSubtotal = () => {
     return formData.quantity * formData.price;
