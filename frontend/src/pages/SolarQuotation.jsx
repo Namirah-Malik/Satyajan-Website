@@ -484,7 +484,7 @@ const SolarQuotation = () => {
                   !formData.systemCapacity ||
                   !formData.panelType ||
                   !formData.inverterType ||
-                  formData.price === 0) && (
+                  calculatePrice() === 0) && (
                   <p className="text-center text-sm text-red-600 mt-4">
                     * Please fill all required fields to generate quotation
                   </p>
