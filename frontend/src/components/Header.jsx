@@ -50,6 +50,8 @@ const Header = () => {
       navigate('/blogs');
     } else if (link.path === '/careers') {
       navigate('/careers');
+    } else if (link.path === '/solar-quotation') {
+      navigate('/solar-quotation');
     } else if (location.pathname !== '/') {
       navigate('/', { state: { scrollTo: link.id } });
     } else {
