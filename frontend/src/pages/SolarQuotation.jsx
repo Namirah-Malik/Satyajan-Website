@@ -664,6 +664,7 @@ const SolarQuotation = () => {
                 {/* Validation Note */}
                 {(!formData.customerName ||
                   !formData.phone ||
+                  !formData.monthlyBill ||
                   !formData.systemCapacity ||
                   !formData.panelType ||
                   !formData.inverterType ||
