@@ -649,6 +649,7 @@ const SolarQuotation = () => {
                     disabled={
                       !formData.customerName ||
                       !formData.phone ||
+                      !formData.monthlyBill ||
                       !formData.systemCapacity ||
                       !formData.panelType ||
                       !formData.inverterType ||
