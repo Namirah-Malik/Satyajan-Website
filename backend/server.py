@@ -239,15 +239,24 @@ async def delete_product(product_id: str):
 async def generate_solar_quotation(data: SolarQuotationRequest):
     """Generate professional solar quotation PDF"""
     try:
+        from reportlab.platypus import SimpleDocTemplate, Spacer, Paragraph
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
+        
         # Create PDF in memory
         buffer = BytesIO()
-        pdf = canvas.Canvas(buffer, pagesize=A4)
-        width, height = A4
         
-        # Professional margins
-        left_margin = 45
-        right_margin = width - 45
-        col_split = width / 2
+        # Fixed A4 document with consistent margins
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            leftMargin=45,
+            rightMargin=45,
+            topMargin=45,
+            bottomMargin=45
+        )
+        
+        width, height = A4
         
         # Generate quotation number
         now = datetime.now()
@@ -263,95 +272,89 @@ async def generate_solar_quotation(data: SolarQuotationRequest):
         if payback_years < 0 or payback_years > 50:
             payback_years = 0
         
-        # ===== HEADER =====
-        # Blue header bar
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.rect(0, height - 55, width, 55, fill=1)
-        
-        # Company name and tagline
-        pdf.setFillColorRGB(1, 1, 1)
-        pdf.setFont("Helvetica-Bold", 20)
-        pdf.drawCentredString(width/2, height - 28, "SATYAJAN ENERGY SOLUTIONS")
-        pdf.setFont("Helvetica", 8)
-        pdf.drawCentredString(width/2, height - 42, "Private Limited")
-        
-        # ===== DOCUMENT TITLE =====
-        pdf.setFillColorRGB(0, 0, 0)
-        pdf.setFont("Helvetica-Bold", 14)
-        pdf.drawCentredString(width/2, height - 75, "SOLAR SYSTEM QUOTATION")
-        
-        # ===== QUOTATION INFO & CUSTOMER INFO (Two Columns) =====
-        y_pos = height - 105
-        
-        # Left column - Customer Information
-        pdf.setFont("Helvetica-Bold", 9)
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.drawString(left_margin, y_pos, "CUSTOMER INFORMATION")
-        
-        # Subtle blue bar under header
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.rect(left_margin, y_pos - 3, 220, 1, fill=1)
-        
-        y_pos -= 15
-        pdf.setFillColorRGB(0, 0, 0)
-        pdf.setFont("Helvetica-Bold", 10)
-        pdf.drawString(left_margin, y_pos, data.customerName)
-        
-        y_pos -= 12
-        pdf.setFont("Helvetica", 8)
-        pdf.drawString(left_margin, y_pos, f"Phone: {data.phone}")
-        
-        y_pos -= 10
-        pdf.drawString(left_margin, y_pos, f"Email: {data.email or 'N/A'}")
-        
-        # Right column - Quotation Details
-        y_pos = height - 105
-        pdf.setFont("Helvetica-Bold", 9)
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.drawString(col_split, y_pos, "QUOTATION DETAILS")
-        
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.rect(col_split, y_pos - 3, 220, 1, fill=1)
-        
-        y_pos -= 15
-        pdf.setFillColorRGB(0, 0, 0)
-        pdf.setFont("Helvetica", 8)
-        
-        info_label_x = col_split
-        info_value_x = col_split + 80
-        
-        pdf.drawString(info_label_x, y_pos, "Quotation No:")
-        pdf.setFont("Helvetica-Bold", 8)
-        pdf.drawString(info_value_x, y_pos, quote_num)
-        
-        y_pos -= 12
-        pdf.setFont("Helvetica", 8)
-        pdf.drawString(info_label_x, y_pos, "Date:")
-        pdf.setFont("Helvetica-Bold", 8)
-        pdf.drawString(info_value_x, y_pos, now.strftime("%d %B %Y"))
-        
-        y_pos -= 10
-        pdf.setFont("Helvetica", 8)
-        pdf.drawString(info_label_x, y_pos, "Valid Until:")
+        # Valid until date
         valid_date = datetime(now.year, now.month, now.day)
         if now.month < 12:
             valid_date = valid_date.replace(month=now.month + 1)
         else:
             valid_date = valid_date.replace(year=now.year + 1, month=1)
-        pdf.setFont("Helvetica-Bold", 8)
-        pdf.drawString(info_value_x, y_pos, valid_date.strftime("%d %B %Y"))
         
-        # ===== ENERGY ANALYSIS TABLE =====
-        y_pos = height - 180
+        # Story elements
+        story = []
         
-        pdf.setFont("Helvetica-Bold", 10)
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.drawString(left_margin, y_pos, "ENERGY ANALYSIS & SAVINGS PROJECTION")
+        # Styles
+        styles = getSampleStyleSheet()
         
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.rect(left_margin, y_pos - 3, right_margin - left_margin, 1, fill=1)
+        # Custom styles
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=16,
+            textColor=colors.HexColor('#0066CC'),
+            spaceAfter=20,
+            alignment=TA_CENTER,
+            fontName='Helvetica-Bold'
+        )
         
-        # Energy Analysis Table
+        # ===== 1. HEADER TABLE: Logo | Company Name & Tagline =====
+        header_data = [
+            [
+                Paragraph('<font size=10 color="#0066CC"><b>SATYAJAN<br/>ENERGY<br/>SOLUTIONS</b></font>', styles['Normal']),
+                Paragraph('<font size=18 color="#0066CC"><b>SATYAJAN ENERGY SOLUTIONS</b></font><br/><font size=8>Private Limited<br/>Clean Energy for a Sustainable Future</font>', 
+                         ParagraphStyle('HeaderRight', parent=styles['Normal'], alignment=TA_RIGHT))
+            ]
+        ]
+        
+        header_table = Table(header_data, colWidths=[1.5*inch, 5*inch])
+        header_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+        ]))
+        story.append(header_table)
+        story.append(Spacer(1, 0.2*inch))
+        
+        # ===== 2. TWO-COLUMN TABLE: Customer Details | Quotation Details =====
+        customer_info = f'''<font size=9 color="#0066CC"><b>CUSTOMER INFORMATION</b></font><br/>
+        <font size=10><b>{data.customerName}</b></font><br/>
+        <font size=8>Phone: {data.phone}<br/>
+        Email: {data.email or 'N/A'}</font>'''
+        
+        quotation_info = f'''<font size=9 color="#0066CC"><b>QUOTATION DETAILS</b></font><br/>
+        <font size=8>Quotation No: <b>{quote_num}</b><br/>
+        Date: <b>{now.strftime("%d %B %Y")}</b><br/>
+        Valid Until: <b>{valid_date.strftime("%d %B %Y")}</b></font>'''
+        
+        info_data = [[
+            Paragraph(customer_info, styles['Normal']),
+            Paragraph(quotation_info, ParagraphStyle('QuoteInfo', parent=styles['Normal'], alignment=TA_RIGHT))
+        ]]
+        
+        info_table = Table(info_data, colWidths=[3.25*inch, 3.25*inch])
+        info_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LINEBELOW', (0, 0), (0, 0), 1, colors.HexColor('#0066CC')),
+            ('LINEBELOW', (1, 0), (1, 0), 1, colors.HexColor('#0066CC')),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+        ]))
+        story.append(info_table)
+        story.append(Spacer(1, 0.3*inch))
+        
+        # ===== 3. TITLE: SOLAR SYSTEM QUOTATION =====
+        story.append(Paragraph('SOLAR SYSTEM QUOTATION', title_style))
+        story.append(Spacer(1, 0.2*inch))
+        
+        # ===== 4. ENERGY ANALYSIS TABLE =====
+        energy_title = [[Paragraph('<font size=10 color="#0066CC"><b>ENERGY ANALYSIS & SAVINGS PROJECTION</b></font>', styles['Normal'])]]
+        energy_title_table = Table(energy_title, colWidths=[6.5*inch])
+        energy_title_table.setStyle(TableStyle([
+            ('LINEBELOW', (0, 0), (-1, -1), 1, colors.HexColor('#0066CC')),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ]))
+        story.append(energy_title_table)
+        story.append(Spacer(1, 0.1*inch))
+        
         energy_data = [
             ['Parameter', 'Value'],
             ['Current Monthly Electricity Bill', f'₹{int(data.monthlyBill):,}'],
@@ -363,52 +366,44 @@ async def generate_solar_quotation(data: SolarQuotationRequest):
         if payback_years > 0:
             energy_data.append(['Estimated Payback Period', f'{payback_years} years'])
         
-        energy_table = Table(energy_data, colWidths=[3.5*inch, 3.0*inch])
+        energy_table = Table(energy_data, colWidths=[4*inch, 2.5*inch])
         energy_table.setStyle(TableStyle([
-            # Header row
+            # Header
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0066CC')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 9),
-            ('ALIGN', (0, 0), (-1, 0), 'LEFT'),
-            
-            # Body rows
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+            # Body
             ('FONTNAME', (0, 1), (0, -1), 'Helvetica'),
             ('FONTNAME', (1, 1), (1, -1), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 1), (-1, -1), 9),
-            ('ALIGN', (1, 1), (1, -1), 'RIGHT'),
-            
-            # Alternating backgrounds
             ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#F5F5F5')),
             ('BACKGROUND', (0, 3), (-1, 3), colors.HexColor('#F5F5F5')),
             ('BACKGROUND', (0, 5), (-1, 5), colors.HexColor('#F5F5F5')),
-            
             # Borders
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#D0D0D0')),
             ('LINEABOVE', (0, 0), (-1, 0), 1, colors.HexColor('#0066CC')),
-            ('LINEBELOW', (0, -1), (-1, -1), 0.5, colors.grey),
-            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.HexColor('#D0D0D0')),
-            
             # Padding
             ('TOPPADDING', (0, 0), (-1, -1), 6),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
             ('LEFTPADDING', (0, 0), (-1, -1), 8),
             ('RIGHTPADDING', (0, 0), (-1, -1), 8),
         ]))
+        story.append(energy_table)
+        story.append(Spacer(1, 0.3*inch))
         
-        energy_table.wrapOn(pdf, width, height)
-        energy_table.drawOn(pdf, left_margin, y_pos - 100)
+        # ===== 5. SYSTEM CONFIGURATION & PRICING TABLE =====
+        config_title = [[Paragraph('<font size=10 color="#0066CC"><b>SYSTEM CONFIGURATION & PRICING</b></font>', styles['Normal'])]]
+        config_title_table = Table(config_title, colWidths=[6.5*inch])
+        config_title_table.setStyle(TableStyle([
+            ('LINEBELOW', (0, 0), (-1, -1), 1, colors.HexColor('#0066CC')),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ]))
+        story.append(config_title_table)
+        story.append(Spacer(1, 0.1*inch))
         
-        # ===== SYSTEM CONFIGURATION & PRICING =====
-        y_pos = y_pos - 140
-        
-        pdf.setFont("Helvetica-Bold", 10)
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.drawString(left_margin, y_pos, "SYSTEM CONFIGURATION & PRICING")
-        
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.rect(left_margin, y_pos - 3, right_margin - left_margin, 1, fill=1)
-        
-        # System Configuration Table
         config_data = [
             ['Description', 'Specification', 'Unit Price', 'Amount'],
             ['Solar System Type', data.systemType, '', ''],
@@ -419,169 +414,128 @@ async def generate_solar_quotation(data: SolarQuotationRequest):
              f'₹{int(data.price):,}', f'₹{int(subtotal):,}'],
         ]
         
-        config_table = Table(config_data, colWidths=[2.3*inch, 2.0*inch, 1.3*inch, 1.0*inch])
+        config_table = Table(config_data, colWidths=[2.3*inch, 2.0*inch, 1.2*inch, 1.0*inch])
         config_table.setStyle(TableStyle([
-            # Header row
+            # Header
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0066CC')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 9),
             ('ALIGN', (0, 0), (1, 0), 'LEFT'),
             ('ALIGN', (2, 0), (3, 0), 'RIGHT'),
-            
-            # Body rows
+            # Body
             ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
             ('FONTNAME', (1, 1), (-1, -1), 'Helvetica'),
             ('FONTSIZE', (0, 1), (-1, -1), 9),
             ('ALIGN', (2, 1), (3, -1), 'RIGHT'),
-            
-            # Alternating backgrounds
             ('BACKGROUND', (0, 2), (-1, 2), colors.HexColor('#F5F5F5')),
             ('BACKGROUND', (0, 4), (-1, 4), colors.HexColor('#F5F5F5')),
-            
-            # Total row
             ('BACKGROUND', (0, 5), (-1, 5), colors.HexColor('#E3F2FD')),
             ('FONTNAME', (0, 5), (-1, 5), 'Helvetica-Bold'),
-            
             # Borders
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#D0D0D0')),
             ('LINEABOVE', (0, 0), (-1, 0), 1, colors.HexColor('#0066CC')),
             ('LINEBELOW', (0, -1), (-1, -1), 1, colors.HexColor('#0066CC')),
-            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.HexColor('#D0D0D0')),
-            
             # Padding
             ('TOPPADDING', (0, 0), (-1, -1), 6),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
             ('LEFTPADDING', (0, 0), (-1, -1), 8),
             ('RIGHTPADDING', (0, 0), (-1, -1), 8),
         ]))
+        story.append(config_table)
+        story.append(Spacer(1, 0.2*inch))
         
-        config_table.wrapOn(pdf, width, height)
-        config_table.drawOn(pdf, left_margin, y_pos - 110)
-        
-        # ===== PRICING SUMMARY =====
-        y_pos = y_pos - 140
-        
-        # Summary table
-        summary_data = [
+        # ===== 6. TOTALS SECTION WITH GRAND TOTAL =====
+        totals_data = [
             ['Subtotal', f'₹{int(subtotal):,}'],
             [f'GST ({int(data.gstRate)}%)', f'₹{int(gst):,}'],
             ['GRAND TOTAL', f'₹{int(total):,}'],
         ]
         
-        summary_table = Table(summary_data, colWidths=[4.6*inch, 2.0*inch])
-        summary_table.setStyle(TableStyle([
-            # All rows
+        totals_table = Table(totals_data, colWidths=[4.5*inch, 2.0*inch])
+        totals_table.setStyle(TableStyle([
             ('FONTSIZE', (0, 0), (-1, -1), 10),
             ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
             ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-            
-            # Subtotal and GST
             ('FONTNAME', (0, 0), (-1, 1), 'Helvetica'),
-            ('TEXTCOLOR', (0, 0), (-1, 1), colors.black),
-            
             # Grand Total row
             ('BACKGROUND', (0, 2), (-1, 2), colors.HexColor('#0066CC')),
             ('TEXTCOLOR', (0, 2), (-1, 2), colors.whitesmoke),
             ('FONTNAME', (0, 2), (-1, 2), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 2), (-1, 2), 12),
-            
-            # Borders
             ('LINEABOVE', (0, 0), (-1, 0), 0.5, colors.grey),
-            ('LINEABOVE', (0, 2), (-1, 2), 0.5, colors.grey),
+            ('LINEABOVE', (0, 2), (-1, 2), 1, colors.HexColor('#0066CC')),
             ('LINEBELOW', (0, 2), (-1, 2), 1, colors.HexColor('#0066CC')),
-            
-            # Padding
             ('TOPPADDING', (0, 0), (-1, -1), 6),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
             ('RIGHTPADDING', (0, 0), (-1, -1), 8),
         ]))
+        story.append(totals_table)
+        story.append(Spacer(1, 0.3*inch))
         
-        summary_table.wrapOn(pdf, width, height)
-        summary_table.drawOn(pdf, left_margin, y_pos)
-        
-        # ===== NOTES =====
+        # ===== NOTES (if any) =====
         if data.notes:
-            y_pos = y_pos - 30
+            notes_title = [[Paragraph('<font size=9 color="#0066CC"><b>SPECIAL NOTES</b></font>', styles['Normal'])]]
+            notes_title_table = Table(notes_title, colWidths=[6.5*inch])
+            notes_title_table.setStyle(TableStyle([
+                ('LINEBELOW', (0, 0), (-1, -1), 1, colors.HexColor('#0066CC')),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ]))
+            story.append(notes_title_table)
+            story.append(Spacer(1, 0.05*inch))
             
-            pdf.setFont("Helvetica-Bold", 9)
-            pdf.setFillColorRGB(0, 0.4, 0.8)
-            pdf.drawString(left_margin, y_pos, "SPECIAL NOTES")
-            
-            pdf.setFillColorRGB(0, 0.4, 0.8)
-            pdf.rect(left_margin, y_pos - 3, right_margin - left_margin, 1, fill=1)
-            
-            y_pos -= 12
-            pdf.setFillColorRGB(0, 0, 0)
-            pdf.setFont("Helvetica", 8)
-            notes_lines = data.notes[:200].split('\n')
-            for line in notes_lines[:3]:
-                pdf.drawString(left_margin, y_pos, line[:95])
-                y_pos -= 10
+            notes_text = Paragraph(f'<font size=8>{data.notes[:200]}</font>', styles['Normal'])
+            story.append(notes_text)
+            story.append(Spacer(1, 0.2*inch))
         
-        # ===== TERMS & CONDITIONS =====
-        y_pos = y_pos - 20 if data.notes else y_pos - 50
+        # ===== 7. TERMS & CONDITIONS =====
+        terms_title = [[Paragraph('<font size=9 color="#0066CC"><b>TERMS & CONDITIONS</b></font>', styles['Normal'])]]
+        terms_title_table = Table(terms_title, colWidths=[6.5*inch])
+        terms_title_table.setStyle(TableStyle([
+            ('LINEBELOW', (0, 0), (-1, -1), 1, colors.HexColor('#0066CC')),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ]))
+        story.append(terms_title_table)
+        story.append(Spacer(1, 0.05*inch))
         
-        pdf.setFont("Helvetica-Bold", 9)
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.drawString(left_margin, y_pos, "TERMS & CONDITIONS")
+        terms_text = '''<font size=7>
+        1. Quotation validity: 30 days from date of issue.<br/>
+        2. Payment terms: 50% advance, balance 50% on completion of installation.<br/>
+        3. Prices inclusive of GST. Standard installation included.<br/>
+        4. Solar panels: 25-year performance warranty | Inverter: 5-10 years.<br/>
+        5. Structure: 10-year warranty | Free maintenance: First year.<br/>
+        6. Net metering & subsidy assistance provided.
+        </font>'''
         
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.rect(left_margin, y_pos - 3, right_margin - left_margin, 1, fill=1)
+        story.append(Paragraph(terms_text, styles['Normal']))
+        story.append(Spacer(1, 0.3*inch))
         
-        y_pos -= 12
-        pdf.setFillColorRGB(0, 0, 0)
-        pdf.setFont("Helvetica", 7)
-        
-        terms = [
-            "1. Quotation validity: 30 days from date of issue.",
-            "2. Payment terms: 50% advance, balance 50% on completion of installation.",
-            "3. Prices inclusive of GST. Standard installation included.",
-            "4. Solar panels: 25-year performance warranty | Inverter: 5-10 years.",
-            "5. Structure: 10-year warranty | Free maintenance: First year.",
-            "6. Net metering & subsidy assistance provided.",
+        # ===== 8. SIGNATURE BLOCK AND FOOTER =====
+        signature_data = [
+            [
+                Paragraph('<font size=8><b>For Satyajan Energy Solutions Pvt Ltd</b><br/><br/><br/>_________________________<br/>Authorized Signatory</font>', styles['Normal']),
+                Paragraph('<font size=7 color="grey">[Company Seal]</font>', 
+                         ParagraphStyle('SealRight', parent=styles['Normal'], alignment=TA_CENTER))
+            ]
         ]
         
-        for term in terms:
-            pdf.drawString(left_margin, y_pos, term)
-            y_pos -= 9
+        signature_table = Table(signature_data, colWidths=[4*inch, 2.5*inch])
+        signature_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('BOX', (1, 0), (1, 0), 1, colors.HexColor('#D0D0D0')),
+        ]))
+        story.append(signature_table)
+        story.append(Spacer(1, 0.2*inch))
         
-        # ===== SIGNATURE =====
-        y_pos = 105
+        # Footer
+        footer_text = '''<para align=center>
+        <font size=8 color="#0066CC"><b>Satyajan Energy Solutions Private Limited</b></font><br/>
+        <font size=7>Phone: +91 8019179159 | Email: info@satyajanenergy.com | www.satyajanenergy.com</font>
+        </para>'''
+        story.append(Paragraph(footer_text, styles['Normal']))
         
-        pdf.setFont("Helvetica-Bold", 8)
-        pdf.drawString(left_margin, y_pos, "For Satyajan Energy Solutions Pvt Ltd")
-        
-        pdf.setStrokeColorRGB(0, 0, 0)
-        pdf.setLineWidth(0.3)
-        pdf.line(left_margin, y_pos - 20, left_margin + 120, y_pos - 20)
-        
-        pdf.setFont("Helvetica", 7)
-        pdf.drawString(left_margin, y_pos - 28, "Authorized Signatory")
-        
-        # Stamp placeholder
-        pdf.setStrokeColorRGB(0.75, 0.75, 0.75)
-        pdf.setDash(1, 2)
-        pdf.rect(right_margin - 80, y_pos - 30, 80, 35, fill=0, stroke=1)
-        pdf.setDash()
-        
-        pdf.setFont("Helvetica", 6)
-        pdf.setFillColorRGB(0.6, 0.6, 0.6)
-        pdf.drawCentredString(right_margin - 40, y_pos - 10, "Company Seal")
-        
-        # ===== FOOTER =====
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.rect(0, 0, width, 30, fill=1)
-        
-        pdf.setFillColorRGB(1, 1, 1)
-        pdf.setFont("Helvetica-Bold", 8)
-        pdf.drawCentredString(width/2, 18, "Satyajan Energy Solutions Private Limited")
-        
-        pdf.setFont("Helvetica", 7)
-        pdf.drawCentredString(width/2, 9, 
-                            "Phone: +91 8019179159 | Email: info@satyajanenergy.com | www.satyajanenergy.com")
-        
-        # Save PDF
-        pdf.save()
+        # Build PDF
+        doc.build(story)
         buffer.seek(0)
         
         # Return PDF
@@ -598,6 +552,8 @@ async def generate_solar_quotation(data: SolarQuotationRequest):
         
     except Exception as e:
         print(f"Error generating PDF: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error generating PDF: {str(e)}")
 
 # Include the router in the main app
