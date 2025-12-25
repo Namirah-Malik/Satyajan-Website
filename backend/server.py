@@ -245,8 +245,9 @@ async def generate_solar_quotation(data: SolarQuotationRequest):
         width, height = A4
         
         # Professional margins
-        left_margin = 50
-        right_margin = width - 50
+        left_margin = 45
+        right_margin = width - 45
+        col_split = width / 2
         
         # Generate quotation number
         now = datetime.now()
@@ -258,299 +259,332 @@ async def generate_solar_quotation(data: SolarQuotationRequest):
         subtotal = data.quantity * data.price
         gst = subtotal * data.gstRate / 100
         total = subtotal + gst
-        # Fix payback calculation - ensure it's realistic
         payback_years = round(total / (monthly_savings * 12), 1) if monthly_savings > 0 else 0
         if payback_years < 0 or payback_years > 50:
             payback_years = 0
         
-        # ===== HEADER SECTION =====
-        # Blue header bar (thin)
+        # ===== HEADER =====
+        # Blue header bar
         pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.rect(0, height - 60, width, 60, fill=1)
+        pdf.rect(0, height - 55, width, 55, fill=1)
         
-        # Company name
+        # Company name and tagline
         pdf.setFillColorRGB(1, 1, 1)
-        pdf.setFont("Helvetica-Bold", 22)
-        pdf.drawCentredString(width/2, height - 30, "SATYAJAN ENERGY SOLUTIONS")
-        pdf.setFont("Helvetica", 9)
-        pdf.drawCentredString(width/2, height - 45, "Private Limited | Clean Energy for a Sustainable Future")
+        pdf.setFont("Helvetica-Bold", 20)
+        pdf.drawCentredString(width/2, height - 28, "SATYAJAN ENERGY SOLUTIONS")
+        pdf.setFont("Helvetica", 8)
+        pdf.drawCentredString(width/2, height - 42, "Private Limited")
         
         # ===== DOCUMENT TITLE =====
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.setFont("Helvetica-Bold", 16)
-        pdf.drawCentredString(width/2, height - 85, "SOLAR SYSTEM QUOTATION")
-        
-        # Thin blue line under title
-        pdf.setStrokeColorRGB(0, 0.4, 0.8)
-        pdf.setLineWidth(1)
-        pdf.line(left_margin, height - 92, right_margin, height - 92)
-        
-        # ===== QUOTATION DETAILS & CUSTOMER INFO (Side by side) =====
-        y_pos = height - 115
-        
-        # Left: Customer Details
         pdf.setFillColorRGB(0, 0, 0)
-        pdf.setFont("Helvetica-Bold", 10)
-        pdf.drawString(left_margin, y_pos, "BILL TO:")
+        pdf.setFont("Helvetica-Bold", 14)
+        pdf.drawCentredString(width/2, height - 75, "SOLAR SYSTEM QUOTATION")
+        
+        # ===== QUOTATION INFO & CUSTOMER INFO (Two Columns) =====
+        y_pos = height - 105
+        
+        # Left column - Customer Information
+        pdf.setFont("Helvetica-Bold", 9)
+        pdf.setFillColorRGB(0, 0.4, 0.8)
+        pdf.drawString(left_margin, y_pos, "CUSTOMER INFORMATION")
+        
+        # Subtle blue bar under header
+        pdf.setFillColorRGB(0, 0.4, 0.8)
+        pdf.rect(left_margin, y_pos - 3, 220, 1, fill=1)
         
         y_pos -= 15
-        pdf.setFont("Helvetica-Bold", 11)
+        pdf.setFillColorRGB(0, 0, 0)
+        pdf.setFont("Helvetica-Bold", 10)
         pdf.drawString(left_margin, y_pos, data.customerName)
         
-        y_pos -= 13
-        pdf.setFont("Helvetica", 9)
+        y_pos -= 12
+        pdf.setFont("Helvetica", 8)
         pdf.drawString(left_margin, y_pos, f"Phone: {data.phone}")
         
-        y_pos -= 12
+        y_pos -= 10
         pdf.drawString(left_margin, y_pos, f"Email: {data.email or 'N/A'}")
         
-        # Right: Quotation Details (aligned to right)
-        y_pos = height - 115
-        pdf.setFont("Helvetica", 9)
-        pdf.setFillColorRGB(0.3, 0.3, 0.3)
+        # Right column - Quotation Details
+        y_pos = height - 105
+        pdf.setFont("Helvetica-Bold", 9)
+        pdf.setFillColorRGB(0, 0.4, 0.8)
+        pdf.drawString(col_split, y_pos, "QUOTATION DETAILS")
         
-        label_x = right_margin - 140
-        value_x = right_margin
+        pdf.setFillColorRGB(0, 0.4, 0.8)
+        pdf.rect(col_split, y_pos - 3, 220, 1, fill=1)
         
-        pdf.drawString(label_x, y_pos, "Quotation No:")
-        pdf.drawRightString(value_x, y_pos, quote_num)
+        y_pos -= 15
+        pdf.setFillColorRGB(0, 0, 0)
+        pdf.setFont("Helvetica", 8)
         
-        y_pos -= 13
-        pdf.drawString(label_x, y_pos, "Date:")
-        pdf.drawRightString(value_x, y_pos, now.strftime("%d %B %Y"))
+        info_label_x = col_split
+        info_value_x = col_split + 80
         
-        y_pos -= 13
-        pdf.drawString(label_x, y_pos, "Valid Until:")
+        pdf.drawString(info_label_x, y_pos, "Quotation No:")
+        pdf.setFont("Helvetica-Bold", 8)
+        pdf.drawString(info_value_x, y_pos, quote_num)
+        
+        y_pos -= 12
+        pdf.setFont("Helvetica", 8)
+        pdf.drawString(info_label_x, y_pos, "Date:")
+        pdf.setFont("Helvetica-Bold", 8)
+        pdf.drawString(info_value_x, y_pos, now.strftime("%d %B %Y"))
+        
+        y_pos -= 10
+        pdf.setFont("Helvetica", 8)
+        pdf.drawString(info_label_x, y_pos, "Valid Until:")
         valid_date = datetime(now.year, now.month, now.day)
         if now.month < 12:
             valid_date = valid_date.replace(month=now.month + 1)
         else:
             valid_date = valid_date.replace(year=now.year + 1, month=1)
-        pdf.drawRightString(value_x, y_pos, valid_date.strftime("%d %B %Y"))
+        pdf.setFont("Helvetica-Bold", 8)
+        pdf.drawString(info_value_x, y_pos, valid_date.strftime("%d %B %Y"))
         
-        # ===== ENERGY ANALYSIS SECTION =====
-        y_pos = height - 190
+        # ===== ENERGY ANALYSIS TABLE =====
+        y_pos = height - 180
         
-        # Section header
+        pdf.setFont("Helvetica-Bold", 10)
         pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.setFont("Helvetica-Bold", 11)
-        pdf.drawString(left_margin, y_pos, "ENERGY ANALYSIS & SAVINGS")
+        pdf.drawString(left_margin, y_pos, "ENERGY ANALYSIS & SAVINGS PROJECTION")
         
-        # Thin line under header
-        pdf.setStrokeColorRGB(0.9, 0.9, 0.9)
-        pdf.setLineWidth(0.5)
-        pdf.line(left_margin, y_pos - 3, right_margin, y_pos - 3)
-        
-        y_pos -= 20
-        pdf.setFillColorRGB(0, 0, 0)
-        pdf.setFont("Helvetica", 9)
-        
-        # Energy data in two columns
-        col1_x = left_margin
-        col2_x = width/2 + 20
-        
-        pdf.drawString(col1_x, y_pos, "Current Monthly Bill:")
-        pdf.setFont("Helvetica-Bold", 9)
-        pdf.drawString(col1_x + 110, y_pos, f"₹{int(data.monthlyBill):,}")
-        
-        pdf.setFont("Helvetica", 9)
-        pdf.drawString(col2_x, y_pos, "Est. Monthly Generation:")
-        pdf.setFont("Helvetica-Bold", 9)
-        pdf.drawString(col2_x + 120, y_pos, f"{monthly_units} units")
-        
-        y_pos -= 13
-        pdf.setFont("Helvetica", 9)
-        pdf.drawString(col1_x, y_pos, "Recommended System:")
-        pdf.setFont("Helvetica-Bold", 9)
-        pdf.drawString(col1_x + 110, y_pos, f"{data.systemCapacity} kW")
-        
-        pdf.setFont("Helvetica", 9)
-        pdf.drawString(col2_x, y_pos, "Est. Monthly Savings:")
-        pdf.setFont("Helvetica-Bold", 9)
-        pdf.drawString(col2_x + 120, y_pos, f"₹{int(monthly_savings):,}")
-        
-        # Payback period (highlighted)
-        if payback_years > 0:
-            y_pos -= 13
-            pdf.setFont("Helvetica", 9)
-            pdf.drawString(col1_x, y_pos, "Payback Period:")
-            pdf.setFont("Helvetica-Bold", 10)
-            pdf.setFillColorRGB(0, 0.5, 0)
-            pdf.drawString(col1_x + 110, y_pos, f"~{payback_years} years")
-        
-        # ===== SYSTEM SPECIFICATIONS TABLE =====
-        y_pos -= 35
-        
-        # Section header
         pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.setFont("Helvetica-Bold", 11)
-        pdf.drawString(left_margin, y_pos, "SYSTEM SPECIFICATIONS")
+        pdf.rect(left_margin, y_pos - 3, right_margin - left_margin, 1, fill=1)
         
-        pdf.setStrokeColorRGB(0.9, 0.9, 0.9)
-        pdf.line(left_margin, y_pos - 3, right_margin, y_pos - 3)
-        
-        # Clean table
-        table_data = [
-            ['Component', 'Specification', 'Unit Price', 'Amount'],
-            ['System Type', data.systemType, '', ''],
-            ['System Capacity', f'{data.systemCapacity} kW', '', ''],
-            ['Solar Panel Type', data.panelType, '', ''],
-            ['Inverter Type', data.inverterType, '', ''],
-            ['Complete Solar System', f'Quantity: {data.quantity}', 
-             f'₹{int(data.price):,}', f'₹{int(subtotal):,}'],
+        # Energy Analysis Table
+        energy_data = [
+            ['Parameter', 'Value'],
+            ['Current Monthly Electricity Bill', f'₹{int(data.monthlyBill):,}'],
+            ['Recommended Solar System Capacity', f'{data.systemCapacity} kW'],
+            ['Estimated Monthly Generation', f'{monthly_units} units'],
+            ['Estimated Monthly Savings', f'₹{int(monthly_savings):,}'],
         ]
         
-        table = Table(table_data, colWidths=[2.6*inch, 2.4*inch, 1*inch, 1*inch])
-        table.setStyle(TableStyle([
+        if payback_years > 0:
+            energy_data.append(['Estimated Payback Period', f'{payback_years} years'])
+        
+        energy_table = Table(energy_data, colWidths=[3.5*inch, 3.0*inch])
+        energy_table.setStyle(TableStyle([
             # Header row
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0066CC')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 9),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-            ('TOPPADDING', (0, 0), (-1, 0), 8),
+            ('ALIGN', (0, 0), (-1, 0), 'LEFT'),
+            
+            # Body rows
+            ('FONTNAME', (0, 1), (0, -1), 'Helvetica'),
+            ('FONTNAME', (1, 1), (1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('ALIGN', (1, 1), (1, -1), 'RIGHT'),
+            
+            # Alternating backgrounds
+            ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#F5F5F5')),
+            ('BACKGROUND', (0, 3), (-1, 3), colors.HexColor('#F5F5F5')),
+            ('BACKGROUND', (0, 5), (-1, 5), colors.HexColor('#F5F5F5')),
+            
+            # Borders
+            ('LINEABOVE', (0, 0), (-1, 0), 1, colors.HexColor('#0066CC')),
+            ('LINEBELOW', (0, -1), (-1, -1), 0.5, colors.grey),
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.HexColor('#D0D0D0')),
+            
+            # Padding
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        
+        energy_table.wrapOn(pdf, width, height)
+        energy_table.drawOn(pdf, left_margin, y_pos - 100)
+        
+        # ===== SYSTEM CONFIGURATION & PRICING =====
+        y_pos = y_pos - 140
+        
+        pdf.setFont("Helvetica-Bold", 10)
+        pdf.setFillColorRGB(0, 0.4, 0.8)
+        pdf.drawString(left_margin, y_pos, "SYSTEM CONFIGURATION & PRICING")
+        
+        pdf.setFillColorRGB(0, 0.4, 0.8)
+        pdf.rect(left_margin, y_pos - 3, right_margin - left_margin, 1, fill=1)
+        
+        # System Configuration Table
+        config_data = [
+            ['Description', 'Specification', 'Unit Price', 'Amount'],
+            ['Solar System Type', data.systemType, '', ''],
+            ['System Capacity', f'{data.systemCapacity} kW', '', ''],
+            ['Solar Panel Type', data.panelType, '', ''],
+            ['Inverter Specification', data.inverterType, '', ''],
+            ['Complete Solar System', f'Quantity: {data.quantity}', 
+             f'₹{int(data.price):,}', f'₹{int(subtotal):,}'],
+        ]
+        
+        config_table = Table(config_data, colWidths=[2.3*inch, 2.0*inch, 1.3*inch, 1.0*inch])
+        config_table.setStyle(TableStyle([
+            # Header row
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0066CC')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
+            ('ALIGN', (0, 0), (1, 0), 'LEFT'),
+            ('ALIGN', (2, 0), (3, 0), 'RIGHT'),
             
             # Body rows
             ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
             ('FONTNAME', (1, 1), (-1, -1), 'Helvetica'),
             ('FONTSIZE', (0, 1), (-1, -1), 9),
             ('ALIGN', (2, 1), (3, -1), 'RIGHT'),
-            ('TOPPADDING', (0, 1), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
             
-            # Light gray alternating rows
-            ('BACKGROUND', (0, 2), (-1, 2), colors.HexColor('#F9F9F9')),
-            ('BACKGROUND', (0, 4), (-1, 4), colors.HexColor('#F9F9F9')),
+            # Alternating backgrounds
+            ('BACKGROUND', (0, 2), (-1, 2), colors.HexColor('#F5F5F5')),
+            ('BACKGROUND', (0, 4), (-1, 4), colors.HexColor('#F5F5F5')),
             
-            # Total row highlight
-            ('BACKGROUND', (0, 5), (-1, 5), colors.HexColor('#E8F4FD')),
+            # Total row
+            ('BACKGROUND', (0, 5), (-1, 5), colors.HexColor('#E3F2FD')),
             ('FONTNAME', (0, 5), (-1, 5), 'Helvetica-Bold'),
             
-            # Clean borders
+            # Borders
             ('LINEABOVE', (0, 0), (-1, 0), 1, colors.HexColor('#0066CC')),
-            ('LINEBELOW', (0, 0), (-1, 0), 1, colors.HexColor('#0066CC')),
-            ('LINEBELOW', (0, -1), (-1, -1), 1, colors.grey),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E0E0E0')),
+            ('LINEBELOW', (0, -1), (-1, -1), 1, colors.HexColor('#0066CC')),
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.HexColor('#D0D0D0')),
+            
+            # Padding
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
         ]))
         
-        table.wrapOn(pdf, width, height)
-        table.drawOn(pdf, left_margin, y_pos - 130)
+        config_table.wrapOn(pdf, width, height)
+        config_table.drawOn(pdf, left_margin, y_pos - 110)
         
         # ===== PRICING SUMMARY =====
-        y_pos = y_pos - 160
+        y_pos = y_pos - 140
         
-        # Summary box with clean design
-        summary_x = right_margin - 180
+        # Summary table
+        summary_data = [
+            ['Subtotal', f'₹{int(subtotal):,}'],
+            [f'GST ({int(data.gstRate)}%)', f'₹{int(gst):,}'],
+            ['GRAND TOTAL', f'₹{int(total):,}'],
+        ]
         
-        pdf.setFont("Helvetica", 10)
-        pdf.setFillColorRGB(0, 0, 0)
+        summary_table = Table(summary_data, colWidths=[4.6*inch, 2.0*inch])
+        summary_table.setStyle(TableStyle([
+            # All rows
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+            
+            # Subtotal and GST
+            ('FONTNAME', (0, 0), (-1, 1), 'Helvetica'),
+            ('TEXTCOLOR', (0, 0), (-1, 1), colors.black),
+            
+            # Grand Total row
+            ('BACKGROUND', (0, 2), (-1, 2), colors.HexColor('#0066CC')),
+            ('TEXTCOLOR', (0, 2), (-1, 2), colors.whitesmoke),
+            ('FONTNAME', (0, 2), (-1, 2), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 2), (-1, 2), 12),
+            
+            # Borders
+            ('LINEABOVE', (0, 0), (-1, 0), 0.5, colors.grey),
+            ('LINEABOVE', (0, 2), (-1, 2), 0.5, colors.grey),
+            ('LINEBELOW', (0, 2), (-1, 2), 1, colors.HexColor('#0066CC')),
+            
+            # Padding
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ]))
         
-        pdf.drawString(summary_x, y_pos, "Subtotal:")
-        pdf.drawRightString(right_margin, y_pos, f"₹{int(subtotal):,}")
+        summary_table.wrapOn(pdf, width, height)
+        summary_table.drawOn(pdf, left_margin, y_pos)
         
-        y_pos -= 15
-        pdf.drawString(summary_x, y_pos, f"GST ({int(data.gstRate)}%):")
-        pdf.drawRightString(right_margin, y_pos, f"₹{int(gst):,}")
-        
-        # Thin line
-        y_pos -= 5
-        pdf.setStrokeColorRGB(0.8, 0.8, 0.8)
-        pdf.line(summary_x, y_pos, right_margin, y_pos)
-        
-        # Grand Total - Highlighted
-        y_pos -= 15
-        pdf.setFont("Helvetica-Bold", 12)
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.drawString(summary_x, y_pos, "GRAND TOTAL:")
-        pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.setFont("Helvetica-Bold", 14)
-        pdf.drawRightString(right_margin, y_pos, f"₹{int(total):,}")
-        
-        # ===== NOTES SECTION =====
+        # ===== NOTES =====
         if data.notes:
-            y_pos -= 30
+            y_pos = y_pos - 30
+            
+            pdf.setFont("Helvetica-Bold", 9)
             pdf.setFillColorRGB(0, 0.4, 0.8)
-            pdf.setFont("Helvetica-Bold", 10)
             pdf.drawString(left_margin, y_pos, "SPECIAL NOTES")
             
-            pdf.setStrokeColorRGB(0.9, 0.9, 0.9)
-            pdf.line(left_margin, y_pos - 3, right_margin, y_pos - 3)
+            pdf.setFillColorRGB(0, 0.4, 0.8)
+            pdf.rect(left_margin, y_pos - 3, right_margin - left_margin, 1, fill=1)
             
-            y_pos -= 15
+            y_pos -= 12
             pdf.setFillColorRGB(0, 0, 0)
-            pdf.setFont("Helvetica", 9)
+            pdf.setFont("Helvetica", 8)
             notes_lines = data.notes[:200].split('\n')
             for line in notes_lines[:3]:
-                pdf.drawString(left_margin, y_pos, line[:90])
-                y_pos -= 12
+                pdf.drawString(left_margin, y_pos, line[:95])
+                y_pos -= 10
         
         # ===== TERMS & CONDITIONS =====
-        y_pos -= 20 if data.notes else 40
+        y_pos = y_pos - 20 if data.notes else y_pos - 50
         
+        pdf.setFont("Helvetica-Bold", 9)
         pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.setFont("Helvetica-Bold", 10)
         pdf.drawString(left_margin, y_pos, "TERMS & CONDITIONS")
         
-        pdf.setStrokeColorRGB(0.9, 0.9, 0.9)
-        pdf.line(left_margin, y_pos - 3, right_margin, y_pos - 3)
+        pdf.setFillColorRGB(0, 0.4, 0.8)
+        pdf.rect(left_margin, y_pos - 3, right_margin - left_margin, 1, fill=1)
         
-        y_pos -= 15
+        y_pos -= 12
         pdf.setFillColorRGB(0, 0, 0)
-        pdf.setFont("Helvetica", 8)
+        pdf.setFont("Helvetica", 7)
         
         terms = [
-            "1. This quotation is valid for 30 days from the date of issue.",
-            "2. Payment Terms: 50% advance payment, 50% on completion of installation.",
-            "3. All prices are inclusive of GST.",
-            "4. Installation charges included (subject to standard site conditions).",
-            "5. Solar panel warranty: 25 years performance warranty.",
-            "6. Inverter warranty: As per manufacturer (typically 5-10 years).",
-            "7. Structure warranty: 10 years against rust and corrosion.",
-            "8. Free maintenance for the first year. Net metering assistance provided.",
+            "1. Quotation validity: 30 days from date of issue.",
+            "2. Payment terms: 50% advance, balance 50% on completion of installation.",
+            "3. Prices inclusive of GST. Standard installation included.",
+            "4. Solar panels: 25-year performance warranty | Inverter: 5-10 years.",
+            "5. Structure: 10-year warranty | Free maintenance: First year.",
+            "6. Net metering & subsidy assistance provided.",
         ]
         
         for term in terms:
             pdf.drawString(left_margin, y_pos, term)
-            y_pos -= 11
+            y_pos -= 9
         
-        # ===== SIGNATURE SECTION =====
-        y_pos = 115
+        # ===== SIGNATURE =====
+        y_pos = 105
         
-        pdf.setFont("Helvetica-Bold", 9)
+        pdf.setFont("Helvetica-Bold", 8)
         pdf.drawString(left_margin, y_pos, "For Satyajan Energy Solutions Pvt Ltd")
         
         pdf.setStrokeColorRGB(0, 0, 0)
-        pdf.setLineWidth(0.5)
-        pdf.line(left_margin, y_pos - 25, left_margin + 150, y_pos - 25)
-        
-        pdf.setFont("Helvetica", 8)
-        pdf.drawString(left_margin, y_pos - 35, "Authorized Signatory")
-        
-        # Stamp area (subtle)
-        pdf.setStrokeColorRGB(0.8, 0.8, 0.8)
-        pdf.setDash(2, 2)
-        pdf.rect(right_margin - 100, y_pos - 40, 100, 40, fill=0, stroke=1)
-        pdf.setDash()
+        pdf.setLineWidth(0.3)
+        pdf.line(left_margin, y_pos - 20, left_margin + 120, y_pos - 20)
         
         pdf.setFont("Helvetica", 7)
+        pdf.drawString(left_margin, y_pos - 28, "Authorized Signatory")
+        
+        # Stamp placeholder
+        pdf.setStrokeColorRGB(0.75, 0.75, 0.75)
+        pdf.setDash(1, 2)
+        pdf.rect(right_margin - 80, y_pos - 30, 80, 35, fill=0, stroke=1)
+        pdf.setDash()
+        
+        pdf.setFont("Helvetica", 6)
         pdf.setFillColorRGB(0.6, 0.6, 0.6)
-        pdf.drawCentredString(right_margin - 50, y_pos - 15, "Company Stamp")
+        pdf.drawCentredString(right_margin - 40, y_pos - 10, "Company Seal")
         
         # ===== FOOTER =====
         pdf.setFillColorRGB(0, 0.4, 0.8)
-        pdf.rect(0, 0, width, 35, fill=1)
+        pdf.rect(0, 0, width, 30, fill=1)
         
         pdf.setFillColorRGB(1, 1, 1)
-        pdf.setFont("Helvetica", 8)
-        pdf.drawCentredString(width/2, 20, "Satyajan Energy Solutions Private Limited")
-        pdf.drawCentredString(width/2, 12, 
+        pdf.setFont("Helvetica-Bold", 8)
+        pdf.drawCentredString(width/2, 18, "Satyajan Energy Solutions Private Limited")
+        
+        pdf.setFont("Helvetica", 7)
+        pdf.drawCentredString(width/2, 9, 
                             "Phone: +91 8019179159 | Email: info@satyajanenergy.com | www.satyajanenergy.com")
         
         # Save PDF
         pdf.save()
         buffer.seek(0)
         
-        # Return PDF as downloadable file
+        # Return PDF
         filename = f"Solar_Quotation_{quote_num}_{data.customerName.replace(' ', '_')}.pdf"
         
         return StreamingResponse(
