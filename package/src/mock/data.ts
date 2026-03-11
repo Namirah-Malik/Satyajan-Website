@@ -24,7 +24,7 @@ export const products = [
     id: 1,
     name: "Solar Solutions",
     category: "solar",
-    image: "https://images.unsplash.com/photo-1509391366360-2e959784a276",
+    image: "/images/hero/solar energy.png",
     description:
       "Wide range of solar products for retail and commercial users with latest solar technologies.",
     features: [
@@ -37,7 +37,7 @@ export const products = [
     id: 2,
     name: "Inverter / Home UPS",
     category: "inverter",
-    image: "https://images.unsplash.com/photo-1613665813446-82a78c468a1d",
+    image: "/images/hero/Inverter Home ups.png",
     description:
       "Pure sine wave inverters with intelligent battery management for uninterrupted home power backup. Capacity range from 700VA to 2000VA.",
     features: [
@@ -50,7 +50,7 @@ export const products = [
     id: 3,
     name: "Jumbo UPS",
     category: "jumbo-ups",
-    image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d",
+    image: "/images/hero/Jumbo ups.png",
     description:
       "High capacity 2KVA to 10KVA for extended backup. Designed for running higher loads for longer hours with overload protection.",
     features: [
@@ -63,7 +63,7 @@ export const products = [
     id: 4,
     name: "Online UPS",
     category: "online-ups",
-    image: "https://images.unsplash.com/photo-1589276534126-adef63a95e05",
+    image: "/images/hero/online ups.png",
     description:
       "Wide range of Online UPS from 1KVA to 120KVA using the world's latest technology.",
     features: [
@@ -76,7 +76,7 @@ export const products = [
     id: 5,
     name: "Tubular Battery",
     category: "battery",
-    image: "https://images.unsplash.com/photo-1592318348310-f31b61a931c8",
+    image: "/images/hero/Tubular battery.png",
     description:
       "Long-lasting tubular inverter batteries with capacities from 80Ah to 220Ah.",
     features: [
@@ -89,7 +89,7 @@ export const products = [
     id: 6,
     name: "Lithium Batteries",
     category: "lithium",
-    image: "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9",
+    image: "/images/hero/lithium battery.png",
     description:
       "Advanced lithium-ion batteries with longer life, faster charging, and maintenance-free operation.",
     features: [
@@ -102,7 +102,7 @@ export const products = [
     id: 7,
     name: "Combos",
     category: "combos",
-    image: "https://images.unsplash.com/photo-1548337138-e87d889cc369",
+    image: "/images/hero/Product_range.png",
     description:
       "Complete power backup solutions combining inverters and batteries for hassle-free installation.",
     features: [
@@ -191,29 +191,19 @@ export const faqs = [
       "Most customers save 70-90% on their electricity bills with solar installation. The exact savings depend on your energy consumption, system size, and sunlight availability in your location. Our team provides a detailed savings analysis before installation.",
   },
   {
-    question: "How long do solar panels last?",
-    answer:
-      "Our solar panels come with a 25-year performance warranty and typically last 30+ years with minimal maintenance. The inverters have a 5-10 year warranty and may need replacement once during the panel's lifetime.",
-  },
-  {
     question: "What is the difference between normal UPS and Online UPS?",
     answer:
       "Normal UPS (offline) switches to battery during power failure with a small delay. Online UPS provides continuous power through battery with zero transfer time, making it ideal for sensitive equipment like servers and medical devices.",
   },
   {
-    question: "Do you provide installation services?",
+    question: "How do I know what solar system size I need?",
     answer:
-      "Yes! We provide free professional installation by certified technicians across India. We also offer comprehensive training on product usage and maintenance.",
+      "Our experts analyze your electricity bills, available roof space, and energy consumption patterns to recommend the optimal system size. Contact us for a free site survey and customized solar solution.",
   },
   {
-    question: "What are the benefits of joining as a dealer?",
+    question: "What is the difference between normal UPS and Online UPS?",
     answer:
-      "As a dealer, you get competitive margins, marketing support, technical training, fast delivery, and access to our complete product range. We support our dealers with promotional materials and lead generation.",
-  },
-  {
-    question: "Are the products covered under warranty?",
-    answer:
-      "Yes! All products come with manufacturer warranty ranging from 2-5 years for inverters/UPS, 3-5 years for batteries, and 25 years for solar panels. We provide hassle-free warranty service through our network.",
+      "Normal UPS (offline) switches to battery during power failure with a small delay. Online UPS provides continuous power through battery with zero transfer time, making it ideal for sensitive equipment like servers and medical devices.",
   },
   {
     question: "How do I know what solar system size I need?",

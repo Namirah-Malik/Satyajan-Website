@@ -4,18 +4,11 @@ import { useEffect, useState } from 'react';
 import type { PropertyHomes } from '@/types/properyHomes';
 import ProductListClient from './ProductListClient';
 
-// Map category slug to display name
-const categoryMap: Record<string, string> = {
-  'solar': 'Solar Solutions',
-  'inverter': 'Home UPS',
-  'jumbo-ups': 'Jumbo UPS',
-  'online-ups': 'Online UPS',
-  'battery': 'Tubular Battery',
-  'lithium': 'Lithium Batteries',
-  'combos': 'Combos'
-};
+interface PropertyListProps {
+  initialCategory?: string;
+}
 
-const PropertyList = () => {
+const PropertyList = ({ initialCategory }: PropertyListProps) => {
   const [products, setProducts] = useState<PropertyHomes[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,8 +19,7 @@ const PropertyList = () => {
         const res = await fetch('/api/products');
         const data = await res.json();
         const productList = data.products || [];
-        
-        // Map API data to PropertyHomes structure - just use ID as slug
+
         const mapped: PropertyHomes[] = productList.map((product: any) => ({
           name: product.name,
           slug: product.id,
@@ -37,18 +29,20 @@ const PropertyList = () => {
           baths: 0,
           area: 0,
           images: Array.isArray(product.images)
-            ? product.images.filter((src: string) => !!src && (src.startsWith('/') || src.startsWith('http'))).map((src: string) => ({ src }))
+            ? product.images
+                .filter((src: string) => !!src && (src.startsWith('/') || src.startsWith('http')))
+                .map((src: string) => ({ src }))
             : [],
           features: product.features || [],
           description: product.description || '',
-          category: categoryMap[product.category] || product.category || ''
+          // ✅ Use raw category directly from API — no mapping so URLs match tabs
+          category: product.category || ''
         }));
-        
+
         setProducts(mapped);
-        
-        // Extract unique categories
+
         const uniqueCategories = Array.from(
-          new Set(mapped.map(p => p.category).filter(Boolean))
+          new Set(mapped.map((p: PropertyHomes) => p.category).filter(Boolean))
         ).sort() as string[];
         setCategories(uniqueCategories);
       } catch (error) {
@@ -57,7 +51,7 @@ const PropertyList = () => {
         setLoading(false);
       }
     };
-    
+
     fetchProducts();
   }, []);
 
@@ -71,7 +65,13 @@ const PropertyList = () => {
     );
   }
 
-  return <ProductListClient propertyHomes={products} categories={categories} />;
+  return (
+    <ProductListClient
+      propertyHomes={products}
+      categories={categories}
+      initialFilter={initialCategory}
+    />
+  );
 };
 
 export default PropertyList;

@@ -1,14 +1,13 @@
-'use client';
+// 👋 No 'use client' here! This is a Server Component.
 
 import HeroSub from "@/components/shared/HeroSub";
-import ProductList from "@/components/Properties/ProductList";
-import React from "react";
-import CallMeBackModal from "@/components/CallMeBackModal";
-import { useScrollModal } from "@/hooks/useScrollModal";
+import { productsMetadata } from '@/lib/page-metadata';
+import ProductsClient from "./ProductsClient"; // Import the client component
 
-const page = () => {
-    const { showModal, closeModal } = useScrollModal({ triggerTimeMs: 60000, showOnFooterReach: true }); // 60 seconds
+// ✅ Now you can export metadata correctly
+export const metadata = productsMetadata;
 
+const Page = () => {
     return (
         <>
             <HeroSub
@@ -16,10 +15,10 @@ const page = () => {
                 description="Explore our exclusive range of products, crafted to deliver quality, innovation, and satisfaction for every need."
                 badge="Products"
             />
-            <ProductList />
-            <CallMeBackModal isOpen={showModal} onClose={closeModal} />
+            {/* Render the client component */}
+            <ProductsClient />
         </>
     );
 };
 
-export default page;
+export default Page;

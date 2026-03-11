@@ -1,11 +1,12 @@
 import Blog from "@/components/Blog";
 import React from "react";
-import { Metadata } from "next";
 
-export const metadata: Metadata = {
-    title: "Power Solutions Blog | Satyajan",
-    description: "Expert insights on inverters, batteries, solar power, and energy solutions.",
-};
+//import { homeMetadata } from '@/lib/page-metadata'
+//export const metadata = homeMetadata
+import { blogsMetadata } from '@/lib/page-metadata';
+export const metadata = blogsMetadata
+
+
 
 const page = () => {
     return (

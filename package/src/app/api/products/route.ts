@@ -1,69 +1,54 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextResponse } from "next/server";
+import { mockProducts, mockCategories } from "@/mock/products";
 
-const prisma = new PrismaClient();
+let prisma: any = null;
 
-export async function GET() {
+async function getPrisma() {
+  if (!process.env.DATABASE_URL) return null;
+  if (prisma) return prisma;
   try {
-    // Fetch all products from the database
-    const products = await prisma.product.findMany({
-      select: {
-        id: true,
-        name: true,
-        price: true,
-        images: true,
-        salient_features: true,
-        features: true,
-        specifications: true,
-        category: true,
-      }
-    });
-    
-    // Extract unique categories from products
-    const categories = Array.from(
-      new Set(
-        products
-          .map(p => p.category)
-          .filter((cat): cat is string => !!cat && cat.trim() !== '')
-      )
-    ).sort();
-    
-    // Disable caching to ensure fresh data
-    return NextResponse.json(
-      { products, categories },
-      {
-        headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        }
-      }
-    );
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch products', details: error }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    const { PrismaClient } = await import("@prisma/client");
+    prisma = new PrismaClient();
+    return prisma;
+  } catch {
+    return null;
   }
 }
 
-export async function POST(request: Request) {
+export async function GET() {
+  // ── 1. Try local database ────────────────────────────────────────────
   try {
-    const body = await request.json();
-    const product = await prisma.product.create({
-      data: {
-        name: body.name,
-        description: body.description,
-        price: body.price,
-        images: body.images,
-        salient_features: body.salient_features,
-        features: body.features,
-        specifications: body.specifications,
-        category: body.category ?? undefined,
-        SKU: body.SKU,
-      },
-    });
-    return NextResponse.json(product, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to add product', details: error }, { status: 500 });
+    const db = await getPrisma();
+    if (db) {
+      const products = await db.product.findMany({
+        orderBy: { createdAt: "desc" },
+      });
+      const categories = [...new Set(products.map((p: any) => p.category))];
+      return NextResponse.json({ products, categories });
+    }
+  } catch (e) {
+    console.error("DB error:", e);
   }
-} 
+
+  // ── 2. Fetch from live satyajan.com API ──────────────────────────────
+  try {
+    const liveRes = await fetch("https://satyajan.com/api/products", {
+      next: { revalidate: 3600 }, // cache 1 hour
+    });
+
+    if (liveRes.ok) {
+      const liveData = await liveRes.json();
+      if (liveData?.products?.length) {
+        return NextResponse.json(liveData);
+      }
+    }
+  } catch (e) {
+    console.error("Live API fetch error:", e);
+  }
+
+  // ── 3. Static mock fallback ──────────────────────────────────────────
+  return NextResponse.json({
+    products: mockProducts,
+    categories: mockCategories,
+  });
+}

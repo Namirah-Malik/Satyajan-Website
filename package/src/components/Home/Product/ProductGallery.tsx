@@ -15,16 +15,15 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ images, name }) => {
   return (
     <div className="flex flex-col gap-4 w-full items-center">
       {/* Main Image */}
-      <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-dark/10">
+      <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-dark/10 bg-white">
         <Image
           src={images[selected].src}
           alt={name}
           width={500}
           height={375}
-          className="object-cover w-full h-full"
+          className="object-contain w-full h-full"
           unoptimized={true}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
       </div>
       {/* Thumbnails */}
       {images.length > 1 && (
@@ -32,7 +31,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ images, name }) => {
           {images.slice(0, 5).map((img, idx) => (
             <button
               key={idx}
-              className={`w-20 h-20 rounded-lg overflow-hidden border transition-all duration-200 ${selected === idx ? 'border-primary ring-2 ring-primary' : 'border-dark/10'}`}
+              className={`w-20 h-20 rounded-lg overflow-hidden border bg-white transition-all duration-200 ${selected === idx ? 'border-primary ring-2 ring-primary' : 'border-dark/10'}`}
               onClick={() => setSelected(idx)}
               aria-label={`Show image ${idx + 1}`}
               type="button"
@@ -42,7 +41,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ images, name }) => {
                 alt={`Thumbnail ${idx + 1}`}
                 width={80}
                 height={80}
-                className="object-cover w-full h-full"
+                className="object-contain w-full h-full"
                 unoptimized={true}
               />
             </button>
@@ -53,4 +52,4 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ images, name }) => {
   );
 };
 
-export default ProductGallery; 
+export default ProductGallery;

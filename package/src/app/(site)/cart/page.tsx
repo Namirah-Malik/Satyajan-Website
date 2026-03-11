@@ -5,6 +5,7 @@ import { Icon } from '@iconify/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import CartEMISummary from '@/components/EMI/CartEMISummary';
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, getSubtotal, getTotalSavings } = useCart();
@@ -19,7 +20,7 @@ export default function CartPage() {
     return total + originalPrice * item.quantity;
   }, 0);
   const productDiscount = mrpTotal - subtotal;
-  const deliveryCharges = 0; // FREE delivery
+  const deliveryCharges = 0;
   const couponDiscountAmount = couponDiscount;
   const totalAmount = subtotal - couponDiscountAmount + deliveryCharges;
 
@@ -27,10 +28,10 @@ export default function CartPage() {
     const code = couponCode.trim().toUpperCase();
     if (code === 'SAVE10') {
       setAppliedCoupon(code);
-      setCouponDiscount(subtotal * 0.1); // 10% discount
+      setCouponDiscount(subtotal * 0.1);
     } else if (code === 'FIRST100') {
       setAppliedCoupon(code);
-      setCouponDiscount(100); // ₹100 discount
+      setCouponDiscount(100);
     } else {
       alert('Invalid coupon code. Try: SAVE10 or FIRST100');
     }
@@ -48,7 +49,6 @@ export default function CartPage() {
     } else {
       updateQuantity(id, newQuantity);
     }
-    // Reset coupon if applied since discount might change
     if (appliedCoupon) {
       handleRemoveCoupon();
     }
@@ -164,10 +164,7 @@ export default function CartPage() {
                       <Icon icon="mdi:check-circle" width={20} height={20} className="text-green-600" />
                       <span className="text-sm font-medium text-green-800">{appliedCoupon} applied</span>
                     </div>
-                    <button
-                      onClick={handleRemoveCoupon}
-                      className="text-red-600 hover:text-red-800 text-sm"
-                    >
+                    <button onClick={handleRemoveCoupon} className="text-red-600 hover:text-red-800 text-sm">
                       Remove
                     </button>
                   </div>
@@ -230,6 +227,11 @@ export default function CartPage() {
                 )}
               </div>
 
+              {/* ✅ EMI Calculator — shows EMI options for cart total */}
+              <div className="mb-6">
+                <CartEMISummary cartTotal={totalAmount} />
+              </div>
+
               {/* Action Buttons */}
               <div className="space-y-3">
                 <button className="w-full py-3 px-6 bg-primary text-white rounded-full hover:bg-dark duration-300 text-base font-semibold shadow-md">
@@ -249,4 +251,3 @@ export default function CartPage() {
     </section>
   );
 }
-

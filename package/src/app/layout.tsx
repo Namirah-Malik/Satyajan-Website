@@ -12,8 +12,35 @@ import { CartProvider } from '@/context/CartContext';
 const font = Bricolage_Grotesque({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Satyajan - Solar and Battery solutions',
-  description: "Satyajan Energy solutions provides comprehensive suit of Solar Equipment's, battery maintenance and Power backup solutions.We provide a Battery Management program that helps companies achieve immediate cost savings and supports corporate wide sustainability goals."
+  title: {
+    default:  'Satyajan Energy Solutions – Solar, Inverter & Battery in Hyderabad',
+    template: '%s | Satyajan Energy Solutions',
+  },
+  description:
+    'Authorised Microtek dealer in Hyderabad. Buy solar panels, inverters, UPS & batteries. Save up to 80% on electricity bills. Easy EMI. Free consultation. Call +91 8019179159.',
+  keywords: [
+    'solar panels Hyderabad', 'Microtek inverter Hyderabad', 'battery dealer Hyderabad',
+    'solar installation Hyderabad', 'power backup Hyderabad', 'UPS Hyderabad',
+    'satyajan energy solutions', 'solar company Telangana',
+  ],
+  openGraph: {
+    type:        'website',
+    locale:      'en_IN',
+    url:         'https://satyajan.com',
+    siteName:    'Satyajan Energy Solutions',
+    title:       'Satyajan Energy Solutions – Solar, Inverter & Battery in Hyderabad',
+    description: 'Authorised Microtek dealer in Hyderabad. Solar panels, inverters, batteries & UPS. Easy EMI.',
+    images: [{ url: 'https://satyajan.com/images/og-default.jpg', width: 1200, height: 630 }],
+  },
+  twitter: {
+    card:        'summary_large_image',
+    title:       'Satyajan Energy Solutions – Solar, Inverter & Battery in Hyderabad',
+    description: 'Authorised Microtek dealer in Hyderabad. Solar panels, inverters & batteries. Easy EMI.',
+    images:      ['https://satyajan.com/images/og-default.jpg'],
+  },
+  robots: { index: true, follow: true },
+  icons: { icon: '/favicon.ico', apple: '/apple-touch-icon.png' },
+  manifest: '/site.webmanifest',
 }
 
 export default function RootLayout({

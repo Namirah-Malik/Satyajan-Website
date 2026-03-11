@@ -10,61 +10,75 @@ interface ProductListClientProps {
   initialFilter?: string;
 }
 
+const GlassCard = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+  <div className={`bg-white/40 backdrop-blur-lg rounded-3xl shadow-xl border border-white/30 transition-all duration-300 hover:shadow-2xl ${className}`}>
+    {children}
+  </div>
+);
+
 const ProductListClient = ({ propertyHomes, categories, initialFilter }: ProductListClientProps) => {
   const [filter, setFilter] = useState<string>(initialFilter || "all");
 
-  // Create dynamic filters based on categories from the database
   const FILTERS = [
     { label: "All Products", value: "all" },
-    ...categories.map(cat => ({
-      label: cat,
-      value: cat
-    }))
+    ...categories.map(cat => ({ label: cat, value: cat }))
   ];
 
   const filtered =
     filter === "all"
       ? propertyHomes
-      : propertyHomes.filter((item) =>
-        item.category?.toLowerCase() === filter.toLowerCase()
-      );
-
-  // Group products into arrays of 3
-  const groups: PropertyHomes[][] = [];
-  for (let i = 0; i < filtered.length; i += 3) {
-    groups.push(filtered.slice(i, i + 3));
-  }
+      : propertyHomes.filter(item => item.category?.toLowerCase() === filter.toLowerCase());
 
   return (
-    <section className="pt-0">
-      <div className="container max-w-8xl mx-auto px-5 2xl:px-0">
-        <div className="mb-6 flex gap-4">
-          {FILTERS.map((f) => (
-            <button
-              key={f.value}
-              className={`px-4 py-2 rounded border cursor-pointer ${filter === f.value
-                  ? "bg-primary text-white border-primary"
-                  : "bg-white text-gray-800 border-gray-300"
+    <main className="min-h-screen">
+      <section className="px-3 sm:px-4 max-w-7xl mx-auto !pt-0 pb-12 sm:pb-16">
+
+        {/* Filter tabs — horizontally scrollable on mobile */}
+        <GlassCard className="p-3 sm:p-4 mb-8">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none snap-x">
+            {FILTERS.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setFilter(f.value)}
+                type="button"
+                className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap flex-shrink-0 snap-start ${
+                  filter === f.value
+                    ? "bg-primary text-white shadow-md"
+                    : "bg-white/60 text-gray-700 hover:bg-primary/10 hover:text-primary border border-white/40"
                 }`}
-              onClick={() => setFilter(f.value)}
-              type="button"
-            >
-              {f.label}
-            </button>
-          ))}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </GlassCard>
+
+        {/* Section heading */}
+        <div className="mb-6 sm:mb-10">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 mb-1 sm:mb-2 drop-shadow-lg tracking-tight">
+            {filter === "all" ? "All Products" : filter}
+          </h2>
+          <p className="text-sm sm:text-lg text-gray-600 font-medium">
+            {filtered.length} product{filtered.length !== 1 ? "s" : ""} available
+          </p>
         </div>
-        <div className="grid gap-8">
-          {groups.map((group, groupIdx) => (
-            <div key={groupIdx} className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {group.map((item, idx) => (
-                <PropertyCard key={idx} item={item} />
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+
+        {/* Grid — 1 col mobile, 2 col tablet, 3 col desktop */}
+        {filtered.length === 0 ? (
+          <GlassCard className="p-10 sm:p-16 text-center">
+            <p className="text-gray-500 text-base sm:text-lg font-medium">No products found in this category.</p>
+          </GlassCard>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            {filtered.map((item, idx) => (
+              <PropertyCard key={idx} item={item} />
+            ))}
+          </div>
+        )}
+
+      </section>
+    </main>
   );
 };
 
-export default ProductListClient; 
+export default ProductListClient;
