@@ -1,5 +1,5 @@
 import { homeMetadata } from '@/lib/page-metadata';
-import HomePageClient from '../page';
+import HomePageClient from '@/components/HomePageClient';
 
 export const metadata = homeMetadata
 
