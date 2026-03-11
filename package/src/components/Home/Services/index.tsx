@@ -4,8 +4,20 @@ import { useState } from 'react';
 import { Icon } from '@iconify/react';
 
 // ── Design system ────────────────────────────────────────────────────────────
-const GlassCard = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-  <div className={`bg-white/40 backdrop-blur-lg rounded-3xl shadow-xl border border-white/30 transition-all duration-300 hover:shadow-2xl ${className}`}>
+
+/**
+ * Updated GlassCard to accept standard HTML attributes like onClick.
+ * Using React.HTMLAttributes<HTMLDivElement> ensures it inherits all valid div props.
+ */
+const GlassCard = ({ 
+  children, 
+  className = '', 
+  ...props 
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div 
+    {...props} 
+    className={`bg-white/40 backdrop-blur-lg rounded-3xl shadow-xl border border-white/30 transition-all duration-300 hover:shadow-2xl ${className}`}
+  >
     {children}
   </div>
 );
