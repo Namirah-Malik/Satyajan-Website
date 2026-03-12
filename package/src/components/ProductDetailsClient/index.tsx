@@ -54,7 +54,8 @@ const videoUrl = VIDEO_SKUS.includes(product.SKU) ? `/videos/${product.SKU}.mp4`
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-14 items-start">
 
             {/* LEFT: Image/Video gallery */}
-            <div className="w-full lg:w-[45%] lg:sticky lg:top-28">
+
+<div className="w-full lg:w-[45%] sticky top-28">
 
               {/* ✅ Tab switcher — only show if product has a video */}
               {videoUrl && (
