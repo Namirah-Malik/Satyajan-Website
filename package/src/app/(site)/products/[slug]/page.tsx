@@ -6,13 +6,13 @@ import { mockProducts } from '@/mock/products';
 export const dynamic = 'force-dynamic';
 
 const categoryMap: Record<string, string> = {
-  'solar': 'Solar Solutions',
-  'inverter': 'Home UPS',
+  solar: 'Solar Solutions',
+  inverter: 'Home UPS',
   'jumbo-ups': 'Jumbo UPS',
   'online-ups': 'Online UPS',
-  'battery': 'Tubular Battery',
-  'lithium': 'Lithium Batteries',
-  'combos': 'Combos'
+  battery: 'Tubular Battery',
+  lithium: 'Lithium Batteries',
+  combos: 'Combos',
 };
 
 let prisma: any = null;
@@ -23,11 +23,12 @@ async function getPrisma() {
     const { PrismaClient } = await import('@prisma/client');
     prisma = new PrismaClient();
     return prisma;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 async function fetchProduct(slug: string): Promise<any | null> {
-  // 1. Try local database
   try {
     const db = await getPrisma();
     if (db) {
@@ -36,15 +37,17 @@ async function fetchProduct(slug: string): Promise<any | null> {
       });
       if (product) return product;
     }
-  } catch (e) { console.error('DB error:', e); }
+  } catch (e) {
+    console.error('DB error:', e);
+  }
 
-  // 2. Check mock data (correct images, most reliable)
+  // ✅ Use mock data (important for correct images)
   const mockMatch = mockProducts.find(
     (p: any) => p.id === slug || p.slug === slug
   );
   if (mockMatch) return mockMatch;
 
-  // 3. Live API as last resort
+  // ✅ Fallback API
   try {
     const res = await fetch(`https://satyajan.com/api/products/${slug}`, {
       next: { revalidate: 3600 },
@@ -53,26 +56,38 @@ async function fetchProduct(slug: string): Promise<any | null> {
       const data = await res.json();
       if (data?.product) return data.product;
     }
-  } catch (e) { console.error('Live API error:', e); }
+  } catch (e) {
+    console.error('Live API error:', e);
+  }
 
   return null;
 }
 
 function extractImageSrc(img: any): string {
   if (!img) return '';
-  let src = typeof img === 'string' ? img : (img.src || img.url || img.image || img.href || '');
+  let src =
+    typeof img === 'string'
+      ? img
+      : img.src || img.url || img.image || img.href || '';
 
   if (src.includes('/api/image-proxy?url=')) {
-    try { src = decodeURIComponent(src.split('/api/image-proxy?url=')[1]); } catch {}
+    try {
+      src = decodeURIComponent(src.split('/api/image-proxy?url=')[1]);
+    } catch {}
   }
 
   let i = 0;
   while (src.includes('/_next/image') && i++ < 5) {
     try {
-      const u = new URL(src.startsWith('/') ? `https://www.microtek.in${src}` : src);
+      const u = new URL(
+        src.startsWith('/') ? `https://www.microtek.in${src}` : src
+      );
       const inner = u.searchParams.get('url');
-      if (inner) src = decodeURIComponent(inner); else break;
-    } catch { break; }
+      if (inner) src = decodeURIComponent(inner);
+      else break;
+    } catch {
+      break;
+    }
   }
 
   if (src.startsWith('//')) src = `https:${src}`;
@@ -88,9 +103,11 @@ function cleanName(name: string): string {
     .trim();
 }
 
-export async function generateMetadata(
-  { params }: { params: Promise<{ slug: string }> }
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const product = await fetchProduct(slug);
 
@@ -104,26 +121,27 @@ export async function generateMetadata(
 
   const name = cleanName(product.name);
   const title = `${name} – Price, Specs & Buy Online | Satyajan`;
-  const description = product.description
-    ? `${product.description.slice(0, 140)}… Buy online at Satyajan Energy Solutions, Hyderabad.`
-    : `Buy ${name} at Satyajan Energy Solutions. Best price in Hyderabad. EMI available.`;
 
-  const rawFirstImage = Array.isArray(product.images) ? product.images[0] : null;
-  const ogImage = extractImageSrc(rawFirstImage) || 'https://satyajan.com/images/og-default.jpg';
+  const description = product.description
+    ? `${product.description.slice(
+        0,
+        140
+      )}… Buy online at Satyajan Energy Solutions, Hyderabad.`
+    : `Buy ${name} at Satyajan Energy Solutions.`;
+
+  const rawFirstImage = Array.isArray(product.images)
+    ? product.images[0]
+    : null;
+
+  const ogImage =
+    extractImageSrc(rawFirstImage) ||
+    'https://satyajan.com/images/og-default.jpg';
+
   const url = `https://satyajan.com/products/${product.slug ?? slug}`;
 
   return {
     title,
     description,
-    keywords: [
-      name,
-      `${name} price`,
-      `${name} Hyderabad`,
-      `buy ${name}`,
-      product.category ?? 'energy product',
-      'Satyajan Energy Solutions',
-      'Microtek dealer Hyderabad',
-    ],
     alternates: { canonical: url },
     openGraph: {
       type: 'website',
@@ -131,7 +149,7 @@ export async function generateMetadata(
       title,
       description,
       siteName: 'Satyajan Energy Solutions',
-      images: [{ url: ogImage, width: 800, height: 600, alt: name }],
+      images: [{ url: ogImage }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -142,16 +160,23 @@ export async function generateMetadata(
   };
 }
 
-export default async function Details({ params }: { params: Promise<{ slug: string }> }) {
+export default async function Details({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const dbProduct = await fetchProduct(slug);
   if (!dbProduct) return notFound();
 
   const name = cleanName(dbProduct.name);
 
-  const rawImages: any[] = Array.isArray(dbProduct.images) ? dbProduct.images : [];
+  const rawImages: any[] = Array.isArray(dbProduct.images)
+    ? dbProduct.images
+    : [];
+
   const images = rawImages
-    .map(img => {
+    .map((img) => {
       const src = extractImageSrc(img);
       if (!src || !src.startsWith('http')) return null;
       return { src: `/api/image-proxy?url=${encodeURIComponent(src)}` };
@@ -163,24 +188,9 @@ export default async function Details({ params }: { params: Promise<{ slug: stri
     name,
     price: dbProduct.price || 0,
     images,
-    salient_features: Array.isArray(dbProduct.salient_features)
-      ? dbProduct.salient_features.map((f: any) =>
-          typeof f === 'string' ? f : f?.value || f?.label || f?.text || ''
-        ).filter(Boolean)
-      : [],
-    features: Array.isArray(dbProduct.features)
-      ? dbProduct.features.map((f: any) =>
-          typeof f === 'string' ? f : f?.value || f?.label || f?.text || ''
-        ).filter(Boolean)
-      : [],
-    specifications: Array.isArray(dbProduct.specifications) ? dbProduct.specifications : [],
     description: dbProduct.description || '',
-    category: categoryMap[dbProduct.category || ''] || dbProduct.category || '',
-    categorySlug: dbProduct.category || '',
-    SKU: dbProduct.SKU || `PROD-${dbProduct.id}`,
-    data: Array.isArray(dbProduct.specifications)
-      ? dbProduct.specifications.slice(0, 3)
-      : [],
+    category:
+      categoryMap[dbProduct.category || ''] || dbProduct.category || '',
   };
 
   const formattedPrice = product.price
