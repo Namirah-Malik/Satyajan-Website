@@ -15,11 +15,42 @@ const categoryMap: Record<string, string> = {
   'combos': 'Combos'
 };
 
-// ── Resolve base URL (works locally AND on Vercel) ────────────────────────────
-function getBaseUrl(): string {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return 'http://localhost:3000';
+// ── Fetch product: try Prisma first, then satyajan.com live API ───────────────
+let prisma: any = null;
+async function getPrisma() {
+  if (!process.env.DATABASE_URL) return null;
+  if (prisma) return prisma;
+  try {
+    const { PrismaClient } = await import('@prisma/client');
+    prisma = new PrismaClient();
+    return prisma;
+  } catch { return null; }
+}
+
+async function fetchProduct(slug: string): Promise<any | null> {
+  // 1. Try local DB
+  try {
+    const db = await getPrisma();
+    if (db) {
+      const product = await db.product.findFirst({
+        where: { OR: [{ id: slug }, { slug: slug }] },
+      });
+      if (product) return product;
+    }
+  } catch (e) { console.error('DB error:', e); }
+
+  // 2. Fallback to live satyajan.com API
+  try {
+    const res = await fetch(`https://satyajan.com/api/products/${slug}`, {
+      next: { revalidate: 3600 },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.product) return data.product;
+    }
+  } catch (e) { console.error('Live API error:', e); }
+
+  return null;
 }
 
 // ── Dynamic SEO metadata ──────────────────────────────────────────────────────
@@ -27,16 +58,8 @@ export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
   const { slug } = await params;
-  const base = getBaseUrl();
 
-  let product: any = null;
-  try {
-    const res = await fetch(`${base}/api/products/${slug}`, { next: { revalidate: 3600 } });
-    if (res.ok) {
-      const data = await res.json();
-      product = data.product;
-    }
-  } catch (_) {}
+  const product = await fetchProduct(slug);
 
   if (!product) {
     return {
@@ -86,15 +109,7 @@ export async function generateMetadata(
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default async function Details({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const base = getBaseUrl();
-
-  const res = await fetch(`${base}/api/products/${slug}`, { cache: 'no-store' });
-
-  if (!res.ok) return notFound();
-
-  const data = await res.json();
-  const dbProduct = data.product;
-
+  const dbProduct = await fetchProduct(slug);
   if (!dbProduct) return notFound();
 
   const product = {
