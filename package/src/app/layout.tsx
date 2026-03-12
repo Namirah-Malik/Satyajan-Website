@@ -50,7 +50,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en' suppressHydrationWarning>
-      <body className={`${font.className} bg-white antialiased`}>
+      <body className={`${font.className} bg-white antialiased`} suppressHydrationWarning>
+
+
         <CartProvider>
           <NextTopLoader color="#07be8a" />
           <Header />
