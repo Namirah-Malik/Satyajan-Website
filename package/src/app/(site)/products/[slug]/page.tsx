@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Icon } from '@iconify/react';
 import ProductDetailsClient from '@/components/ProductDetailsClient';
-import { headers } from 'next/headers';
+
+export const dynamic = 'force-dynamic';
 
 const categoryMap: Record<string, string> = {
   'solar': 'Solar Solutions',
@@ -14,18 +15,23 @@ const categoryMap: Record<string, string> = {
   'combos': 'Combos'
 };
 
+// ── Resolve base URL (works locally AND on Vercel) ────────────────────────────
+function getBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return 'http://localhost:3000';
+}
+
 // ── Dynamic SEO metadata ──────────────────────────────────────────────────────
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
   const { slug } = await params;
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const host = process.env.NEXT_PUBLIC_DOMAIN || 'satyajan.com';
-  const domain = process.env.NODE_ENV === 'production' ? `${protocol}://${host}` : `${protocol}://localhost:3000`;
+  const base = getBaseUrl();
 
   let product: any = null;
   try {
-    const res = await fetch(`${domain}/api/products/${slug}`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${base}/api/products/${slug}`, { next: { revalidate: 3600 } });
     if (res.ok) {
       const data = await res.json();
       product = data.product;
@@ -80,14 +86,9 @@ export async function generateMetadata(
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default async function Details({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const base = getBaseUrl();
 
-  const headersList = await headers();
-  const host = headersList.get('host') || 'localhost:3000';
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-
-  const res = await fetch(`${protocol}://${host}/api/products/${slug}`, {
-    cache: 'no-store'
-  });
+  const res = await fetch(`${base}/api/products/${slug}`, { cache: 'no-store' });
 
   if (!res.ok) return notFound();
 

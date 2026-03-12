@@ -89,8 +89,9 @@ export default function HomePageClient() {
                 Join 1000+ satisfied customers across India.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 items-start">
-                <button
+
+<div className="flex flex-row flex-wrap gap-4 items-center">
+              <button
                   onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
                   className="bg-gradient-to-r from-emerald-500 to-teal-400 text-white text-lg px-8 py-4 rounded-2xl flex items-center gap-3 shadow-xl hover:shadow-2xl hover:scale-105 transition-all font-semibold"
                 >
