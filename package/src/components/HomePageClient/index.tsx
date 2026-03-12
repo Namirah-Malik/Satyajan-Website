@@ -2,16 +2,53 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight, CheckCircle, Star, Phone, Mail, MapPin, Send, Download, MessageCircle, Calculator } from 'lucide-react'
+import { ArrowRight, CheckCircle, Star, Phone, Mail, MapPin, Send, MessageCircle, Calculator, Target, Eye, Heart, LucideIcon } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
-import { companyInfo, products, benefits, testimonials, faqs, dealerBenefits } from '@/mock/data'
+import { companyInfo, products, benefits, testimonials, faqs } from '@/mock/data'
 import CallMeBackModal from '@/components/CallMeBackModal'
 import SolarSavingsCalculator from '@/components/SolarSavingsCalculator'
 import { useScrollModal } from '@/hooks/useScrollModal'
 
+// --- UI Components matching TechnologyPage ---
+
+const WavyDivider = ({ flip = false }: { flip?: boolean }) => (
+  <svg
+    className={`w-full h-12 ${flip ? 'rotate-180' : ''}`}
+    viewBox="0 0 1440 100"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    preserveAspectRatio="none"
+  >
+    <path
+      d="M0,0 C480,100 960,0 1440,100 L1440,100 L0,100 Z"
+      fill="url(#wavyGradient)"
+      opacity="0.12"
+    />
+    <defs>
+      <linearGradient id="wavyGradient" x1="0" y1="0" x2="1440" y2="100" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#FFD600" />
+        <stop offset="1" stopColor="#34D399" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+const GlassCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+  <div className={`bg-white/40 backdrop-blur-lg rounded-3xl shadow-xl border border-white/30 ${className} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl`}>{children}</div>
+);
+
+// Adapted to use Lucide Icons instead of Iconify
+const PlayfulIcon = ({ icon: Icon, ringColor, bgColor }: { icon: LucideIcon; ringColor: string; bgColor: string }) => (
+  <div className={`relative flex items-center justify-center w-16 h-16 ${bgColor} rounded-full shadow-lg mb-3`}>
+    <span className={`absolute inset-0 rounded-full animate-spin-slow border-4 ${ringColor} opacity-30`}></span>
+    <Icon className="w-7 h-7 text-white z-10" />
+  </div>
+);
+
+// --- Main Component ---
+
 export default function HomePageClient() {
   const [contactForm, setContactForm] = useState({ name: '', email: '', phone: '', message: '' })
-  const [dealerForm, setDealerForm] = useState({ name: '', email: '', phone: '', businessName: '', location: '', experience: '' })
   const [showSavingsCalculator, setShowSavingsCalculator] = useState(false)
   const { showModal, closeModal } = useScrollModal({ triggerTimeMs: 60000, showOnFooterReach: true })
 
@@ -19,12 +56,6 @@ export default function HomePageClient() {
     e.preventDefault()
     alert('Thank you for contacting us!')
     setContactForm({ name: '', email: '', phone: '', message: '' })
-  }
-
-  const handleDealerSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    alert('Thank you for your interest!')
-    setDealerForm({ name: '', email: '', phone: '', businessName: '', location: '', experience: '' })
   }
 
   const removedFaqs: string[] = [
@@ -35,263 +66,292 @@ export default function HomePageClient() {
   ]
 
   return (
-    <main>
-      {/* Hero */}
+    <main className="min-h-screen overflow-hidden">
+      {/* Hero Section */}
       <section id="hero" className="relative pt-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-green-50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-green-50 opacity-80" />
         <div className="container mx-auto px-4 py-20 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
-                Power Your Future with <span className="text-green-500">Clean Solar Energy</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight drop-shadow-lg tracking-tight">
+                Power Your Future with <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">Clean Solar Energy</span>
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+              <p className="text-lg md:text-xl text-gray-600 leading-relaxed font-medium">
                 Save up to 80% on electricity bills. Get 25-year warranty. Easy EMI options available. Join 1000+ satisfied customers across India.
               </p>
-              <div className="flex flex-col sm:flex-row gap-6 items-center">
-                <button onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} className="bg-gradient-to-r from-green-400 to-teal-400 text-white text-lg px-10 py-4 rounded-full flex items-center gap-3 shadow-xl">
+              <div className="flex flex-col sm:flex-row gap-4 items-center">
+                <button onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} className="bg-gradient-to-r from-emerald-500 to-teal-400 text-white text-lg px-8 py-3 rounded-full flex items-center gap-3 shadow-xl hover:shadow-2xl transition-all font-semibold">
                   <span>Book Free Consultation</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
-                <button onClick={() => setShowSavingsCalculator(true)} className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 text-lg px-10 py-4 rounded-full flex items-center gap-3">
-                  <Calculator className="w-5 h-5" />
+                <button onClick={() => setShowSavingsCalculator(true)} className="bg-white/60 backdrop-blur-lg border border-white/30 text-gray-700 hover:bg-white text-lg px-8 py-3 rounded-full flex items-center gap-3 shadow-md">
+                  <Calculator className="w-5 h-5 text-emerald-600" />
                   <span>Calculate Savings</span>
                 </button>
               </div>
-              <div className="grid grid-cols-3 gap-8 md:gap-12 pt-12">
-                <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">1000+</div>
-                  <div className="text-sm text-gray-600 mt-2">Happy Customers</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">25 Years</div>
-                  <div className="text-sm text-gray-600 mt-2">Warranty</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">80%</div>
-                  <div className="text-sm text-gray-600 mt-2">Bill Savings</div>
-                </div>
+              
+              <div className="grid grid-cols-3 gap-8 pt-8">
+                <GlassCard className="p-4 text-center">
+                  <div className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">1000+</div>
+                  <div className="text-xs md:text-sm text-gray-600 mt-1 font-medium">Happy Customers</div>
+                </GlassCard>
+                <GlassCard className="p-4 text-center">
+                  <div className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">25 Years</div>
+                  <div className="text-xs md:text-sm text-gray-600 mt-1 font-medium">Warranty</div>
+                </GlassCard>
+                <GlassCard className="p-4 text-center">
+                  <div className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">80%</div>
+                  <div className="text-xs md:text-sm text-gray-600 mt-1 font-medium">Bill Savings</div>
+                </GlassCard>
               </div>
             </div>
+            
             <div className="relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                <img src="/images/hero/Product_range.png" alt="Microtek Product Range" className="w-full h-[500px] object-contain bg-white" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-              </div>
+              <GlassCard className="p-2 rounded-3xl overflow-hidden">
+                <div className="relative rounded-2xl overflow-hidden">
+                  <img src="/images/hero/Product_range.png" alt="Microtek Product Range" className="w-full h-[500px] object-contain bg-white/80" />
+                </div>
+              </GlassCard>
             </div>
           </div>
         </div>
+        <WavyDivider />
       </section>
 
-      {/* About */}
-      <section id="about" className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">About Satyajan Energy Solutions</h2>
-            <p className="text-lg text-gray-600 leading-relaxed">{companyInfo.description}</p>
+      {/* About Section */}
+      <section id="about" className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-extrabold text-gray-900 mb-4 drop-shadow-lg tracking-tight">
+              About Satyajan Energy Solutions
+            </h2>
+            <p className="text-lg text-gray-600 max-w-4xl mx-auto font-medium">{companyInfo.description}</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="border-2 border-blue-100 rounded-lg p-6 hover:shadow-lg transition">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                <LucideIcons.Target className="w-6 h-6 text-blue-600" />
-              </div>
-              <h3 className="font-semibold">Our Mission</h3>
-              <p className="text-gray-600 mt-3">To provide reliable, sustainable energy solutions that empower homes and businesses across India.</p>
-            </div>
-            <div className="border-2 border-green-100 rounded-lg p-6 hover:shadow-lg transition">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                <LucideIcons.Eye className="w-6 h-6 text-green-600" />
-              </div>
-              <h3 className="font-semibold">Our Vision</h3>
-              <p className="text-gray-600 mt-3">To be India's most trusted partner for clean energy and power backup solutions.</p>
-            </div>
-            <div className="border-2 border-orange-100 rounded-lg p-6 hover:shadow-lg transition">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
-                <LucideIcons.Heart className="w-6 h-6 text-orange-600" />
-              </div>
-              <h3 className="font-semibold">Our Values</h3>
-              <p className="text-gray-600 mt-3">Quality, reliability, customer satisfaction, and commitment to sustainable future.</p>
-            </div>
+            <GlassCard className="p-6 flex flex-col items-center text-center">
+              <PlayfulIcon icon={Target} ringColor="border-blue-400" bgColor="bg-gradient-to-br from-blue-400 to-blue-600" />
+              <h3 className="font-bold text-xl text-gray-900 mb-2">Our Mission</h3>
+              <p className="text-gray-600 font-medium">To provide reliable, sustainable energy solutions that empower homes and businesses across India.</p>
+            </GlassCard>
+            <GlassCard className="p-6 flex flex-col items-center text-center">
+              <PlayfulIcon icon={Eye} ringColor="border-emerald-400" bgColor="bg-gradient-to-br from-emerald-400 to-green-500" />
+              <h3 className="font-bold text-xl text-gray-900 mb-2">Our Vision</h3>
+              <p className="text-gray-600 font-medium">To be India's most trusted partner for clean energy and power backup solutions.</p>
+            </GlassCard>
+            <GlassCard className="p-6 flex flex-col items-center text-center">
+              <PlayfulIcon icon={Heart} ringColor="border-rose-400" bgColor="bg-gradient-to-br from-rose-400 to-red-500" />
+              <h3 className="font-bold text-xl text-gray-900 mb-2">Our Values</h3>
+              <p className="text-gray-600 font-medium">Quality, reliability, customer satisfaction, and commitment to sustainable future.</p>
+            </GlassCard>
           </div>
         </div>
       </section>
 
-      {/* Products */}
-      <section id="products" className="py-20 bg-gradient-to-b from-gray-50 to-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Products & Services</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">Comprehensive range of power solutions backed by Microtek's quality and our expert support</p>
+      <WavyDivider flip />
+
+      {/* Products Section */}
+      <section id="products" className="py-16 bg-gradient-to-b from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-start mb-16">
+            <h2 className="text-4xl font-extrabold text-gray-900 mb-4 drop-shadow-lg tracking-tight">
+              Our Products & Services
+            </h2>
+            <p className="text-lg text-gray-600 max-w-4xl font-medium">
+              Comprehensive range of power solutions backed by Microtek's quality and our expert support.
+            </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.filter((p: any) => p.name !== 'Combos').map((product: any) => (
-              <div key={product.id} className="group bg-white rounded-lg overflow-hidden border-2 border-gray-100 hover:shadow-2xl transition-all">
+              <GlassCard key={product.id} className="overflow-hidden group">
                 <div className="relative h-48 overflow-hidden">
                   <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-xl font-bold text-white">{product.name}</h3>
+                  <div className="absolute bottom-4 left-4">
+                    <h3 className="text-xl font-bold text-white drop-shadow-md">{product.name}</h3>
                   </div>
                 </div>
                 <div className="p-6">
-                  <p className="text-gray-600 mb-4">{product.description}</p>
+                  <p className="text-gray-600 mb-4 font-medium text-sm">{product.description}</p>
                   <ul className="space-y-2 mb-6">
-                    {product.features.map((f: string, i: number) => (
+                    {product.features.slice(0, 3).map((f: string, i: number) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                        <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
                         <span>{f}</span>
                       </li>
                     ))}
                   </ul>
-                  <Link href="/products" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md flex items-center justify-center gap-2">Visit Products <ArrowRight className="w-4 h-4" /></Link>
+                  <Link href="/products" className="w-full bg-emerald-600/80 hover:bg-emerald-600 text-white py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-md font-semibold">
+                    View Details <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
-              </div>
+              </GlassCard>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Benefits */}
-      <section id="benefits" className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why Choose Satyajan Energy Solutions?</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">Your trusted partner for reliable power solutions with unmatched service quality</p>
+      {/* Benefits Section */}
+      <section id="benefits" className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-start mb-16">
+            <h2 className="text-4xl font-extrabold text-gray-900 mb-4 drop-shadow-lg tracking-tight">
+              Why Choose Us?
+            </h2>
+            <p className="text-lg text-gray-600 max-w-4xl font-medium">
+              Your trusted partner for reliable power solutions with unmatched service quality.
+            </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {benefits.map((b: any, i: number) => {
               const Icon = (LucideIcons as any)[b.icon]
               return (
-                <div key={i} className="border-2 border-gray-100 rounded-lg p-6 hover:shadow-lg transition">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-4">{Icon && <Icon className="w-7 h-7 text-white" />}</div>
-                  <h4 className="text-xl font-semibold">{b.title}</h4>
-                  <p className="text-gray-600 mt-3">{b.description}</p>
-                </div>
+                <GlassCard key={i} className="p-6 flex flex-col items-center text-center">
+                  {Icon && <PlayfulIcon icon={Icon} ringColor="border-primary" bgColor="bg-gradient-to-br from-emerald-400 to-teal-500" />}
+                  <h4 className="text-xl font-bold text-gray-900 mt-2">{b.title}</h4>
+                  <p className="text-gray-600 mt-2 font-medium">{b.description}</p>
+                </GlassCard>
               )
             })}
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section id="testimonials" className="py-20 bg-gradient-to-b from-blue-50 to-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What Our Clients Say</h2>
-            <p className="text-lg text-gray-600">Real experiences from satisfied customers across India</p>
+      <WavyDivider />
+
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-16 bg-gradient-to-b from-blue-50 to-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-start mb-16">
+            <h2 className="text-4xl font-extrabold text-gray-900 mb-4 drop-shadow-lg tracking-tight">
+              What Our Clients Say
+            </h2>
+            <p className="text-lg text-gray-600 max-w-4xl font-medium">
+              Real experiences from satisfied customers across India
+            </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((t: any) => (
-              <div key={t.id} className="border-2 border-gray-100 rounded-lg p-6 hover:shadow-xl transition">
+              <GlassCard key={t.id} className="p-6">
                 <div className="flex gap-1 mb-4">
                   {[...Array(t.rating)].map((_: any, i: number) => <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
                 </div>
-                <p className="text-gray-700 mb-6 italic">"{t.text}"</p>
-                <div className="font-semibold text-gray-900">{t.name}</div>
-              </div>
+                <p className="text-gray-700 mb-6 italic font-medium">"{t.text}"</p>
+                <div className="font-bold text-gray-900">{t.name}</div>
+                <div className="text-sm text-gray-500">{t.location || 'Customer'}</div>
+              </GlassCard>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section id="faq" className="py-20 bg-gradient-to-b from-gray-50 to-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <p className="text-lg text-gray-600">Everything you need to know about our products and services</p>
-          </div>
-          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            <div className="space-y-4">
-              {faqs.filter((f: any) => !removedFaqs.includes(f.question)).map((f: any, i: number) => (
-                <details key={i} className="border-2 border-gray-200 rounded-lg px-6 py-4 bg-white">
-                  <summary className="font-semibold cursor-pointer">{f.question}</summary>
-                  <div className="mt-2 text-gray-600">{f.answer}</div>
-                </details>
-              ))}
-            </div>
-            <div className="w-full flex items-center justify-center">
-              <div className="w-full rounded-xl overflow-hidden shadow-lg">
-                <img src="/images/faqs/homeimagefaq.jpeg" alt="FAQ" className="w-full h-full object-cover" />
+      {/* FAQ Section */}
+      <section id="faq" className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="mb-12">
+                <h2 className="text-4xl font-extrabold text-gray-900 mb-4 drop-shadow-lg tracking-tight">
+                  Frequently Asked Questions
+                </h2>
+                <p className="text-lg text-gray-600 max-w-4xl font-medium">
+                  Everything you need to know about our products and services
+                </p>
               </div>
+              <div className="space-y-4">
+                {faqs.filter((f: any) => !removedFaqs.includes(f.question)).slice(0, 4).map((f: any, i: number) => (
+                  <GlassCard key={i} className="p-0 overflow-hidden">
+                    <details className="group">
+                      <summary className="flex items-center justify-between p-6 cursor-pointer font-semibold text-gray-900 hover:text-emerald-600 transition-colors">
+                        {f.question}
+                        <ArrowRight className="w-5 h-5 transform transition-transform group-open:rotate-90" />
+                      </summary>
+                      <div className="px-6 pb-6 text-gray-600 font-medium bg-white/50">{f.answer}</div>
+                    </details>
+                  </GlassCard>
+                ))}
+              </div>
+            </div>
+            <div className="w-full">
+              <GlassCard className="rounded-2xl overflow-hidden shadow-2xl">
+                <img src="/images/faqs/homeimagefaq.jpeg" alt="FAQ" className="w-full h-full object-cover" />
+              </GlassCard>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Contact */}
-      <section id="contact" className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Get In Touch</h2>
-              <p className="text-lg text-gray-600">Have questions? We're here to help. Contact us for a free consultation.</p>
+      <WavyDivider flip />
+
+      {/* Contact Section */}
+      <section id="contact" className="py-16 bg-gradient-to-b from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-start mb-16">
+            <h2 className="text-4xl font-extrabold text-gray-900 mb-4 drop-shadow-lg tracking-tight">
+              Get In Touch
+            </h2>
+            <p className="text-lg text-gray-600 max-w-4xl font-medium">
+              Have questions? We're here to help. Contact us for a free consultation.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12">
+            {/* Contact Info */}
+            <div className="space-y-6">
+              <GlassCard className="p-6 flex items-start gap-4">
+                <PlayfulIcon icon={Phone} ringColor="border-blue-400" bgColor="bg-gradient-to-br from-blue-400 to-blue-600" />
+                <div>
+                  <div className="font-bold text-gray-900 text-lg">Phone</div>
+                  <a href={`tel:${companyInfo.contact.phone}`} className="text-gray-600 hover:text-emerald-600 font-medium">{companyInfo.contact.phone}</a>
+                </div>
+              </GlassCard>
+              
+              <GlassCard className="p-6 flex items-start gap-4">
+                <PlayfulIcon icon={Mail} ringColor="border-emerald-400" bgColor="bg-gradient-to-br from-emerald-400 to-teal-500" />
+                <div>
+                  <div className="font-bold text-gray-900 text-lg">Email</div>
+                  <a href={`mailto:${companyInfo.contact.email}`} className="text-gray-600 hover:text-emerald-600 font-medium">{companyInfo.contact.email}</a>
+                </div>
+              </GlassCard>
+
+              <GlassCard className="p-6 flex items-start gap-4">
+                <PlayfulIcon icon={MapPin} ringColor="border-orange-400" bgColor="bg-gradient-to-br from-orange-400 to-red-500" />
+                <div>
+                  <div className="font-bold text-gray-900 text-lg">Address</div>
+                  <p className="text-gray-600 font-medium">{companyInfo.contact.address}</p>
+                </div>
+              </GlassCard>
+
+              <button onClick={() => window.open('https://wa.me/918019179159', '_blank')} className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white text-lg px-6 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-xl transition-all font-semibold">
+                <MessageCircle className="w-6 h-6" /> WhatsApp Now
+              </button>
             </div>
-            <div className="grid lg:grid-cols-2 gap-12">
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h3>
-                <div className="space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"><Phone className="w-6 h-6 text-blue-600" /></div>
-                    <div>
-                      <div className="font-semibold text-gray-900 mb-1">Phone</div>
-                      <a href={`tel:${companyInfo.contact.phone}`} className="text-gray-600 hover:text-blue-600">{companyInfo.contact.phone}</a>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0"><Mail className="w-6 h-6 text-green-600" /></div>
-                    <div>
-                      <div className="font-semibold text-gray-900 mb-1">Email</div>
-                      <a href={`mailto:${companyInfo.contact.email}`} className="text-gray-600 hover:text-green-600">{companyInfo.contact.email}</a>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0"><MapPin className="w-6 h-6 text-orange-600" /></div>
-                    <div>
-                      <div className="font-semibold text-gray-900 mb-1">Address</div>
-                      <p className="text-gray-600">{companyInfo.contact.address}</p>
-                    </div>
-                  </div>
+
+            {/* Contact Form */}
+            <GlassCard className="p-8">
+              <h4 className="text-2xl font-bold text-gray-900 mb-2">Send Us a Message</h4>
+              <p className="text-sm text-gray-600 mb-6 font-medium">Fill out the form and we'll get back to you within 24 hours</p>
+              <form onSubmit={handleContactSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-1.5">Name *</label>
+                  <input required value={contactForm.name} onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })} className="w-full bg-white/60 border border-white/40 rounded-xl p-3 focus:ring-2 focus:ring-emerald-500 outline-none font-medium" placeholder="Your full name" />
                 </div>
-                <div className="mt-8">
-                  <button onClick={() => window.open('https://wa.me/918019179159', '_blank')} className="w-full bg-green-600 hover:bg-green-700 text-white text-lg px-6 py-3 rounded-md flex items-center justify-center gap-2"><MessageCircle className="w-5 h-5" /> WhatsApp Now</button>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-1.5">Email *</label>
+                  <input required type="email" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} className="w-full bg-white/60 border border-white/40 rounded-xl p-3 focus:ring-2 focus:ring-emerald-500 outline-none font-medium" placeholder="your.email@example.com" />
                 </div>
-                <div className="mt-8 h-64 bg-gray-200 rounded-xl overflow-hidden cursor-pointer relative group">
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.9988888888886!2d78.4867!3d17.3850!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb99c0c3e1ffe7:0xa6b7d4b850493ba0!2sSatyajan%20Energy%20Solutions%20Pvt.Ltd.!5e0!3m2!1sen!2sin!4v1234567890123"
-                    width="100%" height="100%" style={{ border: 0 }} allowFullScreen={true} loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade" title="Satyajan Energy Solutions Location"
-                    className="pointer-events-none"
-                  />
-                  <a href="https://www.google.com/maps/place/Satyajan+Energy+Solutions+Pvt.Ltd./@17.3326358,78.5367308,15.91z" target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/50 transition-opacity duration-300">
-                    <span className="text-white font-semibold">Click to open in Google Maps</span>
-                  </a>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-1.5">Phone</label>
+                  <input value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })} className="w-full bg-white/60 border border-white/40 rounded-xl p-3 focus:ring-2 focus:ring-emerald-500 outline-none font-medium" placeholder="+91 98765 43210" />
                 </div>
-              </div>
-              <div className="border-2 border-blue-100 rounded-lg p-6">
-                <h4 className="text-xl font-semibold mb-2">Send Us a Message</h4>
-                <p className="text-sm text-gray-600 mb-4">Fill out the form and we'll get back to you within 24 hours</p>
-                <form onSubmit={handleContactSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Name *</label>
-                    <input required value={contactForm.name} onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })} className="w-full border rounded-md p-2" placeholder="Your full name" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Email *</label>
-                    <input required type="email" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} className="w-full border rounded-md p-2" placeholder="your.email@example.com" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Phone</label>
-                    <input value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })} className="w-full border rounded-md p-2" placeholder="+91 98765 43210" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Message *</label>
-                    <textarea required value={contactForm.message} onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })} className="w-full border rounded-md p-2" rows={5} placeholder="Tell us about your requirements" />
-                  </div>
-                  <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md">Send Message <Send className="w-4 h-4 inline-block ml-2" /></button>
-                </form>
-              </div>
-            </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-1.5">Message *</label>
+                  <textarea required value={contactForm.message} onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })} className="w-full bg-white/60 border border-white/40 rounded-xl p-3 focus:ring-2 focus:ring-emerald-500 outline-none font-medium" rows={4} placeholder="Tell us about your requirements" />
+                </div>
+                <button type="submit" className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl shadow-lg transition-all font-bold flex items-center justify-center gap-2">
+                  Send Message <Send className="w-4 h-4" />
+                </button>
+              </form>
+            </GlassCard>
           </div>
         </div>
       </section>
