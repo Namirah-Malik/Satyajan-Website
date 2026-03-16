@@ -47,7 +47,7 @@ const Header: React.FC = () => {
       <nav className={`container mx-auto max-w-8xl flex items-center justify-between px-4 transition-all duration-300 ${scrolled ? 'bg-white rounded-full py-3 shadow-xl' : 'bg-transparent rounded-none py-3'}`}>
         <div className='flex justify-between items-center gap-2 w-full'>
 
-          {/* Logo */}
+          {/* Logo — mix-blend-multiply removes any white background from the logo image */}
           <div>
             <Logo />
           </div>
@@ -60,7 +60,10 @@ const Header: React.FC = () => {
             </div>
 
             {/* Cart */}
-            <Link href='/cart' className={`relative flex items-center justify-center p-2 rounded-full transition-colors ${scrolled ? 'text-dark hover:text-primary' : 'text-dark hover:text-primary'}`}>
+            <Link
+              href='/cart'
+              className='relative flex items-center justify-center p-2 rounded-full transition-colors text-dark hover:text-primary'
+            >
               <Icon icon={'solar:cart-large-4-bold'} width={24} height={24} />
               {mounted && cartItemCount > 0 && (
                 <span className='absolute -top-1 -right-1 bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center'>
@@ -71,15 +74,22 @@ const Header: React.FC = () => {
 
             {/* Phone */}
             <div className='hidden md:block'>
-              <Link href='https://wa.me/918019179159' className={`text-base flex items-center gap-2 border-r pr-6 transition-colors ${scrolled ? 'text-dark hover:text-primary border-dark/20' : 'text-dark hover:text-primary border-dark/20'}`}>
+              <Link
+                href='https://wa.me/918019179159'
+                className='text-base flex items-center gap-2 border-r pr-6 transition-colors text-dark hover:text-primary border-dark/20'
+              >
                 <Icon icon={'ph:phone-bold'} width={24} height={24} />
                 +91 8019179159
               </Link>
             </div>
 
-            {/* ✅ Catalogue button — desktop */}
+            {/* Catalogue button — desktop */}
             <div className='hidden md:block'>
-              <a href='/images/hero/Satyajan-Product-Catalogue-2025.pdf' download='Satyajan-Product-Catalogue-2025.pdf' className='flex items-center gap-2 bg-primary hover:bg-dark text-white px-5 py-3 rounded-full font-semibold transition-colors text-sm whitespace-nowrap'>
+              <a
+                href='/images/hero/Satyajan-Product-Catalogue-2025.pdf'
+                download='Satyajan-Product-Catalogue-2025.pdf'
+                className='flex items-center gap-2 bg-primary hover:bg-dark text-white px-5 py-3 rounded-full font-semibold transition-colors text-sm whitespace-nowrap'
+              >
                 <Icon icon='ph:download-simple-bold' width={18} />
                 Catalogue
               </a>
@@ -89,7 +99,7 @@ const Header: React.FC = () => {
             <div>
               <button
                 onClick={() => setNavbarOpen(!navbarOpen)}
-                className={`flex items-center gap-3 p-2 sm:px-5 sm:py-3 rounded-full font-semibold hover:cursor-pointer border transition-colors ${scrolled ? 'bg-dark text-white hover:bg-dark/80 border-dark' : 'bg-dark text-white hover:bg-dark/80 border-dark'}`}
+                className='flex items-center gap-3 p-2 sm:px-5 sm:py-3 rounded-full font-semibold hover:cursor-pointer border transition-colors bg-dark text-white hover:bg-dark/80 border-dark'
                 aria-label='Toggle mobile menu'
               >
                 <span>
@@ -116,7 +126,11 @@ const Header: React.FC = () => {
         <div className='flex flex-col h-full justify-between'>
           <div>
             <div className='flex items-center justify-start py-10'>
-              <button onClick={() => setNavbarOpen(false)} aria-label='Close mobile menu' className='bg-white p-3 rounded-full hover:cursor-pointer'>
+              <button
+                onClick={() => setNavbarOpen(false)}
+                aria-label='Close mobile menu'
+                className='bg-white p-3 rounded-full hover:cursor-pointer'
+              >
                 <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>
                   <path fill='none' stroke='black' strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M6 18L18 6M6 6l12 12' />
                 </svg>
@@ -133,8 +147,12 @@ const Header: React.FC = () => {
 
           <div className='flex flex-col gap-1 my-16 text-white'>
 
-            {/* ✅ Catalogue button — mobile drawer */}
-            <a href='/images/hero/Satyajan-Product-Catalogue-2025.pdf' download='Satyajan-Product-Catalogue-2025.pdf' className='flex items-center gap-2 bg-primary hover:bg-dark text-white px-6 py-3 rounded-full font-semibold transition-colors text-sm w-fit mb-6'>
+            {/* Catalogue button — mobile drawer */}
+            <a
+              href='/images/hero/Satyajan-Product-Catalogue-2025.pdf'
+              download='Satyajan-Product-Catalogue-2025.pdf'
+              className='flex items-center gap-2 bg-primary hover:bg-dark text-white px-6 py-3 rounded-full font-semibold transition-colors text-sm w-fit mb-6'
+            >
               <Icon icon='ph:download-simple-bold' width={18} />
               Download Catalogue
             </a>

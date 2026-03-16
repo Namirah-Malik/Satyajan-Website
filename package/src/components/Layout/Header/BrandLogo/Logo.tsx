@@ -5,12 +5,11 @@ const Logo: React.FC = () => {
   return (
     <Link href="/">
       <Image
-        src={'/images/header/satyajan-logo.svg'}
-        alt='logo'
-        width={100}
-        height={59}
+        src={'/images/header/satyajan-logo.png'}
+        alt='Satyajan Energy Solutions'
+        width={90}
+        height={82}
         unoptimized={true}
-        style={{ clipPath: 'inset(8px 6px 8px 6px)' }}
       />
     </Link>
   )

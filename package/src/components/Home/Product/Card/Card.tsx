@@ -29,21 +29,20 @@ const PropertyCard: React.FC<{ item: PropertyHomes }> = ({ item }) => {
     <div className="w-full transition-transform duration-300 hover:-translate-y-1">
       <div className="rounded-2xl border border-dark/10 group hover:shadow-2xl duration-300 bg-white overflow-hidden flex flex-col h-full">
 
-        {/* ✅ Fixed aspect ratio — no horizontal scroll on mobile */}
-        <div className="relative w-full aspect-[4/3] overflow-hidden flex-shrink-0">
+        {/* Image — fixed height, object-contain so full product is always visible */}
+        <div className="relative w-full h-56 bg-gray-50 flex-shrink-0 overflow-hidden">
           <Link href={`/products/${slug}`} className="block w-full h-full">
             <Image
               src={mainImage}
               alt={name}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-cover group-hover:brightness-75 group-hover:scale-105 transition duration-300"
+              className="object-contain p-3 group-hover:scale-105 transition duration-300"
               unoptimized
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
           </Link>
           {category && (
-            <span className="absolute top-3 left-3 text-xs font-semibold text-white bg-primary/80 backdrop-blur-sm px-3 py-1 rounded-full">
+            <span className="absolute top-3 left-3 text-xs font-semibold text-white bg-primary/80 backdrop-blur-sm px-3 py-1 rounded-full z-10">
               {category}
             </span>
           )}
@@ -52,19 +51,19 @@ const PropertyCard: React.FC<{ item: PropertyHomes }> = ({ item }) => {
         {/* Content */}
         <div className="p-4 sm:p-5 flex flex-col gap-3 flex-1">
           <Link href={`/products/${slug}`}>
-            <h3 className="text-base sm:text-lg font-bold text-gray-900 leading-snug group-hover:text-primary transition-colors line-clamp-2">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 leading-snug group-hover:text-primary transition-colors line-clamp-2 min-h-[3rem]">
               {name}
             </h3>
           </Link>
 
           {description && (
-            <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 leading-relaxed min-h-[2.5rem]">
               {description}
             </p>
           )}
 
           {features && features.length > 0 && (
-            <ul className="space-y-1.5">
+            <ul className="space-y-1.5 flex-1">
               {features.slice(0, 3).map((feature, idx) => (
                 <li key={idx} className="flex items-start gap-2 text-xs text-gray-600">
                   <Icon icon="ph:check-circle-fill" width={14} className="text-primary mt-0.5 flex-shrink-0" />
