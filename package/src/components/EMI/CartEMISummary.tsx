@@ -1,8 +1,7 @@
 'use client'
-import { useState } from 'react'
 import { Icon } from '@iconify/react'
 
-const TENURES = [
+export const TENURES = [
   { months: 3,  rate: 0,  label: '3 mo' },
   { months: 6,  rate: 0,  label: '6 mo' },
   { months: 12, rate: 12, label: '12 mo' },
@@ -10,7 +9,7 @@ const TENURES = [
   { months: 24, rate: 15, label: '24 mo' },
 ]
 
-function calcEMI(principal: number, annualRate: number, months: number) {
+export function calcEMI(principal: number, annualRate: number, months: number) {
   if (annualRate === 0) return { emi: principal / months, interest: 0, total: principal }
   const r = annualRate / 12 / 100
   const emi = (principal * r * Math.pow(1 + r, months)) / (Math.pow(1 + r, months) - 1)
@@ -21,8 +20,13 @@ function inr(n: number) {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n)
 }
 
-export default function CartEMISummary({ cartTotal }: { cartTotal: number }) {
-  const [selected, setSelected] = useState(1) // default: 6 months
+interface Props {
+  cartTotal: number
+  selected: number
+  onSelect: (i: number) => void
+}
+
+export default function CartEMISummary({ cartTotal, selected, onSelect }: Props) {
   const t = TENURES[selected]
   const { emi, interest, total } = calcEMI(cartTotal, t.rate, t.months)
 
@@ -46,7 +50,7 @@ export default function CartEMISummary({ cartTotal }: { cartTotal: number }) {
         <div className='grid grid-cols-5 gap-1 bg-gray-100 p-1 rounded-xl'>
           {TENURES.map((tenure, i) => (
             <button
-              key={i} onClick={() => setSelected(i)}
+              key={i} onClick={() => onSelect(i)}
               className={`relative py-2 rounded-lg text-xs font-semibold transition-all ${
                 selected === i ? 'bg-white text-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
@@ -85,8 +89,6 @@ export default function CartEMISummary({ cartTotal }: { cartTotal: number }) {
                   <td className='px-4 py-3 text-right font-semibold text-dark'>{row.value}</td>
                 </tr>
               ))}
-
-              {/* EMI highlight row */}
               <tr className='bg-dark'>
                 <td className='px-4 py-4 text-white font-semibold'>Monthly EMI</td>
                 <td className='px-4 py-4 text-right'>
@@ -98,7 +100,6 @@ export default function CartEMISummary({ cartTotal }: { cartTotal: number }) {
           </table>
         </div>
 
-        {/* Legend + disclaimer */}
         <div className='flex items-center gap-2 text-xs text-gray-500'>
           <span className='w-2 h-2 bg-green-500 rounded-full' />
           No-cost EMI on 3 &amp; 6 month plans (0% interest)
@@ -106,7 +107,6 @@ export default function CartEMISummary({ cartTotal }: { cartTotal: number }) {
         <p className='text-[11px] text-gray-400 leading-relaxed'>
           * EMI is subject to bank approval. Actual EMI may vary slightly. No-cost EMI discount is pre-adjusted in the product price.
         </p>
-
       </div>
     </div>
   )
