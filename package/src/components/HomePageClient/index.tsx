@@ -6,9 +6,7 @@ import { Icon } from '@iconify/react'
 import { ArrowRight, CheckCircle, Star, Send, MessageCircle, Calculator } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { companyInfo, products, benefits, testimonials, faqs } from '@/mock/data'
-import CallMeBackModal from '@/components/CallMeBackModal'
 import SolarSavingsCalculator from '@/components/SolarSavingsCalculator'
-import { useScrollModal } from '@/hooks/useScrollModal'
 
 const WavyDivider = ({ flip = false }: { flip?: boolean }) => (
   <svg className={`w-full h-6 sm:h-8 md:h-12 ${flip ? 'rotate-180' : ''}`} viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -37,12 +35,65 @@ const PlayfulIcon = ({ icon, ringColor, bgColor }: { icon: string; ringColor: st
 export default function HomePageClient() {
   const [contactForm, setContactForm] = useState({ name: '', email: '', phone: '', message: '' })
   const [showSavingsCalculator, setShowSavingsCalculator] = useState(false)
-  const { showModal, closeModal } = useScrollModal({ triggerTimeMs: 60000, showOnFooterReach: true })
+
+
+  const [contactErrors, setContactErrors] = useState({ name: '', email: '', phone: '', message: '' })
+  const [contactTouched, setContactTouched] = useState({ name: false, email: false, phone: false, message: false })
+  const [contactSuccess, setContactSuccess] = useState(false)
+
+  const validateContactField = (field: string, value: string) => {
+    if (field === 'name') {
+      if (!value.trim()) return 'Name is required'
+      if (value.trim().length < 2) return 'Name must be at least 2 characters'
+    }
+    if (field === 'email') {
+      if (!value) return 'Email is required'
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) return 'Enter a valid email (e.g. name@example.com)'
+    }
+    if (field === 'phone') {
+      const digits = value.replace(/\D/g, '')
+      if (!digits) return 'Phone number is required'
+      if (digits.length !== 10) return 'Enter a valid 10-digit mobile number'
+      if (!/^[6-9]/.test(digits)) return 'Enter a valid Indian mobile number'
+    }
+    if (field === 'message') {
+      if (!value.trim()) return 'Message is required'
+      if (value.trim().length < 10) return 'Message must be at least 10 characters'
+    }
+    return ''
+  }
+
+  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    let newValue = value
+    if (name === 'phone') newValue = value.replace(/\D/g, '').slice(0, 10)
+    setContactForm({ ...contactForm, [name]: newValue })
+    if (contactTouched[name as keyof typeof contactTouched]) {
+      setContactErrors({ ...contactErrors, [name]: validateContactField(name, newValue) })
+    }
+  }
+
+  const handleContactBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setContactTouched({ ...contactTouched, [name]: true })
+    setContactErrors({ ...contactErrors, [name]: validateContactField(name, value) })
+  }
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    alert('Thank you for contacting us!')
+    const newErrors = {
+      name: validateContactField('name', contactForm.name),
+      email: validateContactField('email', contactForm.email),
+      phone: validateContactField('phone', contactForm.phone),
+      message: validateContactField('message', contactForm.message),
+    }
+    setContactErrors(newErrors)
+    setContactTouched({ name: true, email: true, phone: true, message: true })
+    if (Object.values(newErrors).some(Boolean)) return
+    setContactSuccess(true)
     setContactForm({ name: '', email: '', phone: '', message: '' })
+    setContactErrors({ name: '', email: '', phone: '', message: '' })
+    setContactTouched({ name: false, email: false, phone: false, message: false })
   }
 
   const removedFaqs: string[] = [
@@ -93,45 +144,39 @@ export default function HomePageClient() {
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <section id="hero" className="relative pt-16 sm:pt-20 md:pt-24 pb-0 overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-yellow-50">
         <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 md:py-16 relative z-10">
-          
-          {/* Changed items-center to items-stretch for equal height columns */}
-          <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-stretch">
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-center">
 
-            {/* LEFT: Added h-full and lg:justify-between to push stats down */}
-            <div className="flex flex-col h-full lg:justify-between">
-              
-              {/* Top content wrapper */}
-              <div className="space-y-4 md:space-y-6">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-gray-900 leading-tight">
-                  Power Your Future with{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">
-                    Clean Solar Energy
-                  </span>
-                </h1>
-                <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed font-medium">
-                  Save up to 80% on electricity bills. 25-year warranty. Easy EMI options.
-                  Join 1000+ satisfied customers across India.
-                </p>
+            {/* LEFT */}
+            <div className="flex flex-col space-y-4 md:space-y-6">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-gray-900 leading-tight">
+                Power Your Future with{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">
+                  Clean Solar Energy
+                </span>
+              </h1>
+              <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed font-medium">
+                Save up to 80% on electricity bills. 25-year warranty. Easy EMI options.
+                Join 1000+ satisfied customers across India.
+              </p>
 
-                {/* Buttons — stack on mobile */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-400 text-white text-sm md:text-base px-5 md:px-8 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl hover:scale-105 transition-all font-semibold"
-                  >
-                    Book Free Consultation <ArrowRight className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setShowSavingsCalculator(true)}
-                    className="w-full sm:w-auto bg-white/60 backdrop-blur border border-gray-200 text-gray-700 hover:bg-white text-sm md:text-base px-5 md:px-8 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-md hover:shadow-xl transition-all font-semibold"
-                  >
-                    <Calculator className="w-4 h-4" /> Calculate Savings
-                  </button>
-                </div>
+              {/* Buttons — stack on mobile */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-400 text-white text-sm md:text-base px-5 md:px-8 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl hover:scale-105 transition-all font-semibold"
+                >
+                  Book Free Consultation <ArrowRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setShowSavingsCalculator(true)}
+                  className="w-full sm:w-auto bg-white/60 backdrop-blur border border-gray-200 text-gray-700 hover:bg-white text-sm md:text-base px-5 md:px-8 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-md hover:shadow-xl transition-all font-semibold"
+                >
+                  <Calculator className="w-4 h-4" /> Calculate Savings
+                </button>
               </div>
 
-              {/* Stats — Aligned to bottom on desktop */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 pt-6">
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 pt-2">
                 {[
                   { value: '1000+', label: 'Happy Customers' },
                   { value: '25 Yrs', label: 'Warranty' },
@@ -147,8 +192,8 @@ export default function HomePageClient() {
               </div>
             </div>
 
-            {/* RIGHT — Added flex/column/justify-end to align image to bottom */}
-            <div className="h-full flex flex-col lg:justify-end mt-4 lg:mt-0">
+            {/* RIGHT — shows below text on mobile */}
+            <div className="mt-2 lg:mt-0">
               <GlassCard className="overflow-hidden p-1.5 sm:p-2">
                 <img
                   src="/images/hero/Product_range.png"
@@ -337,27 +382,77 @@ export default function HomePageClient() {
             <GlassCard className="p-4 sm:p-5 md:p-8">
               <h4 className="text-base sm:text-lg md:text-2xl font-bold text-emerald-800 mb-1 tracking-tight">Send Us a Message</h4>
               <p className="text-xs md:text-sm text-gray-600 mb-3 sm:mb-4 md:mb-6 font-medium">We&apos;ll get back to you within 24 hours.</p>
-              <form onSubmit={handleContactSubmit} className="space-y-2 sm:space-y-3 md:space-y-4">
-                {[
-                  { label: 'Name *', type: 'text', key: 'name', placeholder: 'Your full name', required: true },
-                  { label: 'Email *', type: 'email', key: 'email', placeholder: 'your.email@example.com', required: true },
-                  { label: 'Phone', type: 'text', key: 'phone', placeholder: '+91 98765 43210', required: false },
-                ].map((field) => (
-                  <div key={field.key}>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">{field.label}</label>
-                    <input required={field.required} type={field.type} value={(contactForm as any)[field.key]}
-                      onChange={(e) => setContactForm({ ...contactForm, [field.key]: e.target.value })}
-                      className="w-full bg-white/60 border border-white/40 rounded-xl p-2 sm:p-2.5 md:p-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition text-xs sm:text-sm"
-                      placeholder={field.placeholder} />
+
+              {contactSuccess && (
+                <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-emerald-700 text-xs sm:text-sm font-medium">
+                  <CheckCircle className="w-4 h-4 flex-shrink-0" /> Message sent! We&apos;ll get back to you soon.
+                </div>
+              )}
+
+              <form onSubmit={handleContactSubmit} noValidate className="space-y-3 md:space-y-4">
+                {/* Name */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Name *</label>
+                  <input type="text" name="name" value={contactForm.name}
+                    onChange={handleContactChange} onBlur={handleContactBlur}
+                    placeholder="Your full name"
+                    className={`w-full rounded-xl p-2.5 md:p-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition text-xs sm:text-sm border ${
+                      contactErrors.name && contactTouched.name ? 'border-red-400 bg-red-50 focus:ring-red-200' : 'border-white/40 bg-white/60 focus:ring-emerald-400'
+                    }`} />
+                  {contactErrors.name && contactTouched.name && (
+                    <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.name}</p>
+                  )}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Email *</label>
+                  <input type="email" name="email" value={contactForm.email}
+                    onChange={handleContactChange} onBlur={handleContactBlur}
+                    placeholder="your.email@example.com"
+                    className={`w-full rounded-xl p-2.5 md:p-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition text-xs sm:text-sm border ${
+                      contactErrors.email && contactTouched.email ? 'border-red-400 bg-red-50 focus:ring-red-200' : 'border-white/40 bg-white/60 focus:ring-emerald-400'
+                    }`} />
+                  {contactErrors.email && contactTouched.email && (
+                    <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.email}</p>
+                  )}
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Phone *</label>
+                  <div className={`flex items-center rounded-xl border overflow-hidden transition ${
+                    contactErrors.phone && contactTouched.phone ? 'border-red-400 bg-red-50' : 'border-white/40 bg-white/60'
+                  }`}>
+                    <span className="pl-3 pr-2 text-gray-500 text-xs font-medium whitespace-nowrap">+91</span>
+                    <div className="w-px h-4 bg-gray-300" />
+                    <input type="tel" name="phone" value={contactForm.phone}
+                      onChange={handleContactChange} onBlur={handleContactBlur}
+                      placeholder="10-digit mobile number"
+                      maxLength={10} inputMode="numeric"
+                      className="flex-1 px-3 py-2.5 bg-transparent focus:outline-none text-gray-800 placeholder-gray-400 text-xs sm:text-sm" />
                   </div>
-                ))}
+                  {contactErrors.phone && contactTouched.phone && (
+                    <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.phone}</p>
+                  )}
+                </div>
+
+                {/* Message */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Message *</label>
-                  <textarea required value={contactForm.message} onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                    className="w-full bg-white/60 border border-white/40 rounded-xl p-2 sm:p-2.5 md:p-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition text-xs sm:text-sm"
-                    rows={3} placeholder="Tell us about your requirements" />
+                  <textarea name="message" value={contactForm.message}
+                    onChange={handleContactChange} onBlur={handleContactBlur}
+                    placeholder="Tell us about your requirements (min 10 characters)"
+                    rows={3}
+                    className={`w-full rounded-xl p-2.5 md:p-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition text-xs sm:text-sm border ${
+                      contactErrors.message && contactTouched.message ? 'border-red-400 bg-red-50 focus:ring-red-200' : 'border-white/40 bg-white/60 focus:ring-emerald-400'
+                    }`} />
+                  {contactErrors.message && contactTouched.message && (
+                    <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.message}</p>
+                  )}
                 </div>
-                <button type="submit" className="w-full bg-gradient-to-r from-emerald-500 to-teal-400 text-white py-2 sm:py-2.5 md:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-all text-xs sm:text-sm md:text-base">
+
+                <button type="submit" className="w-full bg-gradient-to-r from-emerald-500 to-teal-400 text-white py-2.5 md:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-all text-xs sm:text-sm md:text-base">
                   Send Message <Send className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
               </form>
@@ -384,7 +479,6 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      <CallMeBackModal isOpen={showModal} onClose={closeModal} />
       <SolarSavingsCalculator isOpen={showSavingsCalculator} onClose={() => setShowSavingsCalculator(false)} />
     </main>
   )

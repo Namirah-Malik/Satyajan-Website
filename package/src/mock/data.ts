@@ -200,16 +200,8 @@ export const faqs = [
     answer:
       "Our experts analyze your electricity bills, available roof space, and energy consumption patterns to recommend the optimal system size. Contact us for a free site survey and customized solar solution.",
   },
-  {
-    question: "What is the difference between normal UPS and Online UPS?",
-    answer:
-      "Normal UPS (offline) switches to battery during power failure with a small delay. Online UPS provides continuous power through battery with zero transfer time, making it ideal for sensitive equipment like servers and medical devices.",
-  },
-  {
-    question: "How do I know what solar system size I need?",
-    answer:
-      "Our experts analyze your electricity bills, available roof space, and energy consumption patterns to recommend the optimal system size. Contact us for a free site survey and customized solar solution.",
-  },
+  
+  
 ]
 
 export const dealerBenefits = [

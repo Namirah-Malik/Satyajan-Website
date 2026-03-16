@@ -55,7 +55,6 @@ const Footer = () => {
             <ul className="space-y-2">
               {FooterLinks.map((item, index) => (
                 <li key={index} className="flex items-center gap-2">
-                  <span className="text-primary text-sm">›</span>
                   <Link href={item.href} className="text-white/60 hover:text-white text-sm transition-colors">
                     {item.label}
                   </Link>
@@ -70,7 +69,6 @@ const Footer = () => {
             <ul className="space-y-2">
               {ProductLinks.map((item, index) => (
                 <li key={index} className="flex items-center gap-2">
-                  <span className="text-primary text-sm">›</span>
                   <Link href={item.href} className="text-white/60 hover:text-white text-sm transition-colors">
                     {item.label}
                   </Link>
@@ -90,7 +88,6 @@ const Footer = () => {
                 'Technical Support & After-Sales',
               ].map((service) => (
                 <li key={service} className="flex items-center gap-2">
-                  <span className="text-primary text-sm">›</span>
                   <Link href="/services" className="text-white/60 hover:text-white text-sm transition-colors">
                     {service}
                   </Link>

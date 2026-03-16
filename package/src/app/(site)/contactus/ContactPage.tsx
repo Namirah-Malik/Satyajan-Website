@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 
-// ── Success Popup ────────────────────────────────────────────────────────────
+// ── Success Popup ─────────────────────────────────────────────────────────────
 const SuccessPopup = ({ onClose }: { onClose: () => void }) => (
   <>
     <div className="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm" onClick={onClose} />
@@ -44,35 +44,118 @@ const SuccessPopup = ({ onClose }: { onClose: () => void }) => (
       </div>
     </div>
   </>
-);
+)
 
-// ── Page ─────────────────────────────────────────────────────────────────────
+// ── Validation helpers ────────────────────────────────────────────────────────
+function validatePhone(phone: string) {
+  const digits = phone.replace(/\D/g, '')
+  if (!digits) return 'Phone number is required'
+  if (digits.length !== 10) return 'Enter a valid 10-digit mobile number'
+  if (!/^[6-9]/.test(digits)) return 'Enter a valid Indian mobile number'
+  return ''
+}
+
+function validateEmail(email: string) {
+  if (!email) return 'Email address is required'
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+  if (!emailRegex.test(email)) return 'Enter a valid email address (e.g. name@example.com)'
+  return ''
+}
+
+function validateName(name: string) {
+  if (!name.trim()) return 'Name is required'
+  if (name.trim().length < 2) return 'Name must be at least 2 characters'
+  return ''
+}
+
+function validateMessage(msg: string) {
+  if (!msg.trim()) return 'Message is required'
+  if (msg.trim().length < 10) return 'Message must be at least 10 characters'
+  return ''
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function ContactUs() {
-  const [form, setForm] = useState({ username: '', mobile: '', email: '', message: '' });
-  const [submitting, setSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [form, setForm] = useState({ username: '', mobile: '', email: '', message: '' })
+  const [errors, setErrors] = useState({ username: '', mobile: '', email: '', message: '' })
+  const [touched, setTouched] = useState({ username: false, mobile: false, email: false, message: false })
+  const [submitting, setSubmitting] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+    const { name, value } = e.target
+
+    // For phone: only allow digits and limit to 10
+    if (name === 'mobile') {
+      const digitsOnly = value.replace(/\D/g, '').slice(0, 10)
+      setForm({ ...form, mobile: digitsOnly })
+      if (touched.mobile) setErrors({ ...errors, mobile: validatePhone(digitsOnly) })
+      return
+    }
+
+    setForm({ ...form, [name]: value })
+
+    // Live validation after first touch
+    if (touched[name as keyof typeof touched]) {
+      const fieldErrors = { ...errors }
+      if (name === 'username') fieldErrors.username = validateName(value)
+      if (name === 'email') fieldErrors.email = validateEmail(value)
+      if (name === 'message') fieldErrors.message = validateMessage(value)
+      setErrors(fieldErrors)
+    }
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setTouched({ ...touched, [name]: true })
+    const fieldErrors = { ...errors }
+    if (name === 'username') fieldErrors.username = validateName(value)
+    if (name === 'mobile') fieldErrors.mobile = validatePhone(value)
+    if (name === 'email') fieldErrors.email = validateEmail(value)
+    if (name === 'message') fieldErrors.message = validateMessage(value)
+    setErrors(fieldErrors)
+  }
+
+  const validateAll = () => {
+    const newErrors = {
+      username: validateName(form.username),
+      mobile: validatePhone(form.mobile),
+      email: validateEmail(form.email),
+      message: validateMessage(form.message),
+    }
+    setErrors(newErrors)
+    setTouched({ username: true, mobile: true, email: true, message: true })
+    return !Object.values(newErrors).some(Boolean)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
+    e.preventDefault()
+    if (!validateAll()) return // stop if any errors
+
+    setSubmitting(true)
     try {
       await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
-      });
+      })
     } catch (_) {
       // Show success regardless — don't block UX if API is unavailable
     } finally {
-      setSubmitting(false);
-      setForm({ username: '', mobile: '', email: '', message: '' });
-      setShowSuccess(true);
+      setSubmitting(false)
+      setForm({ username: '', mobile: '', email: '', message: '' })
+      setErrors({ username: '', mobile: '', email: '', message: '' })
+      setTouched({ username: false, mobile: false, email: false, message: false })
+      setShowSuccess(true)
     }
-  };
+  }
+
+  const inputClass = (field: keyof typeof errors) =>
+    `px-6 py-3.5 border rounded-full outline-none focus:ring-2 w-full transition-all ${
+      errors[field] && touched[field]
+        ? 'border-red-400 focus:ring-red-200 bg-red-50'
+        : 'border-black/10 focus:ring-primary/30 focus:border-primary'
+    }`
 
   return (
     <>
@@ -126,14 +209,82 @@ export default function ContactUs() {
 
             {/* Right: form */}
             <div className='flex-1'>
-              <form onSubmit={handleSubmit}>
-                <div className='flex flex-col gap-8'>
+              <form onSubmit={handleSubmit} noValidate>
+                <div className='flex flex-col gap-6'>
+
+                  {/* Name + Phone row */}
                   <div className='flex flex-col lg:flex-row gap-6'>
-                    <input type='text' name='username' value={form.username} onChange={handleChange} autoComplete='username' placeholder='Name*' required className='px-6 py-3.5 border border-black/10 rounded-full outline-primary focus:outline w-full' />
-                    <input type='tel' name='mobile' value={form.mobile} onChange={handleChange} autoComplete='mobile' placeholder='Phone number*' required className='px-6 py-3.5 border border-black/10 rounded-full outline-primary focus:outline w-full' />
+                    <div className='w-full'>
+                      <input
+                        type='text' name='username' value={form.username}
+                        onChange={handleChange} onBlur={handleBlur}
+                        autoComplete='name' placeholder='Name*'
+                        className={inputClass('username')}
+                      />
+                      {errors.username && touched.username && (
+                        <p className='text-red-500 text-xs mt-1.5 ml-4 flex items-center gap-1'>
+                          <Icon icon='ph:warning-circle-fill' width={13} /> {errors.username}
+                        </p>
+                      )}
+                    </div>
+                    <div className='w-full'>
+                      <div className={`flex items-center border rounded-full overflow-hidden transition-all ${
+                        errors.mobile && touched.mobile
+                          ? 'border-red-400 bg-red-50 focus-within:ring-2 focus-within:ring-red-200'
+                          : 'border-black/10 focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary'
+                      }`}>
+                        <span className='pl-5 pr-2 text-gray-500 font-medium text-sm whitespace-nowrap'>+91</span>
+                        <div className='w-px h-5 bg-gray-300' />
+                        <input
+                          type='tel' name='mobile' value={form.mobile}
+                          onChange={handleChange} onBlur={handleBlur}
+                          autoComplete='tel' placeholder='10-digit mobile number*'
+                          maxLength={10} inputMode='numeric'
+                          className='flex-1 px-4 py-3.5 outline-none bg-transparent text-sm'
+                        />
+                      </div>
+                      {errors.mobile && touched.mobile && (
+                        <p className='text-red-500 text-xs mt-1.5 ml-4 flex items-center gap-1'>
+                          <Icon icon='ph:warning-circle-fill' width={13} /> {errors.mobile}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <input type='email' name='email' value={form.email} onChange={handleChange} autoComplete='email' placeholder='Email address*' required className='px-6 py-3.5 border border-black/10 rounded-full outline-primary focus:outline' />
-                  <textarea rows={8} name='message' value={form.message} onChange={handleChange} placeholder='Write here your message' required className='px-6 py-3.5 border border-black/10 rounded-2xl outline-primary focus:outline' />
+
+                  {/* Email */}
+                  <div>
+                    <input
+                      type='email' name='email' value={form.email}
+                      onChange={handleChange} onBlur={handleBlur}
+                      autoComplete='email' placeholder='Email address*'
+                      className={inputClass('email')}
+                    />
+                    {errors.email && touched.email && (
+                      <p className='text-red-500 text-xs mt-1.5 ml-4 flex items-center gap-1'>
+                        <Icon icon='ph:warning-circle-fill' width={13} /> {errors.email}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Message */}
+                  <div>
+                    <textarea
+                      rows={8} name='message' value={form.message}
+                      onChange={handleChange} onBlur={handleBlur}
+                      placeholder='Write your message here*'
+                      className={`px-6 py-3.5 border rounded-2xl outline-none focus:ring-2 w-full transition-all ${
+                        errors.message && touched.message
+                          ? 'border-red-400 focus:ring-red-200 bg-red-50'
+                          : 'border-black/10 focus:ring-primary/30 focus:border-primary'
+                      }`}
+                    />
+                    {errors.message && touched.message && (
+                      <p className='text-red-500 text-xs mt-1.5 ml-4 flex items-center gap-1'>
+                        <Icon icon='ph:warning-circle-fill' width={13} /> {errors.message}
+                      </p>
+                    )}
+                  </div>
+
                   <button
                     type='submit'
                     disabled={submitting}
@@ -152,5 +303,5 @@ export default function ContactUs() {
         </div>
       </div>
     </>
-  );
+  )
 }
