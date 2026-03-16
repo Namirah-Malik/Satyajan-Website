@@ -93,39 +93,45 @@ export default function HomePageClient() {
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <section id="hero" className="relative pt-16 sm:pt-20 md:pt-24 pb-0 overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-yellow-50">
         <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 md:py-16 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-center">
+          
+          {/* Changed items-center to items-stretch for equal height columns */}
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-stretch">
 
-            {/* LEFT */}
-            <div className="flex flex-col space-y-4 md:space-y-6">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-gray-900 leading-tight">
-                Power Your Future with{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">
-                  Clean Solar Energy
-                </span>
-              </h1>
-              <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed font-medium">
-                Save up to 80% on electricity bills. 25-year warranty. Easy EMI options.
-                Join 1000+ satisfied customers across India.
-              </p>
+            {/* LEFT: Added h-full and lg:justify-between to push stats down */}
+            <div className="flex flex-col h-full lg:justify-between">
+              
+              {/* Top content wrapper */}
+              <div className="space-y-4 md:space-y-6">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-gray-900 leading-tight">
+                  Power Your Future with{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">
+                    Clean Solar Energy
+                  </span>
+                </h1>
+                <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed font-medium">
+                  Save up to 80% on electricity bills. 25-year warranty. Easy EMI options.
+                  Join 1000+ satisfied customers across India.
+                </p>
 
-              {/* Buttons — stack on mobile */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-400 text-white text-sm md:text-base px-5 md:px-8 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl hover:scale-105 transition-all font-semibold"
-                >
-                  Book Free Consultation <ArrowRight className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setShowSavingsCalculator(true)}
-                  className="w-full sm:w-auto bg-white/60 backdrop-blur border border-gray-200 text-gray-700 hover:bg-white text-sm md:text-base px-5 md:px-8 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-md hover:shadow-xl transition-all font-semibold"
-                >
-                  <Calculator className="w-4 h-4" /> Calculate Savings
-                </button>
+                {/* Buttons — stack on mobile */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-400 text-white text-sm md:text-base px-5 md:px-8 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl hover:scale-105 transition-all font-semibold"
+                  >
+                    Book Free Consultation <ArrowRight className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setShowSavingsCalculator(true)}
+                    className="w-full sm:w-auto bg-white/60 backdrop-blur border border-gray-200 text-gray-700 hover:bg-white text-sm md:text-base px-5 md:px-8 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-md hover:shadow-xl transition-all font-semibold"
+                  >
+                    <Calculator className="w-4 h-4" /> Calculate Savings
+                  </button>
+                </div>
               </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 pt-2">
+              {/* Stats — Aligned to bottom on desktop */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 pt-6">
                 {[
                   { value: '1000+', label: 'Happy Customers' },
                   { value: '25 Yrs', label: 'Warranty' },
@@ -141,8 +147,8 @@ export default function HomePageClient() {
               </div>
             </div>
 
-            {/* RIGHT — shows below text on mobile */}
-            <div className="mt-2 lg:mt-0">
+            {/* RIGHT — Added flex/column/justify-end to align image to bottom */}
+            <div className="h-full flex flex-col lg:justify-end mt-4 lg:mt-0">
               <GlassCard className="overflow-hidden p-1.5 sm:p-2">
                 <img
                   src="/images/hero/Product_range.png"
