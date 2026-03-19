@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react'
@@ -144,7 +145,8 @@ export default function HomePageClient() {
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <section id="hero" className="relative pt-16 sm:pt-20 md:pt-24 pb-0 overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-yellow-50">
         <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 md:py-16 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-center">
+          {/* ✅ CHANGE APPLIED BELOW: changed items-center to lg:items-end */}
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 lg:items-end">
 
             {/* LEFT */}
             <div className="flex flex-col space-y-4 md:space-y-6">
@@ -175,7 +177,7 @@ export default function HomePageClient() {
                 </button>
               </div>
 
-              {/* Stats */}
+              {/* Stats - Now aligned with image bottom */}
               <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 pt-2">
                 {[
                   { value: '1000+', label: 'Happy Customers' },

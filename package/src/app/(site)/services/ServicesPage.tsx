@@ -1,3 +1,4 @@
+// src/app/(site)/services/ServicesPage.tsx
 'use client';
 
 import React from 'react';
@@ -22,24 +23,24 @@ const PlayfulIcon = ({ icon, ringColor, bgColor }: { icon: string; ringColor: st
 );
 
 const iconMap: Record<string, string> = {
-  Compass:    'ph:compass-fill',
-  Wrench:     'ph:wrench-fill',
-  Settings:   'ph:gear-fill',
-  FileText:   'ph:file-text-fill',
-  Calculator: 'ph:calculator-fill',
-  Zap:        'ph:lightning-fill',
-  Calendar:   'ph:calendar-fill',
-  Activity:   'ph:activity-fill',
-  RefreshCw:  'ph:arrows-clockwise-fill',
-  Recycle:    'ph:recycle-fill',
-  MapPin:     'ph:map-pin-fill',
-  AlertCircle:'ph:warning-circle-fill',
-  TrendingUp: 'ph:trend-up-fill',
-  Headphones: 'ph:headset-fill',
-  Users:      'ph:users-three-fill',
-  Clock:      'ph:clock-fill',
-  Shield:     'ph:shield-check-fill',
-  DollarSign: 'ph:currency-inr-fill',
+  Compass:     'ph:compass-fill',
+  Wrench:      'ph:wrench-fill',
+  Settings:    'ph:gear-fill',
+  FileText:    'ph:file-text-fill',
+  Calculator:  'ph:calculator-fill',
+  Zap:         'ph:lightning-fill',
+  Calendar:    'ph:calendar-fill',
+  Activity:    'ph:activity-fill',
+  RefreshCw:   'ph:arrows-clockwise-fill',
+  Recycle:     'ph:recycle-fill',
+  MapPin:      'ph:map-pin-fill',
+  AlertCircle: 'ph:warning-circle-fill',
+  TrendingUp:  'ph:trend-up-fill',
+  Headphones:  'ph:headset-fill',
+  Users:       'ph:users-three-fill',
+  Clock:       'ph:clock-fill',
+  Shield:      'ph:shield-check-fill',
+  DollarSign:  'ph:currency-inr-fill',
 };
 
 const cardStyles = [
@@ -54,7 +55,7 @@ const cardStyles = [
 ];
 
 const ServiceCard = ({ service, index }: { service: any; index: number }) => {
-  const style = cardStyles[index % cardStyles.length];
+  const style   = cardStyles[index % cardStyles.length];
   const iconName = iconMap[service.icon] || 'ph:lightning-fill';
   return (
     <GlassCard className="p-5 sm:p-7 flex flex-col items-center text-center h-full">
@@ -83,12 +84,21 @@ const ServiceSection = ({ id, badge, heading, sub, services }: {
 );
 
 const steps = [
-  { icon: 'ph:phone-call-fill', bg: 'bg-primary',                                       ring: 'border-primary',      title: 'Request Service',    desc: 'Call, WhatsApp, or fill our contact form' },
-  { icon: 'ph:map-pin-fill',    bg: 'bg-gradient-to-br from-blue-400 to-indigo-500',    ring: 'border-blue-400',     title: 'Site Assessment',    desc: 'Our expert visits and evaluates your needs' },
-  { icon: 'ph:file-text-fill',  bg: 'bg-gradient-to-br from-yellow-400 to-orange-400',  ring: 'border-yellow-400',   title: 'Quote & Approval',   desc: 'Transparent pricing, no hidden costs' },
-  { icon: 'ph:check-circle-fill', bg: 'bg-gradient-to-br from-emerald-400 to-green-500', ring: 'border-emerald-400', title: 'Service Completion', desc: 'Professional work with full warranty' },
+  { icon: 'ph:phone-call-fill',   bg: 'bg-primary',                                       ring: 'border-primary',     title: 'Request Service',    desc: 'Call, WhatsApp, or fill our contact form' },
+  { icon: 'ph:map-pin-fill',      bg: 'bg-gradient-to-br from-blue-400 to-indigo-500',    ring: 'border-blue-400',    title: 'Site Assessment',    desc: 'Our expert visits and evaluates your needs' },
+  { icon: 'ph:file-text-fill',    bg: 'bg-gradient-to-br from-yellow-400 to-orange-400',  ring: 'border-yellow-400',  title: 'Quote & Approval',   desc: 'Transparent pricing, no hidden costs' },
+  { icon: 'ph:check-circle-fill', bg: 'bg-gradient-to-br from-emerald-400 to-green-500',  ring: 'border-emerald-400', title: 'Service Completion', desc: 'Professional work with full warranty' },
 ];
 
+// ── Quick Services strip ───────────────────────────────────────────────────────
+const QUICK_SERVICES = [
+  { label: 'UPS / Inverter\nInstallation',          slug: 'inverter-installation', icon: 'ph:lightning-fill',        bg: 'bg-primary',                                      ring: 'border-primary' },
+  { label: 'Battery\nReplacement',                  slug: 'battery-replacement',   icon: 'ph:battery-charging-fill', bg: 'bg-gradient-to-br from-emerald-400 to-green-500', ring: 'border-emerald-400' },
+  { label: 'Solar Panel\nInstallation',             slug: 'solar-installation',    icon: 'ph:solar-panel-fill',      bg: 'bg-gradient-to-br from-yellow-400 to-orange-400', ring: 'border-yellow-400' },
+  { label: 'UPS / Inverter\nService & Maintenance', slug: 'inverter-maintenance',  icon: 'ph:wrench-fill',           bg: 'bg-gradient-to-br from-blue-400 to-indigo-500',   ring: 'border-blue-400' },
+];
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function ServicesPage() {
   const router = useRouter();
   const { showModal, closeModal } = useScrollModal({ triggerTimeMs: 60000, showOnFooterReach: true });
@@ -97,7 +107,7 @@ export default function ServicesPage() {
     <main className="min-h-screen">
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <section className="relative min-h-[65vh] flex items-center overflow-hidden">
+      <section className="relative flex items-center overflow-hidden" style={{ minHeight: '100vh' }}>
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&q=80&auto=format&fit=crop"
@@ -106,28 +116,46 @@ export default function ServicesPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-br from-dark/90 via-primary/60 to-emerald-900/80" />
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 pt-32 pb-20 w-full">
+
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 pt-32 pb-12">
+
           <span className="inline-block text-xs font-semibold text-white/70 uppercase tracking-widest px-3 py-1 bg-white/10 rounded-full mb-5 backdrop-blur-sm">
             Professional Services
           </span>
+
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-4 leading-tight drop-shadow-lg tracking-tight max-w-3xl">
             Our Services
           </h1>
           <p className="text-base sm:text-xl text-white/80 max-w-2xl mb-8 font-medium leading-relaxed">
             Reliable Solar, Power Backup, Battery &amp; Technical Support Services — complete energy solutions with professional installation, maintenance, and 24/7 support.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <a href="#solar-energy" className="inline-flex items-center justify-center gap-2 bg-white text-primary px-6 sm:px-8 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition-colors shadow-xl text-sm sm:text-base">
+
+          {/* CTA Buttons */}
+          <div className="flex flex-wrap items-center gap-3 mb-10">
+            <a href="#solar-energy"
+              className="inline-flex items-center justify-center gap-2 bg-white text-primary px-6 sm:px-8 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition-colors shadow-xl text-sm sm:text-base">
               <Icon icon="ph:solar-panel-fill" width={18} /> Explore Services
             </a>
-            <a href="https://wa.me/918019179159?text=Hi, I need help with energy services" target="_blank" rel="noopener noreferrer"
+            <a
+              href="https://wa.me/918019179159?text=Hi, I need help with energy services"
+              target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 border-2 border-white text-white px-6 sm:px-8 py-3 rounded-full font-bold hover:bg-white hover:text-dark transition-colors text-sm sm:text-base">
               <Icon icon="ph:whatsapp-logo-fill" width={18} /> WhatsApp Us
             </a>
+            {/* Book a Service → goes to /services/book selection page */}
+            <button
+              onClick={() => router.push('/services/book')}
+              className="inline-flex items-center justify-center gap-2 bg-primary text-white px-6 sm:px-8 py-3 rounded-full font-bold hover:bg-emerald-600 transition-colors shadow-xl text-sm sm:text-base border-2 border-primary/60">
+              <Icon icon="ph:calendar-check-fill" width={18} /> Book a Service
+            </button>
           </div>
+
+         
+
         </div>
       </section>
 
+      {/* ── SERVICE DETAIL SECTIONS ───────────────────────────────────── */}
       <ServiceSection id="solar-energy"      badge="Solar"        heading="Solar Energy Services"           sub="End-to-end solar solutions from design to installation and ongoing maintenance"       services={solarServices} />
       <ServiceSection id="power-backup-ups"  badge="Power Backup" heading="Power Backup & UPS Services"     sub="Professional inverter and UPS solutions ensuring uninterrupted power supply"          services={powerBackupServices} />
       <ServiceSection id="battery-services"  badge="Battery"      heading="Battery Services"                sub="Comprehensive battery care for maximum performance and longevity"                     services={batteryServices} />
@@ -143,7 +171,7 @@ export default function ServicesPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto">
             {serviceFeatures.map((feature: any, index: number) => {
-              const style = cardStyles[index % cardStyles.length];
+              const style    = cardStyles[index % cardStyles.length];
               const iconName = iconMap[feature.icon] || 'ph:lightning-fill';
               return (
                 <GlassCard key={index} className="p-5 sm:p-7 flex flex-col items-center text-center">
@@ -189,10 +217,12 @@ export default function ServicesPage() {
               Get professional installation, maintenance, and support for all your power backup and solar needs. Contact us today!
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6 sm:mb-8">
-              <a href="/contactus" className="inline-flex items-center justify-center gap-2 bg-primary text-white px-6 sm:px-8 py-3 rounded-full font-bold hover:bg-dark transition-colors shadow-md text-sm sm:text-base">
+              <a href="/contactus"
+                className="inline-flex items-center justify-center gap-2 bg-primary text-white px-6 sm:px-8 py-3 rounded-full font-bold hover:bg-dark transition-colors shadow-md text-sm sm:text-base">
                 <Icon icon="ph:phone-fill" width={18} /> Contact Us
               </a>
-              <button onClick={() => router.push('/products')}
+              <button
+                onClick={() => router.push('/products')}
                 className="inline-flex items-center justify-center gap-2 border-2 border-primary text-primary px-6 sm:px-8 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition-colors text-sm sm:text-base">
                 View Our Products <Icon icon="ph:arrow-right-bold" width={16} />
               </button>

@@ -5,6 +5,7 @@ import { Icon } from '@iconify/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import CartEMISummary, { TENURES, calcEMI } from '@/components/EMI/CartEMISummary';
 
 const WHATSAPP_NUMBER = '918019179159';
@@ -14,13 +15,18 @@ function inr(n: number) {
 }
 
 export default function CartPage() {
+  const router = useRouter();
   const { cartItems, updateQuantity, removeFromCart, getSubtotal, getTotalSavings } = useCart();
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [couponDiscount, setCouponDiscount] = useState(0);
 
-  // ── EMI state lifted here so checkout can read it ──
-  const [emiSelected, setEmiSelected] = useState(1) // default: 6 months
+  // ── Customer email for Google survey ──
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  // ── EMI state ──
+  const [emiSelected, setEmiSelected] = useState(1);
 
   const subtotal = getSubtotal();
   const totalSavings = getTotalSavings();
@@ -33,9 +39,8 @@ export default function CartPage() {
   const couponDiscountAmount = couponDiscount;
   const totalAmount = subtotal - couponDiscountAmount + deliveryCharges;
 
-  // EMI calculation based on selected tenure
-  const selectedTenure = TENURES[emiSelected]
-  const { emi, interest, total: emiTotal } = calcEMI(totalAmount, selectedTenure.rate, selectedTenure.months)
+  const selectedTenure = TENURES[emiSelected];
+  const { emi, interest, total: emiTotal } = calcEMI(totalAmount, selectedTenure.rate, selectedTenure.months);
 
   const handleApplyCoupon = () => {
     const code = couponCode.trim().toUpperCase();
@@ -65,13 +70,31 @@ export default function CartPage() {
     if (appliedCoupon) handleRemoveCoupon();
   };
 
-  // ── WhatsApp checkout message ───────────────────────────────────────────
+  // ── Validate email ────────────────────────────────────────────────────────
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  // ── WhatsApp checkout + redirect to thank-you page ────────────────────────
   const handleCheckout = () => {
+    // Validate email before proceeding
+    if (!customerEmail.trim()) {
+      setEmailError('Please enter your email to receive order updates');
+      document.getElementById('customer-email')?.focus();
+      return;
+    }
+    if (!validateEmail(customerEmail)) {
+      setEmailError('Please enter a valid email address');
+      document.getElementById('customer-email')?.focus();
+      return;
+    }
+    setEmailError('');
+
     const itemLines = cartItems
       .map((item, i) =>
         `${i + 1}. *${item.name}*\n   SKU: ${item.SKU}\n   Qty: ${item.quantity} × ${inr(item.price)} = ${inr(item.price * item.quantity)}`
       )
-      .join('\n\n')
+      .join('\n\n');
 
     const emiSection = [
       '💳 *EMI Plan Selected:*',
@@ -80,7 +103,7 @@ export default function CartPage() {
       `   Total Interest: ${interest === 0 ? '₹0 (No Cost)' : inr(interest)}`,
       `   Total Payable: ${inr(emiTotal)}`,
       `   *Monthly EMI: ${inr(emi)}/month*`,
-    ].join('\n')
+    ].join('\n');
 
     const message = [
       '🛒 *New Order Inquiry — Satyajan Energy Solutions*',
@@ -97,15 +120,29 @@ export default function CartPage() {
       '━━━━━━━━━━━━━━━━━━━━━━━',
       emiSection,
       '━━━━━━━━━━━━━━━━━━━━━━━',
+      `📧 Customer Email: ${customerEmail}`,
       `📊 Total Items: ${cartItems.reduce((s, i) => s + i.quantity, 0)}`,
       '\nPlease confirm availability and delivery details. Thank you! 🙏',
     ]
       .filter(Boolean)
-      .join('\n')
+      .join('\n');
 
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank')
-  }
-  // ────────────────────────────────────────────────────────────────────────
+    // Open WhatsApp
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+
+    // Generate order reference ID
+    const orderId = `SAT-${Date.now()}`;
+
+    // Estimated delivery: 7 days from now
+    const deliveryDate = new Date();
+    deliveryDate.setDate(deliveryDate.getDate() + 7);
+    const deliveryDateStr = deliveryDate.toISOString().split('T')[0];
+
+    // Redirect to thank-you page with email for Google survey
+    router.push(
+      `/cart/thank-you?orderId=${orderId}&email=${encodeURIComponent(customerEmail)}&deliveryDate=${deliveryDateStr}&country=IN`
+    );
+  };
 
   if (cartItems.length === 0) {
     return (
@@ -251,13 +288,54 @@ export default function CartPage() {
                 )}
               </div>
 
-              {/* EMI — controlled by parent state */}
+              {/* EMI */}
               <div className="mb-6">
                 <CartEMISummary
                   cartTotal={totalAmount}
                   selected={emiSelected}
                   onSelect={setEmiSelected}
                 />
+              </div>
+
+              {/* ── Email field for Google survey ── */}
+              <div className="mb-5">
+                <label
+                  htmlFor="customer-email"
+                  className="block text-sm font-semibold text-gray-800 mb-1.5"
+                >
+                  Your Email
+                  <span className="text-red-500 ml-0.5">*</span>
+                  <span className="text-xs text-gray-400 font-normal ml-1">(for order updates)</span>
+                </label>
+                <div className="relative">
+                  <Icon
+                    icon="ph:envelope-fill"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    width={16}
+                  />
+                  <input
+                    id="customer-email"
+                    type="email"
+                    value={customerEmail}
+                    onChange={(e) => {
+                      setCustomerEmail(e.target.value);
+                      if (emailError) setEmailError('');
+                    }}
+                    placeholder="you@example.com"
+                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors ${
+                      emailError ? 'border-red-400 bg-red-50' : 'border-gray-300'
+                    }`}
+                  />
+                </div>
+                {emailError && (
+                  <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                    <Icon icon="ph:warning-circle-fill" width={12} />
+                    {emailError}
+                  </p>
+                )}
+                <p className="text-[11px] text-gray-400 mt-1">
+                  Used only for order confirmation & delivery updates
+                </p>
               </div>
 
               {/* Buttons */}
@@ -276,6 +354,7 @@ export default function CartPage() {
                   Continue Shopping
                 </Link>
               </div>
+
             </div>
           </div>
         </div>

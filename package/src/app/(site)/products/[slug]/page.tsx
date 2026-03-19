@@ -49,6 +49,25 @@ async function fetchProduct(slug: string): Promise<any | null> {
   return null;
 }
 
+// ── Extract a valid URL from any image shape ──────────────────────────────────
+// Live API returns images as objects: { src, alt, width, height }
+// DB may return plain strings
+function extractImageSrc(img: any): string {
+  if (!img) return '';
+  if (typeof img === 'string') return img;
+  // object shapes from live API
+  return img.src || img.url || img.image || img.href || '';
+}
+
+// ── Strip "wishlist shareicon" UI artifacts ───────────────────────────────────
+function cleanName(name: string): string {
+  return (name || '')
+    .replace(/\s*wishlist\s*shareicon\s*/gi, '')
+    .replace(/\s*shareicon\s*/gi, '')
+    .replace(/\s*wishlist\s*/gi, '')
+    .trim();
+}
+
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
@@ -63,21 +82,25 @@ export async function generateMetadata(
     };
   }
 
-  const title = `${product.name} – Price, Specs & Buy Online | Satyajan`;
+  const name  = cleanName(product.name);
+  const title = `${name} – Price, Specs & Buy Online | Satyajan`;
   const description = product.description
     ? `${product.description.slice(0, 140)}… Buy online at Satyajan Energy Solutions, Hyderabad.`
-    : `Buy ${product.name} at Satyajan Energy Solutions. Best price in Hyderabad. EMI available.`;
-  const image = product.images?.[0] ?? 'https://satyajan.com/images/og-default.jpg';
+    : `Buy ${name} at Satyajan Energy Solutions. Best price in Hyderabad. EMI available.`;
+
+  // Safe image extraction for OG
+  const rawFirstImage = Array.isArray(product.images) ? product.images[0] : null;
+  const ogImage = extractImageSrc(rawFirstImage) || 'https://satyajan.com/images/og-default.jpg';
   const url = `https://satyajan.com/products/${product.slug ?? slug}`;
 
   return {
     title,
     description,
     keywords: [
-      product.name,
-      `${product.name} price`,
-      `${product.name} Hyderabad`,
-      `buy ${product.name}`,
+      name,
+      `${name} price`,
+      `${name} Hyderabad`,
+      `buy ${name}`,
       product.category ?? 'energy product',
       'Satyajan Energy Solutions',
       'Microtek dealer Hyderabad',
@@ -89,13 +112,13 @@ export async function generateMetadata(
       title,
       description,
       siteName: 'Satyajan Energy Solutions',
-      images: [{ url: image, width: 800, height: 600, alt: product.name }],
+      images: [{ url: ogImage, width: 800, height: 600, alt: name }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [image],
+      images: [ogImage],
     },
   };
 }
@@ -105,13 +128,40 @@ export default async function Details({ params }: { params: Promise<{ slug: stri
   const dbProduct = await fetchProduct(slug);
   if (!dbProduct) return notFound();
 
+  // ── Clean name ──────────────────────────────────────────────────────────────
+  const name = cleanName(dbProduct.name);
+
+  // ── Normalize images → always { src: string }[] with valid URLs ─────────────
+  const rawImages: any[] = Array.isArray(dbProduct.images) ? dbProduct.images : [];
+  const images = rawImages
+    .map(img => {
+      const src = extractImageSrc(img);
+      // Fix protocol-relative URLs like "//microtek.in/..."
+      if (src.startsWith('//')) return { src: `https:${src}` };
+      // Fix double-slash artifacts like "/https://..."
+      if (src.startsWith('/http')) return { src: src.replace(/^\//, '') };
+      return { src };
+    })
+    .filter(img =>
+      img.src &&
+      (img.src.startsWith('http') || img.src.startsWith('/'))
+    );
+
   const product = {
     id: slug,
-    name: dbProduct.name,
+    name,
     price: dbProduct.price || 0,
-    images: Array.isArray(dbProduct.images) ? dbProduct.images : [],
-    salient_features: Array.isArray(dbProduct.salient_features) ? dbProduct.salient_features : [],
-    features: Array.isArray(dbProduct.features) ? dbProduct.features : [],
+    images: rawImages, // keep raw for reference — images variable is what we pass
+    salient_features: Array.isArray(dbProduct.salient_features)
+      ? dbProduct.salient_features.map((f: any) =>
+          typeof f === 'string' ? f : f?.value || f?.label || f?.text || ''
+        ).filter(Boolean)
+      : [],
+    features: Array.isArray(dbProduct.features)
+      ? dbProduct.features.map((f: any) =>
+          typeof f === 'string' ? f : f?.value || f?.label || f?.text || ''
+        ).filter(Boolean)
+      : [],
     specifications: Array.isArray(dbProduct.specifications) ? dbProduct.specifications : [],
     description: dbProduct.description || '',
     category: categoryMap[dbProduct.category || ''] || dbProduct.category || '',
@@ -119,14 +169,8 @@ export default async function Details({ params }: { params: Promise<{ slug: stri
     SKU: dbProduct.SKU || `PROD-${dbProduct.id}`,
     data: Array.isArray(dbProduct.specifications)
       ? dbProduct.specifications.slice(0, 3)
-      : []
+      : [],
   };
-
-  const images = Array.isArray(product.images)
-    ? product.images
-      .filter((src: string) => !!src && (src.startsWith('/') || src.startsWith('http')))
-      .map((src: string) => ({ src: src.replace(/^\/(https?:\/\/)/, '$1') }))
-    : [];
 
   const formattedPrice = product.price
     ? `₹${Number(product.price).toLocaleString('en-IN')}`

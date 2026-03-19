@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropertyCard from '@/components/Home/Product/Card/Card';
 import type { PropertyHomes } from '@/types/properyHomes';
 
@@ -19,6 +19,12 @@ const GlassCard = ({ children, className = '' }: { children: React.ReactNode; cl
 const ProductListClient = ({ propertyHomes, categories, initialFilter }: ProductListClientProps) => {
   const [filter, setFilter] = useState<string>(initialFilter || "all");
 
+  // ✅ Sync filter when URL ?category= param changes
+  // (e.g. clicking footer links while already on /products)
+  useEffect(() => {
+    setFilter(initialFilter || "all");
+  }, [initialFilter]);
+
   const FILTERS = [
     { label: "All Products", value: "all" },
     ...categories.map(cat => ({ label: cat, value: cat }))
@@ -33,7 +39,7 @@ const ProductListClient = ({ propertyHomes, categories, initialFilter }: Product
     <main className="min-h-screen">
       <section className="px-3 sm:px-4 max-w-7xl mx-auto !pt-0 pb-12 sm:pb-16">
 
-        {/* Filter tabs — horizontally scrollable on mobile */}
+        {/* Filter tabs */}
         <GlassCard className="p-3 sm:p-4 mb-8">
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none snap-x">
             {FILTERS.map((f) => (
@@ -63,7 +69,7 @@ const ProductListClient = ({ propertyHomes, categories, initialFilter }: Product
           </p>
         </div>
 
-        {/* Grid — 1 col mobile, 2 col tablet, 3 col desktop */}
+        {/* Grid */}
         {filtered.length === 0 ? (
           <GlassCard className="p-10 sm:p-16 text-center">
             <p className="text-gray-500 text-base sm:text-lg font-medium">No products found in this category.</p>
