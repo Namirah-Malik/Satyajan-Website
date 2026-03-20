@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react'
@@ -36,7 +35,7 @@ const PlayfulIcon = ({ icon, ringColor, bgColor }: { icon: string; ringColor: st
 export default function HomePageClient() {
   const [contactForm, setContactForm] = useState({ name: '', email: '', phone: '', message: '' })
   const [showSavingsCalculator, setShowSavingsCalculator] = useState(false)
-
+  const [openFaq, setOpenFaq] = useState<number | null>(0)
 
   const [contactErrors, setContactErrors] = useState({ name: '', email: '', phone: '', message: '' })
   const [contactTouched, setContactTouched] = useState({ name: false, email: false, phone: false, message: false })
@@ -104,6 +103,8 @@ export default function HomePageClient() {
     'Are the products covered under warranty?',
   ]
 
+  const visibleFaqs = faqs.filter((f: any) => !removedFaqs.includes(f.question))
+
   const allProducts = products.filter((p: any) => p.name !== 'Combos')
 
   const renderProductCard = (product: any) => (
@@ -145,10 +146,7 @@ export default function HomePageClient() {
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <section id="hero" className="relative pt-16 sm:pt-20 md:pt-24 pb-0 overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-yellow-50">
         <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 md:py-16 relative z-10">
-          {/* ✅ CHANGE APPLIED BELOW: changed items-center to lg:items-end */}
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 lg:items-end">
-
-            {/* LEFT */}
             <div className="flex flex-col space-y-4 md:space-y-6">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-gray-900 leading-tight">
                 Power Your Future with{' '}
@@ -160,8 +158,6 @@ export default function HomePageClient() {
                 Save up to 80% on electricity bills. 25-year warranty. Easy EMI options.
                 Join 1000+ satisfied customers across India.
               </p>
-
-              {/* Buttons — stack on mobile */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
@@ -176,8 +172,6 @@ export default function HomePageClient() {
                   <Calculator className="w-4 h-4" /> Calculate Savings
                 </button>
               </div>
-
-              {/* Stats - Now aligned with image bottom */}
               <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 pt-2">
                 {[
                   { value: '1000+', label: 'Happy Customers' },
@@ -193,8 +187,6 @@ export default function HomePageClient() {
                 ))}
               </div>
             </div>
-
-            {/* RIGHT — shows below text on mobile */}
             <div className="mt-2 lg:mt-0">
               <GlassCard className="overflow-hidden p-1.5 sm:p-2">
                 <img
@@ -244,8 +236,6 @@ export default function HomePageClient() {
               Comprehensive range of power solutions backed by Microtek's quality and our expert local support.
             </p>
           </div>
-
-          {/* All 6 products — uniform 3-col grid, same size cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
             {allProducts.map((p: any) => renderProductCard(p))}
           </div>
@@ -307,29 +297,73 @@ export default function HomePageClient() {
             ))}
           </div>
         </div>
-        <WavyDivider />
+        {/* No WavyDivider here — FAQ follows immediately */}
       </section>
 
       {/* ── FAQ ──────────────────────────────────────────────────────── */}
       <section id="faq" className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 max-w-7xl mx-auto">
-        <div className="mb-6 sm:mb-10 md:mb-12">
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">Frequently Asked Questions</h2>
-          <p className="text-xs sm:text-sm md:text-base text-gray-600 max-w-3xl font-medium">Everything you need to know about our products and services.</p>
+        <div className="mb-6 sm:mb-8 md:mb-10">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-1 sm:mb-2 tracking-tight">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-xs sm:text-sm md:text-base text-gray-600 max-w-3xl font-medium">
+            Everything you need to know about our products and services.
+          </p>
         </div>
+
+        {/* ── Two column: accordions left, image right — perfectly aligned ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 items-start">
-          <div className="space-y-2 sm:space-y-3 md:space-y-4">
-            {faqs.filter((f: any) => !removedFaqs.includes(f.question)).map((f: any, i: number) => (
-              <GlassCard key={i} className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4">
-                <details>
-                  <summary className="font-semibold cursor-pointer text-gray-900 text-xs sm:text-sm md:text-base">{f.question}</summary>
-                  <div className="mt-2 text-gray-600 font-medium text-xs leading-relaxed">{f.answer}</div>
-                </details>
-              </GlassCard>
+
+          {/* Left — custom accordion (no extra space from details/summary) */}
+          <div className="space-y-2 sm:space-y-3">
+            {visibleFaqs.map((f: any, i: number) => (
+              <div
+                key={i}
+                className="bg-white/60 backdrop-blur-lg rounded-xl sm:rounded-2xl border border-white/40 shadow-md overflow-hidden"
+              >
+                {/* Question row */}
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-4 text-left"
+                >
+                  <span className="font-semibold text-gray-900 text-xs sm:text-sm md:text-base leading-snug">
+                    {f.question}
+                  </span>
+                  <span className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center transition-colors duration-200 ${
+                    openFaq === i ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500'
+                  }`}>
+                    <Icon
+                      icon={openFaq === i ? 'ph:minus-bold' : 'ph:plus-bold'}
+                      width={12}
+                    />
+                  </span>
+                </button>
+
+                {/* Answer — smooth expand/collapse */}
+                <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                  openFaq === i ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                }`}>
+                  <p className="px-4 sm:px-5 pb-3 sm:pb-4 text-gray-600 text-xs sm:text-sm leading-relaxed font-medium border-t border-gray-100 pt-2">
+                    {f.answer}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
-          <div className="hidden lg:block w-full rounded-3xl overflow-hidden shadow-xl border border-white/30">
-            <img src="/images/faqs/homeimagefaq.jpeg" alt="FAQ" className="w-full h-full object-cover" />
+
+          {/* Right — image, hidden on mobile, shows on lg+ */}
+          <div className="hidden lg:block sticky top-24">
+            <div className="rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border border-white/30">
+              <img
+                src="/images/faqs/homeimagefaq.jpeg"
+                alt="FAQ illustration"
+                className="w-full h-full object-cover"
+                style={{ maxHeight: `${visibleFaqs.length * 68}px`, minHeight: '320px' }}
+              />
+            </div>
           </div>
+
         </div>
       </section>
 
@@ -392,7 +426,6 @@ export default function HomePageClient() {
               )}
 
               <form onSubmit={handleContactSubmit} noValidate className="space-y-3 md:space-y-4">
-                {/* Name */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Name *</label>
                   <input type="text" name="name" value={contactForm.name}
@@ -405,8 +438,6 @@ export default function HomePageClient() {
                     <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.name}</p>
                   )}
                 </div>
-
-                {/* Email */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Email *</label>
                   <input type="email" name="email" value={contactForm.email}
@@ -419,8 +450,6 @@ export default function HomePageClient() {
                     <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.email}</p>
                   )}
                 </div>
-
-                {/* Phone */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Phone *</label>
                   <div className={`flex items-center rounded-xl border overflow-hidden transition ${
@@ -438,8 +467,6 @@ export default function HomePageClient() {
                     <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.phone}</p>
                   )}
                 </div>
-
-                {/* Message */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Message *</label>
                   <textarea name="message" value={contactForm.message}
@@ -453,7 +480,6 @@ export default function HomePageClient() {
                     <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.message}</p>
                   )}
                 </div>
-
                 <button type="submit" className="w-full bg-gradient-to-r from-emerald-500 to-teal-400 text-white py-2.5 md:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-all text-xs sm:text-sm md:text-base">
                   Send Message <Send className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>

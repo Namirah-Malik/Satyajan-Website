@@ -23,7 +23,6 @@ const ProductLinks = [
   { label: 'Combos',              href: '/products?category=Combos' },
 ]
 
-// Each service links to its specific section on the services page via anchor
 const ServiceLinks = [
   { label: 'Solar Energy',                    href: '/services#solar-energy' },
   { label: 'Power Backup & UPS',              href: '/services#power-backup-ups' },
@@ -85,7 +84,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Our Services — each links to its specific section */}
+          {/* Our Services */}
           <div>
             <h4 className="text-white text-lg font-semibold mb-4">Our Services</h4>
             <ul className="space-y-2">
@@ -127,21 +126,40 @@ const Footer = () => {
 
               {/* Social icons */}
               <div className="flex items-center gap-3 pt-2 flex-wrap">
+
                 <Link href="https://www.instagram.com/satyajan.solutions/" target="_blank">
                   <Icon icon="fa7-brands:instagram" width={22} height={22} className="text-white/60 hover:text-primary transition-colors" />
                 </Link>
+
                 <Link href="https://www.linkedin.com/company/satyajan-energy-solutions-pvt-ltd/" target="_blank">
                   <Icon icon="fa7-brands:linkedin" width={22} height={22} className="text-white/60 hover:text-primary transition-colors" />
                 </Link>
+
                 <Link href="https://www.facebook.com/profile.php?id=61577768371371&sk=followers" target="_blank">
                   <Icon icon="fa7-brands:square-facebook" width={22} height={22} className="text-white/60 hover:text-primary transition-colors" />
                 </Link>
-                <Link href="https://www.indiamart.com/satyajanenergysolutions/profile.html" target="_blank" rel="noopener noreferrer">
-                  <span className="flex items-center justify-center w-5 h-5 text-white/60 hover:text-primary transition-colors font-black text-xs">IM</span>
+
+                {/* IndiaMART logo — save the logo at public/images/social/indiamart.png */}
+                <Link
+                  href="https://www.indiamart.com/satyajanenergysolutions/profile.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="opacity-60 hover:opacity-100 transition-opacity flex items-center justify-center"
+                >
+                  <Image
+                    src="/images/social/indiamart.png"
+                    alt="IndiaMART"
+                    width={22}
+                    height={22}
+                    unoptimized
+                    className="rounded-sm object-contain"
+                  />
                 </Link>
+
                 <Link href="https://www.google.com/maps/place/Satyajan+Energy+Solutions+Pvt.Ltd./@17.3326358,78.5367308,15.91z" target="_blank" rel="noopener noreferrer">
                   <Icon icon="fa7-brands:google" width={22} height={22} className="text-white/60 hover:text-primary transition-colors" />
                 </Link>
+
               </div>
 
             </div>
