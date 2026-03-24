@@ -1,118 +1,361 @@
-import React, { useState, useRef } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import type { PropertyHomes } from '@/types/properyHomes';
+'use client';
 
-// Add sticky prop type
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Icon } from '@iconify/react';
+
 type SearchProps = {
-    sticky?: boolean;
-    isHomepage?: boolean;
+  sticky?: boolean;
+  isHomepage?: boolean;
 };
+
+type Product = {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  category: string;
+  images: { src: string }[];
+  features: string[];
+  description?: string;
+  salient_features?: string[];
+};
+
+// ── Maps search keywords → actual API category values ─────────────────────────
+const CATEGORY_MAP: Record<string, string[]> = {
+  'solar':    ['Solar', 'Solar Inverter', 'Solar Battery'],
+  'inverter': ['Inverter', 'Solar Inverter'],
+  'battery':  ['Battery', 'New Lithium Battery', 'Solar Battery'],
+  'lithium':  ['New Lithium Battery'],
+  'ups':      ['ONLINE UPS', 'High Capacity UPS'],
+  'online':   ['ONLINE UPS'],
+  'jumbo':    ['High Capacity UPS'],
+  'combo':    ['Combos'],
+  'combos':   ['Combos'],
+};
+
+// ── Image URL fixer ───────────────────────────────────────────────────────────
+// Converts wrapped Next.js image URLs to direct cms.microtek.in URLs
+// Before: https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Ffilename.jpg&w=3840&q=75
+// After:  https://cms.microtek.in/upload/product/filename.jpg
+function resolveImageUrl(src: string): string {
+  if (!src) return '';
+  try {
+    if (src.includes('/_next/image')) {
+      const parsed = new URL(src);
+      const inner = parsed.searchParams.get('url');
+      if (inner) return decodeURIComponent(inner);
+    }
+  } catch {
+    // fall through
+  }
+  return src;
+}
+
+// ── Resolve category param for "View all" navigation ─────────────────────────
+function resolveCategoryParam(q: string): string | null {
+  const lower = q.toLowerCase().trim();
+  if (CATEGORY_MAP[lower]) return CATEGORY_MAP[lower][0];
+  const partial = Object.entries(CATEGORY_MAP).find(
+    ([key]) => key.includes(lower) || lower.includes(key)
+  );
+  if (partial) return partial[1][0];
+  return null;
+}
 
 const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
-    const [query, setQuery] = useState('');
-    const [showResults, setShowResults] = useState(false);
-    const [products, setProducts] = useState<PropertyHomes[]>([]);
-    const [loading, setLoading] = useState(false);
-    const fetchedRef = useRef(false);
+  const router = useRouter();
+  const [query, setQuery] = useState('');
+  const [showResults, setShowResults] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+  const fetchedRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-    // Fetch products from API and map to PropertyHomes structure
-    const fetchProducts = async () => {
-        if (fetchedRef.current) return;
-        setLoading(true);
-        try {
-            const res = await fetch('/api/products');
-            const data = await res.json();
+  // ── Fetch all products once ───────────────────────────────────────────────
+  const fetchProducts = useCallback(async () => {
+    if (fetchedRef.current) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/products');
+      const data = await res.json();
+      const productList = Array.isArray(data.products) ? data.products : [];
 
-            // Fix: Access data.products from the API response object
-            const productList = data.products || [];
+      const mapped: Product[] = productList.map((p: any) => {
+        // ✅ Resolve each image URL to direct cms.microtek.in format
+        const images: { src: string }[] = Array.isArray(p.images)
+          ? p.images
+              .map((img: any) => {
+                let src = typeof img === 'string' ? img : img?.src || img?.url || '';
+                src = resolveImageUrl(src);
+                return src && src.trim() ? { src: src.trim() } : null;
+              })
+              .filter(Boolean) as { src: string }[]
+          : [];
 
-            // Map API data to PropertyHomes structure - just use ID as slug
-            const mapped: PropertyHomes[] = Array.isArray(productList)
-                ? productList.map((product: any) => ({
-                    name: product.name,
-                    slug: product.id,
-                    location: '',
-                    rate: product.price?.toString() || '',
-                    beds: 0,
-                    baths: 0,
-                    area: 0,
-                    images: Array.isArray(product.images)
-                        ? product.images.filter((src: string) => !!src && (src.startsWith('/') || src.startsWith('http'))).map((src: string) => ({ src }))
-                        : [],
-                    features: product.features || [],
-                    category: product.category || '',
-                }))
-                : [];
-            setProducts(mapped);
-            fetchedRef.current = true;
-        } catch (e) {
-            setProducts([]);
-        } finally {
-            setLoading(false);
-        }
+        const slug = p.slug || p.id || '';
+
+        return {
+          id: p.id || slug,
+          name: (p.name || '').trim(),
+          slug,
+          price: Number(p.price || p.rate || 0),
+          category: p.category || '',
+          images,
+          features: Array.isArray(p.features)
+            ? p.features.map((f: any) => typeof f === 'string' ? f : f?.value || f?.label || '').filter(Boolean)
+            : [],
+          salient_features: Array.isArray(p.salient_features)
+            ? p.salient_features.map((f: any) => typeof f === 'string' ? f : f?.value || f?.label || '').filter(Boolean)
+            : [],
+          description: p.description || '',
+        };
+      }).filter((p: Product) => p.name && p.slug);
+
+      setProducts(mapped);
+      fetchedRef.current = true;
+    } catch (e) {
+      console.error('Search fetch error:', e);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // ── Close on outside click ────────────────────────────────────────────────
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setShowResults(false);
+      }
     };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-    const filtered = products.filter((item) => {
-        const searchTerm = query.toLowerCase();
-        return (
-            item.name.toLowerCase().includes(searchTerm) ||
-            item.category?.toLowerCase().includes(searchTerm) ||
-            item.features?.some(f => f.toLowerCase().includes(searchTerm))
-        );
-    });
+  // ── Navigate to products page with correct param ──────────────────────────
+  const navigateToProducts = useCallback((q: string) => {
+    const trimmed = q.trim();
+    if (!trimmed) { router.push('/products'); return; }
+    const category = resolveCategoryParam(trimmed);
+    if (category) {
+      router.push(`/products?category=${encodeURIComponent(category)}`);
+    } else {
+      router.push(`/products?search=${encodeURIComponent(trimmed)}`);
+    }
+  }, [router]);
 
-    return (
-        <div className="relative w-full max-w-xs">
-            <input
-                type="text"
-                className={`w-full px-4 py-2 border focus:outline-none focus:ring rounded-full transition-colors duration-200 ${(!isHomepage || sticky) ? 'bg-white text-dark border-dark placeholder:text-dark/60' : 'bg-transparent text-white border-white placeholder:text-white/60'}`}
-                placeholder="Search..."
-                value={query}
-                onChange={(e) => {
-                    setQuery(e.target.value);
-                    setShowResults(true);
-                }}
-                onBlur={() => setTimeout(() => setShowResults(false), 200)}
-                onFocus={() => {
-                    setShowResults(true);
-                    fetchProducts();
-                }}
-            />
-            {showResults && query && (
-                <div className="absolute left-1/2 -translate-x-1/2 bg-white border rounded shadow z-20 max-h-[400px] overflow-y-auto p-4 w-[90vw] sm:w-[600px] md:w-[700px]">
-                    {loading ? (
-                        <div className="px-4 py-2 text-gray-500">Loading...</div>
-                    ) : filtered.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-4">
-                            {filtered.map((item) => (
-                                <Link
-                                    key={item.slug}
-                                    href={`/products/${item.slug}`}
-                                    className="flex flex-col items-center rounded-lg p-4 hover:bg-gray-100 transition"
-                                    onClick={() => setShowResults(false)}
-                                >
-                                    {item.images && item.images[0]?.src && (
-                                        <Image
-                                            src={item.images[0].src}
-                                            alt={item.name}
-                                            width={250}
-                                            height={205}
-                                            className="rounded object-cover mb-2"
-                                            unoptimized={true}
-                                        />
-                                    )}
-                                    <span className="text-center font-semibold text-black mt-2 text-base">{item.name}</span>
-                                </Link>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="px-4 py-2 text-gray-500">No results found.</div>
-                    )}
-                </div>
+  // ── Smart filtered results with category scoring ──────────────────────────
+  const filtered = query.trim().length < 1 ? [] : (() => {
+    const q = query.toLowerCase().trim();
+
+    const matchedCategories = CATEGORY_MAP[q] ||
+      Object.entries(CATEGORY_MAP)
+        .filter(([key]) => key.includes(q) || q.includes(key))
+        .flatMap(([, cats]) => cats);
+
+    return products
+      .map(item => {
+        const nameLower = item.name.toLowerCase();
+        const catLower = item.category.toLowerCase();
+        let score = 0;
+
+        if (
+          matchedCategories.length > 0 &&
+          matchedCategories.some(c => c.toLowerCase() === catLower)
+        ) score += 100;
+
+        if (nameLower.includes(q)) score += 50;
+        if (catLower.includes(q)) score += 40;
+        if ((item.description || '').toLowerCase().includes(q)) score += 5;
+        if (score > 0 && item.features.some(f => f.toLowerCase().includes(q))) score += 2;
+
+        return { item, score };
+      })
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map(({ item }) => item)
+      .slice(0, 9);
+  })();
+
+  // ── Build "View all" href ─────────────────────────────────────────────────
+  const viewAllHref = (() => {
+    const trimmed = query.trim();
+    if (!trimmed) return '/products';
+    const category = resolveCategoryParam(trimmed);
+    if (category) return `/products?category=${encodeURIComponent(category)}`;
+    return `/products?search=${encodeURIComponent(trimmed)}`;
+  })();
+
+  const isLight = !isHomepage || sticky;
+
+  return (
+    <div ref={containerRef} className="relative w-full max-w-xs">
+
+      {/* ── Input ── */}
+      <div className="relative">
+        <Icon
+          icon="ph:magnifying-glass-bold"
+          className={`absolute left-3 top-1/2 -translate-y-1/2 ${isLight ? 'text-gray-400' : 'text-white/60'}`}
+          width={16}
+        />
+        <input
+          type="text"
+          className={`w-full pl-9 pr-4 py-2 border focus:outline-none focus:ring-2 rounded-full transition-colors duration-200 text-sm ${
+            isLight
+              ? 'bg-white text-dark border-gray-200 placeholder:text-gray-400 focus:ring-primary/30'
+              : 'bg-white/10 text-white border-white/30 placeholder:text-white/50 focus:ring-white/30'
+          }`}
+          placeholder="Search products..."
+          value={query}
+          autoComplete="off"
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setShowResults(true);
+          }}
+          onFocus={() => {
+            setShowResults(true);
+            fetchProducts();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && query.trim()) {
+              setShowResults(false);
+              navigateToProducts(query);
+            }
+          }}
+        />
+        {query && (
+          <button
+            onClick={() => { setQuery(''); setShowResults(false); }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <Icon icon="ph:x-bold" width={12} />
+          </button>
+        )}
+      </div>
+
+      {/* ── Dropdown results ── */}
+      {showResults && query.trim().length > 0 && (
+        <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 w-[92vw] sm:w-[580px] md:w-[660px] overflow-hidden">
+
+          {/* Header */}
+          <div className="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between">
+            <span className="text-xs font-semibold text-gray-500">
+              {loading
+                ? 'Searching…'
+                : filtered.length > 0
+                  ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''} for "${query}"`
+                  : `No results for "${query}"`
+              }
+            </span>
+            {filtered.length > 0 && (
+              <Link
+                href={viewAllHref}
+                className="text-xs text-primary font-semibold hover:underline"
+                onClick={() => setShowResults(false)}
+              >
+                View all →
+              </Link>
             )}
+          </div>
+
+          {/* Body */}
+          <div className="max-h-[440px] overflow-y-auto">
+            {loading ? (
+              <div className="flex items-center justify-center gap-2 py-10 text-gray-400">
+                <Icon icon="svg-spinners:3-dots-fade" width={28} />
+                <span className="text-sm font-medium">Loading products…</span>
+              </div>
+            ) : filtered.length > 0 ? (
+              <div className="grid grid-cols-3 divide-x divide-y divide-gray-100">
+                {filtered.map((item) => {
+                  const imgSrc = item.images[0]?.src || '';
+                  const showImg = imgSrc && !imgErrors[item.slug];
+                  return (
+                    <Link
+                      key={item.slug}
+                      href={`/products/${item.slug}`}
+                      className="flex flex-col items-start p-3 hover:bg-emerald-50/60 transition-colors group"
+                      onClick={() => { setShowResults(false); setQuery(''); }}
+                    >
+                      {/* Image */}
+                      <div className="w-full aspect-square rounded-xl overflow-hidden bg-gray-50 mb-2 flex items-center justify-center border border-gray-100">
+                        {showImg ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={imgSrc}
+                            alt={item.name}
+                            className="w-full h-full object-contain p-1.5"
+                            onError={() => setImgErrors(prev => ({ ...prev, [item.slug]: true }))}
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center w-full h-full bg-primary/5">
+                            <Icon icon="ph:lightning-fill" className="text-primary/30" width={28} />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Category badge */}
+                      {item.category && (
+                        <span className="text-[9px] font-bold text-white bg-primary px-1.5 py-0.5 rounded-full mb-1">
+                          {item.category}
+                        </span>
+                      )}
+
+                      {/* Name */}
+                      <span className="text-[11px] font-bold text-gray-800 leading-snug line-clamp-2 w-full group-hover:text-primary transition-colors">
+                        {item.name}
+                      </span>
+
+                      {/* Price */}
+                      {item.price > 0 && (
+                        <span className="text-[11px] font-extrabold text-primary mt-1">
+                          ₹{item.price.toLocaleString('en-IN')}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 gap-3 text-gray-400">
+                <Icon icon="ph:magnifying-glass" width={36} />
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-gray-500">No products found</p>
+                  <p className="text-xs text-gray-400 mt-1">Try: "Solar", "Battery", "Inverter", "UPS", "Combo"</p>
+                </div>
+                <Link
+                  href="/products"
+                  className="text-xs text-primary font-semibold hover:underline mt-1"
+                  onClick={() => setShowResults(false)}
+                >
+                  Browse all products →
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          {filtered.length > 0 && (
+            <div className="px-4 py-2.5 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
+              <span className="text-xs text-gray-400">
+                Showing {filtered.length} of {products.length} products
+              </span>
+              <Link
+                href={viewAllHref}
+                className="text-xs text-primary hover:underline font-semibold"
+                onClick={() => setShowResults(false)}
+              >
+                Browse all →
+              </Link>
+            </div>
+          )}
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
-export default Search; 
+export default Search;

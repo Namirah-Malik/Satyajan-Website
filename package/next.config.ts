@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-    output: 'standalone',
+  output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -9,14 +9,23 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: [
-      'www.microtek.in',
-      'fcms.microtek.in',
-      'images.unsplash.com',
+    remotePatterns: [
+      { protocol: 'https', hostname: 'www.microtek.in',     pathname: '/**' },
+      { protocol: 'https', hostname: 'cms.microtek.in',     pathname: '/**' },
+      { protocol: 'https', hostname: 'microtek.in',         pathname: '/**' },
+      { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
+      { protocol: 'https', hostname: '*.unsplash.com',      pathname: '/**' },
     ],
   },
   async headers() {
     return [
+      {
+        // ✅ Override for image proxy FIRST (before the catch-all)
+        source: '/api/image-proxy',
+        headers: [
+          { key: 'Referrer-Policy', value: 'unsafe-url' },
+        ],
+      },
       {
         source: '/(.*)',
         headers: [

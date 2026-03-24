@@ -1,12 +1,63 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Icon } from '@iconify/react'
 import { ArrowRight, CheckCircle, Star, Send, MessageCircle, Calculator } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { companyInfo, products, benefits, testimonials, faqs } from '@/mock/data'
 import SolarSavingsCalculator from '@/components/SolarSavingsCalculator'
+
+// ── Scroll Reveal Hook ────────────────────────────────────────────────────────
+function useScrollReveal() {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('sr-visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    )
+    const els = document.querySelectorAll('.sr')
+    els.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
+}
+
+// ── Counter Hook ──────────────────────────────────────────────────────────────
+function useCounter(target: number, suffix: string, duration = 1600) {
+  const [count, setCount] = useState('0')
+  const ref = useRef<HTMLSpanElement>(null)
+  const started = useRef(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true
+          const steps = 60
+          const stepTime = duration / steps
+          let current = 0
+          const increment = target / steps
+          const timer = setInterval(() => {
+            current = Math.min(current + increment, target)
+            setCount(Math.floor(current).toLocaleString('en-IN') + suffix)
+            if (current >= target) clearInterval(timer)
+          }, stepTime)
+        }
+      },
+      { threshold: 0.5 }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [target, suffix, duration])
+
+  return { ref, count }
+}
 
 const WavyDivider = ({ flip = false }: { flip?: boolean }) => (
   <svg className={`w-full h-6 sm:h-8 md:h-12 ${flip ? 'rotate-180' : ''}`} viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -19,11 +70,26 @@ const WavyDivider = ({ flip = false }: { flip?: boolean }) => (
   </svg>
 )
 
-const GlassCard = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-  <div className={`bg-white/40 backdrop-blur-lg rounded-2xl md:rounded-3xl shadow-xl border border-white/30 transition-all duration-300 hover:shadow-2xl ${className}`}>
+const GlassCard = ({
+  children,
+  className = '',
+  style
+}: {
+  children: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+}) => (
+  <div
+    className={`bg-white/40 backdrop-blur-lg rounded-2xl md:rounded-3xl shadow-xl border border-white/30 transition-all duration-300 hover:shadow-2xl ${className}`}
+    style={style}
+  >
     {children}
   </div>
 )
+  //<div className={`bg-white/40 backdrop-blur-lg rounded-2xl md:rounded-3xl shadow-xl border border-white/30 transition-all duration-300 hover:shadow-2xl ${className}`}>
+   // {children}
+  //</div>
+//)
 
 const PlayfulIcon = ({ icon, ringColor, bgColor }: { icon: string; ringColor: string; bgColor: string }) => (
   <div className={`relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 ${bgColor} rounded-full shadow-lg mb-3 flex-shrink-0`}>
@@ -32,14 +98,53 @@ const PlayfulIcon = ({ icon, ringColor, bgColor }: { icon: string; ringColor: st
   </div>
 )
 
+// ── Stat Card with animated counter ──────────────────────────────────────────
+function StatCard({ value, label }: { value: string; label: string }) {
+  const num = parseInt(value.replace(/\D/g, ''))
+  const suffix = value.replace(/[0-9,]/g, '')
+  const { ref, count } = useCounter(num, suffix)
+  return (
+    <GlassCard className="p-2 sm:p-3 md:p-4 text-center">
+      <span ref={ref} className="block text-base sm:text-xl md:text-2xl lg:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">
+        {count || '0'}
+      </span>
+      <div className="text-[9px] sm:text-xs text-gray-600 mt-0.5 font-medium">{label}</div>
+    </GlassCard>
+  )
+}
+
+// ── Marquee ticker ────────────────────────────────────────────────────────────
+const MARQUEE_ITEMS = [
+  'Solar Panel Installation', 'Battery Replacement', 'Inverter Setup & Repair',
+  'Free Consultation', '24/7 Support', 'Easy EMI Options',
+  'Pan-India Delivery', 'Free Installation', 'Microtek Authorized Partner',
+]
+
+function MarqueeTicker() {
+  const items = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS]
+  return (
+    <div className="overflow-hidden bg-emerald-600 py-3">
+      <div className="flex animate-marquee gap-0 w-max">
+        {items.map((item, i) => (
+          <span key={i} className="flex items-center gap-2 px-6 text-white text-xs sm:text-sm font-semibold whitespace-nowrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-white/60 inline-block" />
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function HomePageClient() {
   const [contactForm, setContactForm] = useState({ name: '', email: '', phone: '', message: '' })
   const [showSavingsCalculator, setShowSavingsCalculator] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(0)
-
   const [contactErrors, setContactErrors] = useState({ name: '', email: '', phone: '', message: '' })
   const [contactTouched, setContactTouched] = useState({ name: false, email: false, phone: false, message: false })
   const [contactSuccess, setContactSuccess] = useState(false)
+
+  useScrollReveal()
 
   const validateContactField = (field: string, value: string) => {
     if (field === 'name') {
@@ -102,13 +207,12 @@ export default function HomePageClient() {
     'What are the benefits of joining as a dealer?',
     'Are the products covered under warranty?',
   ]
-
   const visibleFaqs = faqs.filter((f: any) => !removedFaqs.includes(f.question))
-
   const allProducts = products.filter((p: any) => p.name !== 'Combos')
 
+  // ── Original product card style (from doc 29) with sr animation class ──
   const renderProductCard = (product: any) => (
-    <div key={product.id} className="group rounded-2xl bg-white shadow-md border border-gray-100 overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full">
+    <div key={product.id} className="sr group rounded-2xl bg-white shadow-md border border-gray-100 overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full">
       <div className="relative w-full bg-white flex-shrink-0" style={{ aspectRatio: '16/9' }}>
         <img
           src={product.image}
@@ -145,65 +249,72 @@ export default function HomePageClient() {
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <section id="hero" className="relative pt-16 sm:pt-20 md:pt-24 pb-0 overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-yellow-50">
+
+        {/* Floating background particles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute w-72 h-72 bg-emerald-400/10 rounded-full -top-20 -right-20 animate-float-slow" />
+          <div className="absolute w-48 h-48 bg-teal-400/10 rounded-full bottom-10 -left-16 animate-float-medium" />
+          <div className="absolute w-32 h-32 bg-yellow-400/10 rounded-full top-1/2 left-1/3 animate-float-fast" />
+        </div>
+
         <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 md:py-16 relative z-10">
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 lg:items-end">
             <div className="flex flex-col space-y-4 md:space-y-6">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-gray-900 leading-tight">
+              <div className="sr inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full w-fit">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Authorized Microtek Partner
+              </div>
+              <h1 className="sr text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-gray-900 leading-tight">
                 Power Your Future with{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 animate-gradient-x">
                   Clean Solar Energy
                 </span>
               </h1>
-              <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed font-medium">
+              <p className="sr text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed font-medium">
                 Save up to 80% on electricity bills. 25-year warranty. Easy EMI options.
                 Join 1000+ satisfied customers across India.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="sr flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-400 text-white text-sm md:text-base px-5 md:px-8 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl hover:scale-105 transition-all font-semibold"
+                  className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-400 text-white text-sm md:text-base px-5 md:px-8 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all font-semibold"
                 >
                   Book Free Consultation <ArrowRight className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setShowSavingsCalculator(true)}
-                  className="w-full sm:w-auto bg-white/60 backdrop-blur border border-gray-200 text-gray-700 hover:bg-white text-sm md:text-base px-5 md:px-8 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-md hover:shadow-xl transition-all font-semibold"
+                  className="w-full sm:w-auto bg-white/60 backdrop-blur border border-gray-200 text-gray-700 hover:bg-white text-sm md:text-base px-5 md:px-8 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-md hover:shadow-xl active:scale-95 transition-all font-semibold"
                 >
                   <Calculator className="w-4 h-4" /> Calculate Savings
                 </button>
               </div>
-              <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 pt-2">
-                {[
-                  { value: '1000+', label: 'Happy Customers' },
-                  { value: '25 Yrs', label: 'Warranty' },
-                  { value: '80%', label: 'Bill Savings' },
-                ].map((s) => (
-                  <GlassCard key={s.label} className="p-2 sm:p-3 md:p-4 text-center">
-                    <div className="text-base sm:text-xl md:text-2xl lg:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">
-                      {s.value}
-                    </div>
-                    <div className="text-[9px] sm:text-xs text-gray-600 mt-0.5 font-medium">{s.label}</div>
-                  </GlassCard>
-                ))}
+              <div className="sr grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 pt-2">
+                <StatCard value="1000+" label="Happy Customers" />
+                <StatCard value="25 Yrs" label="Warranty" />
+                <StatCard value="80%" label="Bill Savings" />
               </div>
             </div>
-            <div className="mt-2 lg:mt-0">
-              <GlassCard className="overflow-hidden p-1.5 sm:p-2">
+            <div className="mt-2 lg:mt-0 sr">
+              <GlassCard className="overflow-hidden p-0 hover:scale-[1.02] transition-transform duration-500">
                 <img
                   src="/images/hero/Product_range.png"
                   alt="Microtek Product Range"
-                  className="w-full h-44 sm:h-56 md:h-72 lg:h-[400px] object-contain bg-white rounded-xl md:rounded-2xl"
+                  className="w-full h-52 sm:h-64 md:h-80 lg:h-[460px] object-cover object-center rounded-2xl md:rounded-3xl"
                 />
               </GlassCard>
             </div>
           </div>
         </div>
+       {/* ── Marquee inside hero ── */}
+        <div className="relative z-10">
+          <MarqueeTicker />
+        </div>
+
         <WavyDivider />
       </section>
-
       {/* ── ABOUT ────────────────────────────────────────────────────── */}
       <section id="about" className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 max-w-7xl mx-auto">
-        <div className="text-center mb-6 sm:mb-10 md:mb-12">
+        <div className="sr text-center mb-6 sm:mb-10 md:mb-12">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">
             About Satyajan Energy Solutions
           </h2>
@@ -214,8 +325,8 @@ export default function HomePageClient() {
             { icon: 'ph:target-fill', bg: 'bg-gradient-to-br from-blue-400 to-indigo-400', ring: 'border-blue-400', title: 'Our Mission', text: 'To provide reliable, sustainable energy solutions that empower homes and businesses across India.' },
             { icon: 'ph:eye-fill', bg: 'bg-gradient-to-br from-emerald-400 to-teal-400', ring: 'border-emerald-400', title: 'Our Vision', text: "To be India's most trusted partner for clean energy and power backup solutions." },
             { icon: 'ph:heart-fill', bg: 'bg-gradient-to-br from-orange-400 to-yellow-400', ring: 'border-orange-400', title: 'Our Values', text: 'Quality, reliability, customer satisfaction, and commitment to a sustainable future.' },
-          ].map((card) => (
-            <GlassCard key={card.title} className="flex flex-col items-center text-center p-4 sm:p-5 md:p-8">
+          ].map((card, i) => (
+            <GlassCard key={card.title} className="sr flex flex-col items-center text-center p-4 sm:p-5 md:p-8 hover:scale-[1.03] transition-transform duration-300" style={{ transitionDelay: `${i * 100}ms` }}>
               <PlayfulIcon icon={card.icon} bgColor={card.bg} ringColor={card.ring} />
               <h3 className="text-sm sm:text-base md:text-xl font-bold text-gray-900 mb-1 sm:mb-2">{card.title}</h3>
               <p className="text-xs sm:text-sm md:text-base text-gray-600 font-medium">{card.text}</p>
@@ -228,7 +339,7 @@ export default function HomePageClient() {
       <section id="products" className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 bg-gradient-to-b from-emerald-50/60 to-white">
         <WavyDivider flip />
         <div className="max-w-7xl mx-auto">
-          <div className="mb-6 sm:mb-10 md:mb-12">
+          <div className="sr mb-6 sm:mb-10 md:mb-12">
             <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2 sm:mb-3 tracking-tight">
               Our Products &amp; Services
             </h2>
@@ -245,7 +356,7 @@ export default function HomePageClient() {
 
       {/* ── BENEFITS ─────────────────────────────────────────────────── */}
       <section id="benefits" className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 max-w-7xl mx-auto">
-        <div className="text-center mb-6 sm:mb-10 md:mb-12">
+        <div className="sr text-center mb-6 sm:mb-10 md:mb-12">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2 sm:mb-3 tracking-tight">
             Why Choose Satyajan Energy?
           </h2>
@@ -259,7 +370,7 @@ export default function HomePageClient() {
             const gradients = ['bg-gradient-to-br from-emerald-400 to-teal-400','bg-gradient-to-br from-blue-400 to-indigo-400','bg-gradient-to-br from-orange-400 to-yellow-400','bg-gradient-to-br from-purple-400 to-blue-400','bg-gradient-to-br from-rose-400 to-orange-400','bg-gradient-to-br from-teal-400 to-emerald-400']
             const rings = ['border-emerald-400','border-blue-400','border-orange-400','border-purple-400','border-rose-400','border-teal-400']
             return (
-              <GlassCard key={i} className="p-3 sm:p-4 md:p-6 flex flex-col items-center text-center">
+              <GlassCard key={i} className="sr p-3 sm:p-4 md:p-6 flex flex-col items-center text-center hover:scale-[1.04] transition-transform duration-300">
                 <div className={`relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 ${gradients[i % gradients.length]} rounded-full shadow-lg mb-2 sm:mb-3 flex-shrink-0`}>
                   <span className={`absolute inset-0 rounded-full animate-spin-slow border-4 ${rings[i % rings.length]} opacity-30`} />
                   {LIcon && <LIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-7 md:h-7 text-white z-10 relative" />}
@@ -276,13 +387,13 @@ export default function HomePageClient() {
       <section id="testimonials" className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 bg-gradient-to-b from-yellow-50/60 to-white">
         <WavyDivider flip />
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-6 sm:mb-10 md:mb-12">
+          <div className="sr text-center mb-6 sm:mb-10 md:mb-12">
             <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">What Our Clients Say</h2>
             <p className="text-xs sm:text-sm md:text-base text-gray-600 font-medium">Real experiences from satisfied customers across India.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-8">
             {testimonials.map((t: any) => (
-              <GlassCard key={t.id} className="p-3 sm:p-4 md:p-6">
+              <GlassCard key={t.id} className="sr p-3 sm:p-4 md:p-6 hover:scale-[1.02] transition-transform duration-300">
                 <div className="flex gap-1 mb-2 sm:mb-3">
                   {[...Array(t.rating)].map((_: any, i: number) => (
                     <Star key={i} className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
@@ -297,12 +408,11 @@ export default function HomePageClient() {
             ))}
           </div>
         </div>
-        {/* No WavyDivider here — FAQ follows immediately */}
       </section>
 
       {/* ── FAQ ──────────────────────────────────────────────────────── */}
       <section id="faq" className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 max-w-7xl mx-auto">
-        <div className="mb-6 sm:mb-8 md:mb-10">
+        <div className="sr mb-6 sm:mb-8 md:mb-10">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-1 sm:mb-2 tracking-tight">
             Frequently Asked Questions
           </h2>
@@ -310,18 +420,10 @@ export default function HomePageClient() {
             Everything you need to know about our products and services.
           </p>
         </div>
-
-        {/* ── Two column: accordions left, image right — perfectly aligned ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 items-start">
-
-          {/* Left — custom accordion (no extra space from details/summary) */}
           <div className="space-y-2 sm:space-y-3">
             {visibleFaqs.map((f: any, i: number) => (
-              <div
-                key={i}
-                className="bg-white/60 backdrop-blur-lg rounded-xl sm:rounded-2xl border border-white/40 shadow-md overflow-hidden"
-              >
-                {/* Question row */}
+              <div key={i} className="sr bg-white/60 backdrop-blur-lg rounded-xl sm:rounded-2xl border border-white/40 shadow-md overflow-hidden hover:border-emerald-200 transition-colors duration-300">
                 <button
                   type="button"
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
@@ -333,14 +435,9 @@ export default function HomePageClient() {
                   <span className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center transition-colors duration-200 ${
                     openFaq === i ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500'
                   }`}>
-                    <Icon
-                      icon={openFaq === i ? 'ph:minus-bold' : 'ph:plus-bold'}
-                      width={12}
-                    />
+                    <Icon icon={openFaq === i ? 'ph:minus-bold' : 'ph:plus-bold'} width={12} />
                   </span>
                 </button>
-
-                {/* Answer — smooth expand/collapse */}
                 <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
                   openFaq === i ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                 }`}>
@@ -351,10 +448,8 @@ export default function HomePageClient() {
               </div>
             ))}
           </div>
-
-          {/* Right — image, hidden on mobile, shows on lg+ */}
-          <div className="hidden lg:block sticky top-24">
-            <div className="rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border border-white/30">
+          <div className="hidden lg:block sticky top-24 sr">
+            <div className="rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border border-white/30 hover:scale-[1.02] transition-transform duration-500">
               <img
                 src="/images/faqs/homeimagefaq.jpeg"
                 alt="FAQ illustration"
@@ -363,7 +458,6 @@ export default function HomePageClient() {
               />
             </div>
           </div>
-
         </div>
       </section>
 
@@ -371,11 +465,10 @@ export default function HomePageClient() {
       <section id="contact" className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 bg-gradient-to-b from-emerald-50/60 to-white">
         <WavyDivider flip />
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-6 sm:mb-10 md:mb-12">
+          <div className="sr text-center mb-6 sm:mb-10 md:mb-12">
             <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">Get In Touch</h2>
             <p className="text-xs sm:text-sm md:text-base text-gray-600 font-medium">Have questions? We&apos;re here to help. Contact us for a free consultation.</p>
           </div>
-
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12">
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
               {[
@@ -383,7 +476,7 @@ export default function HomePageClient() {
                 { icon: 'ph:envelope-fill', bg: 'bg-gradient-to-br from-emerald-400 to-teal-400', ring: 'border-emerald-400', label: 'Email', value: companyInfo.contact.email, href: `mailto:${companyInfo.contact.email}` },
                 { icon: 'ph:map-pin-fill', bg: 'bg-gradient-to-br from-orange-400 to-yellow-400', ring: 'border-orange-400', label: 'Address', value: companyInfo.contact.address, href: undefined },
               ].map((c) => (
-                <GlassCard key={c.label} className="flex items-start gap-3 p-3 sm:p-4 md:p-5">
+                <GlassCard key={c.label} className="sr flex items-start gap-3 p-3 sm:p-4 md:p-5 hover:scale-[1.02] transition-transform duration-300">
                   <PlayfulIcon icon={c.icon} bgColor={c.bg} ringColor={c.ring} />
                   <div className="min-w-0">
                     <div className="font-bold text-gray-900 mb-0.5 text-xs sm:text-sm md:text-base">{c.label}</div>
@@ -397,34 +490,31 @@ export default function HomePageClient() {
               ))}
               <button
                 onClick={() => window.open('https://wa.me/918019179159', '_blank')}
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm md:text-base px-4 py-3 rounded-2xl flex items-center justify-center gap-2 font-semibold shadow-xl hover:shadow-2xl transition-all"
+                className="sr w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm md:text-base px-4 py-3 rounded-2xl flex items-center justify-center gap-2 font-semibold shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"
               >
                 <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" /> WhatsApp Now
               </button>
-              <div className="h-36 sm:h-44 md:h-56 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl relative group border border-white/30">
+              <div className="sr h-36 sm:h-44 md:h-56 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl relative group border border-white/30">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.9988888888886!2d78.4867!3d17.3850!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb99c0c3e1ffe7:0xa6b7d4b850493ba0!2sSatyajan%20Energy%20Solutions%20Pvt.Ltd.!5e0!3m2!1sen!2sin!4v1234567890123"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.5!2d78.5387496!3d17.3342621!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb99c0c3e1ffe7:0xa6b7d4b850493ba0!2sSatyajan%20Energy%20Solutions%20Pvt.Ltd.!5e0!3m2!1sen!2sin!4v1234567890123"
                   width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade" title="Satyajan Location"
                   className="pointer-events-none"
                 />
-                <a href="https://www.google.com/maps/place/Satyajan+Energy+Solutions+Pvt.Ltd./@17.3326358,78.5367308,15.91z" target="_blank" rel="noopener noreferrer"
+                <a href="https://maps.app.goo.gl/vtyTimUrenngkoHn9" target="_blank" rel="noopener noreferrer"
                   className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/50 transition-opacity duration-300 rounded-2xl md:rounded-3xl">
                   <span className="text-white font-semibold text-xs sm:text-sm">Open in Google Maps</span>
                 </a>
               </div>
             </div>
-
-            <GlassCard className="p-4 sm:p-5 md:p-8">
+            <GlassCard className="sr p-4 sm:p-5 md:p-8">
               <h4 className="text-base sm:text-lg md:text-2xl font-bold text-emerald-800 mb-1 tracking-tight">Send Us a Message</h4>
               <p className="text-xs md:text-sm text-gray-600 mb-3 sm:mb-4 md:mb-6 font-medium">We&apos;ll get back to you within 24 hours.</p>
-
               {contactSuccess && (
-                <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-emerald-700 text-xs sm:text-sm font-medium">
+                <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-emerald-700 text-xs sm:text-sm font-medium animate-fade-in">
                   <CheckCircle className="w-4 h-4 flex-shrink-0" /> Message sent! We&apos;ll get back to you soon.
                 </div>
               )}
-
               <form onSubmit={handleContactSubmit} noValidate className="space-y-3 md:space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Name *</label>
@@ -434,9 +524,7 @@ export default function HomePageClient() {
                     className={`w-full rounded-xl p-2.5 md:p-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition text-xs sm:text-sm border ${
                       contactErrors.name && contactTouched.name ? 'border-red-400 bg-red-50 focus:ring-red-200' : 'border-white/40 bg-white/60 focus:ring-emerald-400'
                     }`} />
-                  {contactErrors.name && contactTouched.name && (
-                    <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.name}</p>
-                  )}
+                  {contactErrors.name && contactTouched.name && <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.name}</p>}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Email *</label>
@@ -446,9 +534,7 @@ export default function HomePageClient() {
                     className={`w-full rounded-xl p-2.5 md:p-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition text-xs sm:text-sm border ${
                       contactErrors.email && contactTouched.email ? 'border-red-400 bg-red-50 focus:ring-red-200' : 'border-white/40 bg-white/60 focus:ring-emerald-400'
                     }`} />
-                  {contactErrors.email && contactTouched.email && (
-                    <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.email}</p>
-                  )}
+                  {contactErrors.email && contactTouched.email && <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.email}</p>}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Phone *</label>
@@ -459,28 +545,22 @@ export default function HomePageClient() {
                     <div className="w-px h-4 bg-gray-300" />
                     <input type="tel" name="phone" value={contactForm.phone}
                       onChange={handleContactChange} onBlur={handleContactBlur}
-                      placeholder="10-digit mobile number"
-                      maxLength={10} inputMode="numeric"
+                      placeholder="10-digit mobile number" maxLength={10} inputMode="numeric"
                       className="flex-1 px-3 py-2.5 bg-transparent focus:outline-none text-gray-800 placeholder-gray-400 text-xs sm:text-sm" />
                   </div>
-                  {contactErrors.phone && contactTouched.phone && (
-                    <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.phone}</p>
-                  )}
+                  {contactErrors.phone && contactTouched.phone && <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.phone}</p>}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Message *</label>
                   <textarea name="message" value={contactForm.message}
                     onChange={handleContactChange} onBlur={handleContactBlur}
-                    placeholder="Tell us about your requirements (min 10 characters)"
-                    rows={3}
+                    placeholder="Tell us about your requirements (min 10 characters)" rows={3}
                     className={`w-full rounded-xl p-2.5 md:p-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition text-xs sm:text-sm border ${
                       contactErrors.message && contactTouched.message ? 'border-red-400 bg-red-50 focus:ring-red-200' : 'border-white/40 bg-white/60 focus:ring-emerald-400'
                     }`} />
-                  {contactErrors.message && contactTouched.message && (
-                    <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.message}</p>
-                  )}
+                  {contactErrors.message && contactTouched.message && <p className="text-red-500 text-xs mt-1 ml-1">⚠ {contactErrors.message}</p>}
                 </div>
-                <button type="submit" className="w-full bg-gradient-to-r from-emerald-500 to-teal-400 text-white py-2.5 md:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-all text-xs sm:text-sm md:text-base">
+                <button type="submit" className="w-full bg-gradient-to-r from-emerald-500 to-teal-400 text-white py-2.5 md:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all text-xs sm:text-sm md:text-base">
                   Send Message <Send className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
               </form>
@@ -492,14 +572,14 @@ export default function HomePageClient() {
       {/* ── CTA ──────────────────────────────────────────────────────── */}
       <section className="py-8 sm:py-10 md:py-16 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <GlassCard className="p-5 sm:p-6 md:p-10 bg-white/60">
+          <GlassCard className="sr p-5 sm:p-6 md:p-10 bg-white/60">
             <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-emerald-700 mb-2 sm:mb-3 tracking-tight">Ready to Switch to Clean Energy?</h2>
             <p className="text-gray-700 mb-4 sm:mb-5 md:mb-8 text-xs sm:text-sm md:text-base lg:text-lg font-medium">Join over 1000+ happy customers who have already made the switch with Satyajan Energy Solutions.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/products" className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-400 text-white px-5 md:px-8 py-2.5 sm:py-3 rounded-xl font-semibold hover:shadow-xl transition-all text-xs sm:text-sm md:text-base text-center">
+              <Link href="/products" className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-400 text-white px-5 md:px-8 py-2.5 sm:py-3 rounded-xl font-semibold hover:shadow-xl hover:scale-105 active:scale-95 transition-all text-xs sm:text-sm md:text-base text-center">
                 Explore Products
               </Link>
-              <Link href="/contactus" className="w-full sm:w-auto border-2 border-emerald-500 text-emerald-600 px-5 md:px-8 py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-emerald-500 hover:text-white transition-all text-xs sm:text-sm md:text-base text-center">
+              <Link href="/contactus" className="w-full sm:w-auto border-2 border-emerald-500 text-emerald-600 px-5 md:px-8 py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-emerald-500 hover:text-white hover:scale-105 active:scale-95 transition-all text-xs sm:text-sm md:text-base text-center">
                 Contact Us Today
               </Link>
             </div>

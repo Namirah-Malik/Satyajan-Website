@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { mockProducts, mockCategories } from "@/mock/products";
 
 let prisma: any = null;
 
@@ -14,41 +15,57 @@ async function getPrisma() {
   }
 }
 
-export async function GET(
-  _request: Request,
-  context: { params: Promise<{ slug: string }> }
-) {
-  const { slug } = await context.params;
+function cleanProduct(raw: any) {
+  // Images must already be clean direct URLs (e.g. https://cms.microtek.in/upload/...)
+  const images: { src: string }[] = (Array.isArray(raw.images) ? raw.images : [])
+    .map((img: any) => {
+      const src = typeof img === 'string' ? img : (img?.src || '');
+      return { src: src.trim() };
+    })
+    .filter((img: any) => img.src.startsWith('http'));
 
-  // ── 1. Try local database ────────────────────────────────────────────
+  const name = (raw.name || '')
+    .replace(/\s*wishlist\s*shareicon\s*/gi, '')
+    .replace(/\s*shareicon\s*/gi, '')
+    .replace(/\s*wishlist\s*/gi, '')
+    .split(' | ')[0]
+    .trim();
+
+  const features: string[] = Array.isArray(raw.features)
+    ? raw.features
+        .map((f: any) => (typeof f === 'string' ? f : f?.value || f?.label || f?.text || ''))
+        .filter(Boolean)
+    : [];
+
+  const salient_features: string[] = Array.isArray(raw.salient_features)
+    ? raw.salient_features
+        .map((f: any) => (typeof f === 'string' ? f : f?.value || f?.label || f?.text || ''))
+        .filter(Boolean)
+    : [];
+
+  const slug = raw.slug || raw.id || '';
+  const price = Number(raw.price || raw.rate || 0);
+
+  return { ...raw, name, images, features, salient_features, slug, price };
+}
+
+export async function GET() {
+  // 1. Try local database
   try {
     const db = await getPrisma();
     if (db) {
-      const product = await db.product.findFirst({
-        where: { OR: [{ id: slug }, { slug: slug }] },
-      });
-      if (product) return NextResponse.json({ product });
+      const raw = await db.product.findMany({ orderBy: { createdAt: "desc" } });
+      const products = raw.map(cleanProduct);
+      const categories = [...new Set(products.map((p: any) => p.category).filter(Boolean))];
+      return NextResponse.json({ products, categories });
     }
   } catch (e) {
     console.error("DB error:", e);
   }
 
-  // ── 2. Fetch from live satyajan.com API ──────────────────────────────
-  try {
-    const liveRes = await fetch(`https://satyajan.com/api/products/${slug}`, {
-      next: { revalidate: 3600 }, // cache 1 hour
-    });
-
-    if (liveRes.ok) {
-      const liveData = await liveRes.json();
-      if (liveData?.product) {
-        return NextResponse.json({ product: liveData.product });
-      }
-    }
-  } catch (e) {
-    console.error("Live API fetch error:", e);
-  }
-
-  // ── 3. Nothing found ─────────────────────────────────────────────────
-  return NextResponse.json({ error: "Product not found" }, { status: 404 });
+  // 2. Static mock fallback
+  return NextResponse.json({
+    products: mockProducts.map(cleanProduct),
+    categories: mockCategories,
+  });
 }

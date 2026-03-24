@@ -156,7 +156,7 @@ const Footer = () => {
                   />
                 </Link>
 
-                <Link href="https://www.google.com/maps/place/Satyajan+Energy+Solutions+Pvt.Ltd./@17.3326358,78.5367308,15.91z" target="_blank" rel="noopener noreferrer">
+                <Link href="https://share.google/UqkYvc7zrN2PjQBi8" target="_blank" rel="noopener noreferrer">
                   <Icon icon="fa7-brands:google" width={22} height={22} className="text-white/60 hover:text-primary transition-colors" />
                 </Link>
 

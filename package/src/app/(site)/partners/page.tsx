@@ -203,9 +203,10 @@ const PartnersPage = () => {
                 Get detailed information about our dealer program.
               </p>
               <a
-                href="/images/hero/Satyajan-Product-Catalogue-2025.pdf"
-                download="Satyajan-Product-Catalogue-2025.pdf"
-                className="inline-flex items-center gap-2 border-2 border-primary text-primary px-4 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition-colors text-xs"
+              href="/images/hero/og.pdf"
+download="Satyajan-Dealer-Brochure.pdf"
+
+className="inline-flex items-center gap-2 border-2 border-primary text-primary px-4 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition-colors text-xs"
               >
                 <Icon icon="ph:download-simple-bold" width={14} height={14} />
                 Download Brochure

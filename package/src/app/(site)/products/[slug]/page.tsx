@@ -134,24 +134,26 @@ export default async function Details({ params }: { params: Promise<{ slug: stri
   // ── Normalize images → always { src: string }[] with valid URLs ─────────────
   const rawImages: any[] = Array.isArray(dbProduct.images) ? dbProduct.images : [];
   const images = rawImages
-    .map(img => {
-      const src = extractImageSrc(img);
-      // Fix protocol-relative URLs like "//microtek.in/..."
-      if (src.startsWith('//')) return { src: `https:${src}` };
-      // Fix double-slash artifacts like "/https://..."
-      if (src.startsWith('/http')) return { src: src.replace(/^\//, '') };
-      return { src };
-    })
-    .filter(img =>
-      img.src &&
-      (img.src.startsWith('http') || img.src.startsWith('/'))
-    );
+  .map(img => {
+    let src = extractImageSrc(img);
+    // Fix protocol-relative URLs
+    if (src.startsWith('//')) src = `https:${src}`;
+    // Fix double-slash artifacts
+    if (src.startsWith('/http')) src = src.replace(/^\//, '');
+    // ✅ Route ALL external URLs through the local proxy
+    if (src.startsWith('http://') || src.startsWith('https://')) {
+      src = `/api/image-proxy?url=${encodeURIComponent(src)}`;
+    }
+    return { src };
+  })
+  .filter(img => img.src && img.src.length > 0);
 
   const product = {
     id: slug,
     name,
     price: dbProduct.price || 0,
-    images: rawImages, // keep raw for reference — images variable is what we pass
+        images: images,          // ← was: rawImages, now: the proxied images array
+
     salient_features: Array.isArray(dbProduct.salient_features)
       ? dbProduct.salient_features.map((f: any) =>
           typeof f === 'string' ? f : f?.value || f?.label || f?.text || ''

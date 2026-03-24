@@ -121,11 +121,44 @@ function BookingForm({
     go();
   }, [form.pincode]);
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true);
-    await new Promise(r => setTimeout(r, 1200));
-    setLoading(false); setDone(true);
-  };
+  const WHATSAPP_NUMBER = '918019179159';
+
+const submit = (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+
+  const message = [
+    '🔧 *New Service Request — Satyajan Energy Solutions*',
+    '━━━━━━━━━━━━━━━━━━━━━━━',
+    '👤 *Customer Details:*',
+    `   Name: ${form.fullName}`,
+    `   Mobile: ${form.mobile}`,
+    '━━━━━━━━━━━━━━━━━━━━━━━',
+    '🛠️ *Service Details:*',
+    `   Service: ${form.serviceType}`,
+    form.brandName ? `   Brand: ${form.brandName}` : '',
+    form.problemDetails ? `   Issue: ${form.problemDetails}` : '',
+    '━━━━━━━━━━━━━━━━━━━━━━━',
+    '📍 *Location:*',
+    `   Address: ${form.address}`,
+    `   City: ${form.city}`,
+    `   Pincode: ${form.pincode}`,
+    form.preferredDate ? `   Preferred Date: ${form.preferredDate}` : '',
+    '━━━━━━━━━━━━━━━━━━━━━━━',
+    'Please confirm the service slot. Thank you! 🙏',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  // Open WhatsApp with the message
+  window.open(
+    `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
+    '_blank'
+  );
+
+  setLoading(false);
+  setDone(true);
+};
 
   if (done) return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">

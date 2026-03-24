@@ -15,73 +15,62 @@ async function getPrisma() {
   }
 }
 
-// ── Fix a single image URL ────────────────────────────────────────────────────
-function fixImageUrl(raw: any): string {
+function extractDirectUrl(raw: any): string {
   if (!raw) return '';
-  // Extract src string from any shape
   let url = typeof raw === 'string' ? raw : (raw?.src || raw?.url || raw?.image || '');
   if (typeof url !== 'string') return '';
-  // Remove spaces that corrupt encoded URLs e.g. "https%3A%2F%2 Fcms..." → "https%3A%2F%2Fcms..."
   url = url.replace(/\s+/g, '');
-  // Fix protocol-relative URLs
+  // Strip existing proxy wrapper
+  if (url.includes('/api/image-proxy?url=')) {
+    try { url = decodeURIComponent(url.split('/api/image-proxy?url=')[1]); } catch {}
+  }
+  // Unwrap microtek next.js optimizer URLs
+  let i = 0;
+  while (url.includes('/_next/image') && i++ < 5) {
+    try {
+      const u = new URL(url.startsWith('/') ? `https://www.microtek.in${url}` : url);
+      const inner = u.searchParams.get('url');
+      if (inner) url = decodeURIComponent(inner); else break;
+    } catch { break; }
+  }
   if (url.startsWith('//')) url = `https:${url}`;
-  // Fix double-slash artifacts like /https://
   if (url.startsWith('/http')) url = url.replace(/^\//, '');
   return url;
 }
 
-// ── Clean a single product ────────────────────────────────────────────────────
 function cleanProduct(raw: any) {
-  // images → always { src: string }[] with valid, space-free URLs
   const rawImages: any[] = Array.isArray(raw.images) ? raw.images : [];
   const images = rawImages
-    .map((img: any) => ({ src: fixImageUrl(img) }))
-    .filter(img => img.src && (img.src.startsWith('http') || img.src.startsWith('/')));
+    .map((img: any) => {
+      const src = extractDirectUrl(img);
+      if (!src || !src.startsWith('http')) return null;
+      // ✅ Wrap through proxy here so card gets proxied URL directly
+      return { src: `/api/image-proxy?url=${encodeURIComponent(src)}` };
+    })
+    .filter(Boolean) as { src: string }[];
 
-  // name — strip "wishlist shareicon" UI artifacts
   const name = (raw.name || '')
     .replace(/\s*wishlist\s*shareicon\s*/gi, '')
     .replace(/\s*shareicon\s*/gi, '')
     .replace(/\s*wishlist\s*/gi, '')
-    // Also deduplicate repeated name segments (some products repeat name 5x)
-    .split(' | ')[0]  // take only first segment if massively repeated
+    .split(' | ')[0]
     .trim();
 
-  // features → plain string[]
   const features: string[] = Array.isArray(raw.features)
-    ? raw.features
-        .map((f: any) => (typeof f === 'string' ? f : f?.value || f?.label || f?.text || ''))
-        .filter(Boolean)
+    ? raw.features.map((f: any) => typeof f === 'string' ? f : f?.value || f?.label || f?.text || '').filter(Boolean)
     : [];
 
-  // salient_features → plain string[]
   const salient_features: string[] = Array.isArray(raw.salient_features)
-    ? raw.salient_features
-        .map((f: any) => (typeof f === 'string' ? f : f?.value || f?.label || f?.text || ''))
-        .filter(Boolean)
+    ? raw.salient_features.map((f: any) => typeof f === 'string' ? f : f?.value || f?.label || f?.text || '').filter(Boolean)
     : [];
 
-  // slug: prefer slug field, fallback to id
   const slug = raw.slug || raw.id || '';
-
-  // price: ensure number
   const price = Number(raw.price || raw.rate || 0);
 
-  return {
-    ...raw,
-    name,
-    images,
-    features,
-    salient_features,
-    slug,
-    price,
-  };
+  return { ...raw, name, images, features, salient_features, slug, price };
 }
 
-// ── Route handler ─────────────────────────────────────────────────────────────
 export async function GET() {
-
-  // ── 1. Try local database ─────────────────────────────────────────────
   try {
     const db = await getPrisma();
     if (db) {
@@ -94,12 +83,10 @@ export async function GET() {
     console.error("DB error:", e);
   }
 
-  // ── 2. Fetch from live satyajan.com API ───────────────────────────────
   try {
     const liveRes = await fetch("https://satyajan.com/api/products", {
       next: { revalidate: 3600 },
     });
-
     if (liveRes.ok) {
       const liveData = await liveRes.json();
       if (liveData?.products?.length) {
@@ -112,7 +99,6 @@ export async function GET() {
     console.error("Live API fetch error:", e);
   }
 
-  // ── 3. Static mock fallback ───────────────────────────────────────────
   return NextResponse.json({
     products: mockProducts.map(cleanProduct),
     categories: mockCategories,

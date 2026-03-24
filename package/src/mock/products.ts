@@ -1,12 +1,14 @@
-// Static mock data sourced from live satyajan.com API
-// Use this as fallback when DATABASE_URL is not configured locally
+// Static mock data — all image URLs use direct cms.microtek.in URLs
+// (no Next.js _next/image wrapper that causes hotlink blocking)
 
 export const mockProducts = [
   {
     id: "68d6325860f68365ef64bc66",
     name: "ENERGY SAVER UPS 1825 24V Pure Sine Wave 1625VA",
     price: 8463,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FListing-image-00-1758525406125.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product_subcategory/INVERTERHOME-UPS-1721217210993.png"],
+    //images: ["/images/products/INVERTERHOME-UPS-1721217210993.png"],
+    
     salient_features: [
       "1625VA / 1300W Pure Sine Wave Inverter – efficient and reliable power backup for homes, offices, and shops",
       "High Efficiency – stable output with minimal energy loss.",
@@ -26,7 +28,7 @@ export const mockProducts = [
     id: "68d63a23fd89c21c5eb32c00",
     name: "Microtek ENERGY SAVER NEW 1025 12V Pure Sine Wave Inverter 925VA/760Watt",
     price: 7483,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F4-1757962887713.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product_subcategory/INVERTERHOME-UPS-1721217210993.png"],
     salient_features: [
       "Pure Sine Wave Output – Delivers stable and clean power for sensitive devices",
       "High Backup Capacity – 925VA / 760W for running home and office essentials",
@@ -43,7 +45,7 @@ export const mockProducts = [
     id: "68d63d68e0853bf8d8503216",
     name: "Microtek SMART HYBRID UPS 1075 (12V) | Pure Sine Wave Inverter | 950VA/760W UPS for Home",
     price: 7123,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FSmart-Hybrid-thumb-1721650346645.png&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product_subcategory/INVERTERHOME-UPS-1721217210993.png"],
     salient_features: [
       "950VA/760W inverter with Pure Sine Wave output for safe and stable backup",
       "Ideal for sensitive devices like TVs, laptops, and Wi-Fi routers",
@@ -63,7 +65,7 @@ export const mockProducts = [
     id: "68d65e71aec04d42620a88b6",
     name: "SMART HYBRID UPS 875 12V Pure Sine Wave-725 VA",
     price: 5523,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FWhatsApp-Image-2025-05-10-at-12-1756847991675.jpeg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/WhatsApp-Image-2025-05-10-at-12-1756847991675.jpeg"],
     salient_features: [
       "725VA / 580W Pure Sine Wave Inverter – safe for sensitive electronics and home appliances.",
       "Smart Hybrid Technology – intelligent switching between UPS and inverter mode.",
@@ -81,7 +83,7 @@ export const mockProducts = [
     id: "68d663c057afc6a214e7634e",
     name: "Microtek SMART HYBRID UPS 1275 (12V) | Pure Sine Wave Inverter | 1125VA/900W UPS for Home",
     price: 7693,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FSmart-Hybrid-thumb-1721217490737.png&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/Smart-Hybrid-thumb-1721217490737.png"],
     salient_features: [
       "1125VA/900W inverter with Pure Sine Wave output for safe and efficient backup",
       "Suitable for sensitive devices like TVs, laptops, and Wi-Fi routers",
@@ -98,7 +100,7 @@ export const mockProducts = [
     id: "68d66513d0a02790412ccb04",
     name: "HEAVY DUTY UPS 1550-vTURBO 12V Advanced Digital Wave-1250 VA",
     price: 7133,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FListing-Image-00--1--1748869029769.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/Listing-Image-00--1--1748869029769.jpg"],
     salient_features: [
       "1250VA / 1000W Advanced Digital Wave Inverter – ideal for homes, shops, and offices.",
       "Heavy Duty vTurbo Technology – ensures enhanced performance under tough power conditions.",
@@ -116,7 +118,7 @@ export const mockProducts = [
     id: "68d667c29391c90320234d7a",
     name: "HEAVY DUTY UPS 1750-vTURBO 12V Pure Sine Wave-1500 VA",
     price: 10633,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FListing-Image-00-1757734971216.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/Listing-Image-00-1757734971216.jpg"],
     salient_features: [
       "Heavy Duty vTurbo Technology – enhanced performance under tough power conditions.",
       "Backup Time – up to 2.6 hours on moderate load.",
@@ -134,7 +136,7 @@ export const mockProducts = [
     id: "68d66bd19c8561afda89ee18",
     name: "Microtek ENERGY SAVER NEW 1225 12V Pure Digital Wave Inverter 1115VA/925Watt",
     price: 7343,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F4-1757235848388.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/4-1757235848388.jpg"],
     salient_features: [
       "High-Capacity Backup – 1115VA / 925W inverter designed to power essential home and office appliances.",
       "Pure Digital Wave Technology – Delivers safe, reliable, and noise-free performance.",
@@ -150,7 +152,7 @@ export const mockProducts = [
     id: "68d761b57742b7e308d4a200",
     name: "Microtek ENERGY SAVER NEW 1225 12V Pure Sine Wave Inverter 1115VA/925Watt",
     price: 7623,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F4-1757453504626.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/4-1757453504626.jpg"],
     salient_features: [
       "Pure Sine Wave Output – Stable and clean power for sensitive electronics.",
       "High Backup Capacity – 1115VA / 925W suitable for running multiple home and office essentials.",
@@ -167,7 +169,7 @@ export const mockProducts = [
     id: "68d7684e981893c570a87560",
     name: "Microtek ENERGY SAVER NEW 825 12V Pure Digital Wave Inverter 715VA/590Watt",
     price: 4054,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F4-1757962887713.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/4-1757962887713.jpg"],
     salient_features: [
       "Pure Digital Wave Technology – Provides stable and clean output, safe for sensitive devices.",
       "High Backup Performance – 715VA / 590W power handling for home & office essentials.",
@@ -184,7 +186,8 @@ export const mockProducts = [
     id: "68d76cc643666d5333f48b55",
     name: "Microtek ENERGY SAVER NEW 825 12V Pure Sine Wave Inverter 715VA/575Watt",
     price: 4453,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F4-1757097623050.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/4-1757097623050.jpg"],
+
     salient_features: [
       "Pure Sine Wave Output – Stable and clean power for sensitive electronics.",
       "Efficient Power Backup – 715VA / 575W capacity suitable for home and office essentials.",
@@ -201,7 +204,7 @@ export const mockProducts = [
     id: "68d8cc3207227a7e0be88f96",
     name: "Microtek SUPER POWER NEW 700 12V Pure Sine Wave Inverter 600VA/550Watt",
     price: 5243,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FSP-NEW-1000-SW-PIC-1754743950837.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/SP-NEW-1000-SW-PIC-1754743950837.jpg"],
     salient_features: [
       "Pure Sine Wave Technology",
       "715VA range",
@@ -219,7 +222,7 @@ export const mockProducts = [
     id: "68d8d019f99aa7d364033e47",
     name: "Microtek SUPER POWER NEW 1100 12V Pure Digital Wave Inverter 950VA/770Watt",
     price: 7133,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F6-1757764817449.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/6-1757764817449.jpg"],
     salient_features: [
       "Pure Digital Wave Technology – Ensures smooth, noise-free, and reliable power.",
       "High Capacity 950VA/770W – Efficiently powers multiple appliances.",
@@ -236,7 +239,7 @@ export const mockProducts = [
     id: "68d8d3f5062c037e5722a3e5",
     name: "Microtek SUPER POWER NEW 700 12V Pure Digital Wave Inverter 600VA/510Watt",
     price: 3999,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F6-1757137414651.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/6-1757137414651.jpg"],
     salient_features: [
       "Pure Digital Wave Technology – Provides reliable and efficient power backup.",
       "Capacity 600VA/510W – Suitable for running essentials like lights, fans, laptops, routers, and TVs.",
@@ -253,7 +256,7 @@ export const mockProducts = [
     id: "68da2daaf61bf241a4326d42",
     name: "HEAVY DUTY UPS 2350-vTURBO 24V Pure Sine Wave-2000VA",
     price: 13433,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FHEAVYDUTY-VTURBO-FRONT-N-LOGO-final-copy-1754080100938.png&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/HEAVYDUTY-VTURBO-FRONT-N-LOGO-final-copy-1754080100938.png"],
     salient_features: [
       "2000VA / 1600W Pure Sine Wave Inverter – robust and reliable power backup.",
       "High Efficiency – ensures stable output while minimizing energy loss.",
@@ -270,7 +273,7 @@ export const mockProducts = [
     id: "68da4e920703d6378ef8a4a2",
     name: "Microtek Dura Long M1502424JT | 130Ah Jumbo Tubular Inverter Battery with ADC Technology",
     price: 12025,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FM1502424JT-Battery-06-1746848507831.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/M1502424JT-Battery-06-1746848507831.jpg"],
     salient_features: [
       "High-Capacity Jumbo Tubular Battery (130Ah, 12V): Ensures reliable and long-lasting power backup.",
       "Advanced Dura Core Technology: Built with super alloy spines, low antimony content, and high-quality grids.",
@@ -287,7 +290,7 @@ export const mockProducts = [
     id: "68da5c31dad2e3fba7d30eff",
     name: "SMART HYBRID UPS 1875 24V Pure Sine Wave 1650VA",
     price: 8393,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fsmart-hybrid--1754063395710.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/smart-hybrid--1754063395710.jpg"],
     salient_features: [
       "1650VA / 1320W Pure Sine Wave Inverter – ensures clean and reliable power.",
       "High Efficiency – stable output with minimal energy loss.",
@@ -303,7 +306,7 @@ export const mockProducts = [
     id: "68da6042f5044953d9584346",
     name: "Microtek Dura Strong M1603624TT | 150Ah Tall Tubular Inverter Battery with ADC Technology",
     price: 14280,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FIBAH8BF27ZACB5BC-0-1747219740987.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/IBAH8BF27ZACB5BC-0-1747219740987.jpg"],
     salient_features: [
       "High-Capacity Tall Tubular Battery (150Ah, 12V): Designed for reliable and long-lasting backup power.",
       "Advanced Dura Core Technology: Built with heavy-duty alloy spines and low antimony content.",
@@ -320,7 +323,7 @@ export const mockProducts = [
     id: "68da68a4ba499445d4e774cd",
     name: "Microtek Dura Strong M1803624TT | 180AH Tall Tubular Inverter Battery with ADC Technology",
     price: 17290,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F4-1746903310628.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/4-1746903310628.jpg"],
     salient_features: [
       "High-Capacity Tall Tubular Battery (180Ah, 12V): Designed for extended power backup.",
       "Advanced Dura Core Technology: Heavy-duty alloy spines and low antimony grids.",
@@ -336,7 +339,7 @@ export const mockProducts = [
     id: "68dcca47a938948beb6be129",
     name: "Microtek Dura Strong M2003624TT | 200Ah Tall Tubular Inverter Battery with ADC Technology",
     price: 18480,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F6-1748844695289.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/6-1748844695289.jpg"],
     salient_features: [
       "High-Capacity Tall Tubular Battery (200Ah, 12V): Delivers powerful and long-lasting backup.",
       "Advanced Dura Core Technology: Super alloy spines and low antimony grids.",
@@ -352,7 +355,7 @@ export const mockProducts = [
     id: "68dccd7a7da05cb64026180f",
     name: "Microtek Dura Strong M1703624TT | 170Ah Tall Tubular Inverter Battery with ADC Technology",
     price: 14980,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FM1703624JT-Battery-06-1749214624540.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/M1703624JT-Battery-06-1749214624540.jpg"],
     salient_features: [
       "High-Capacity Tall Tubular Battery (170Ah, 12V): Provides reliable and long backup performance.",
       "Advanced Dura Core Technology: Heavy-duty alloy spines and low antimony grids.",
@@ -368,7 +371,7 @@ export const mockProducts = [
     id: "68dcf771d913b517753c0faf",
     name: "Microtek Dura Strong M2203624TT | 220Ah Tall Tubular Inverter Battery with ADC Technology",
     price: 20020,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F5-1749141908925.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/5-1749141908925.jpg"],
     salient_features: [
       "High-Capacity Battery (220Ah, 12V): Provides extra-long backup support.",
       "Advanced Dura Core Technology: Heavy-duty alloy spines and low antimony grids.",
@@ -384,7 +387,7 @@ export const mockProducts = [
     id: "68dcfa7ad941b231f7ab3671",
     name: "Microtek Dura Strong M2503624TT | 250Ah Tall Tubular Inverter Battery with ADC Technology",
     price: 23100,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F7-1748809995229.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/7-1748809995229.jpg"],
     salient_features: [
       "High-Capacity 250Ah Battery (12V): Ensures ultra-long power backup.",
       "Advanced Dura Core Technology: Heavy-duty alloy spines and low antimony grids.",
@@ -400,7 +403,7 @@ export const mockProducts = [
     id: "68dcfd0152b94574be4ce06f",
     name: "Microtek Dura Long M1502424TT | 150Ah Tall Tubular Inverter Battery with ADC Technology",
     price: 13650,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F150TT-1748480661390.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/150TT-1748480661390.jpg"],
     salient_features: [
       "150Ah High-Capacity Tall Tubular Battery (12V): Reliable and long-lasting power backup.",
       "Advanced Dura Core Technology: Super alloy spines and low antimony grids.",
@@ -416,7 +419,7 @@ export const mockProducts = [
     id: "68df5d91fffbee0048bef07d",
     name: "LUXE NEW 1000 12V Pure Sine Wave 800VA",
     price: 6643,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F2-1757552786976.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/2-1757552786976.jpg"],
     salient_features: [
       "High-Performance Backup – 800VA / 670W inverter for homes, offices, and shops.",
       "Pure Sine Wave Technology – Stable, clean, and safe power for sensitive electronics.",
@@ -433,7 +436,7 @@ export const mockProducts = [
     id: "68df65515994ba0090afb0dd",
     name: "Microtek LUXE NEW 1400 12V Pure Sine Wave Inverter 1100VA/825Watt",
     price: 8883,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F2-1757484576503.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/2-1757484576503.jpg"],
     salient_features: [
       "High-Capacity Backup – 1100VA / 825W inverter for homes, offices, and shops.",
       "Pure Sine Wave Technology – Stable, clean, and safe power for sensitive electronics.",
@@ -450,7 +453,7 @@ export const mockProducts = [
     id: "68df67ec623178ce85569535",
     name: "Microtek LUXE NEW 1200 12V Pure Sine Wave Inverter 950VA/760Watt",
     price: 8183,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F2-1757494327478.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/2-1757494327478.jpg"],
     salient_features: [
       "High-Performance Backup – 950VA / 760W inverter for homes, offices, and shops.",
       "Pure Sine Wave Technology – Stable, clean, and safe power for sensitive electronics.",
@@ -465,7 +468,7 @@ export const mockProducts = [
     id: "68df6d092af8e0d4ab935e87",
     name: "Microtek iMERLYN NEW 850 12V Pure Sine Wave Inverter 715VA/575Watt",
     price: 6083,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FImerlyn-Front-Phase-2-PRODUCT-ONLY-copy-1754725661132.png&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/Imerlyn-Front-Phase-2-PRODUCT-ONLY-copy-1754725661132.png"],
     salient_features: [
       "Reliable Backup Power – 715VA / 575W inverter suitable for powering essential appliances.",
       "Pure Sine Wave Technology – Provides clean, stable power ideal for sensitive electronics.",
@@ -481,7 +484,7 @@ export const mockProducts = [
     id: "68df6f87beb6491edd1f6a5a",
     name: "Microtek iMERLYN NEW 1050 12V Pure Sine Wave Inverter 925VA/760Watt",
     price: 7623,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F3-1757236727589.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/3-1757236727589.jpg"],
     salient_features: [
       "High-Performance Backup – 925VA / 760W inverter for powering essential home and office appliances.",
       "Pure Sine Wave Technology – Safe, stable, and noise-free power.",
@@ -497,7 +500,7 @@ export const mockProducts = [
     id: "68df723f63bda6895f93811c",
     name: "Microtek iMERLYN NEW 1250 12V Pure Sine Wave Inverter 1115VA/925Watt",
     price: 11090,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F3-1757966402172.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/3-1757966402172.jpg"],
     salient_features: [
       "High-Capacity Power Backup – 1115VA / 925W inverter designed for homes, offices, and shops.",
       "Pure Sine Wave Technology – Provides safe, stable, and noise-free power.",
@@ -513,7 +516,7 @@ export const mockProducts = [
     id: "68df90fd332531341fb53480",
     name: "Microtek iMERLYN NEW 850 12V Pure Digital Wave Inverter 715VA/590Watt",
     price: 7240,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F3-1757333024245.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/3-1757333024245.jpg"],
     salient_features: [
       "High Performance – 715VA / 590W inverter suitable for homes, offices, and shops.",
       "Pure Digital Wave Technology – Provides safe and stable power.",
@@ -529,7 +532,7 @@ export const mockProducts = [
     id: "68dfa966b8cad541c0066fb6",
     name: "Microtek LUXE WIFI 1400 12V Pure Sine Wave Inverter 1100VA/825Watt",
     price: 13190,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FUntitled-design--1---1--1758353144476.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/Untitled-design--1---1--1758353144476.jpg"],
     salient_features: [
       "1100VA / 825W pure sine wave inverter – ensures stable and noiseless power.",
       "Smart WiFi connectivity – monitor via Microtek mobile app.",
@@ -547,7 +550,7 @@ export const mockProducts = [
     id: "68e35eb04c9207b29b3c46bd",
     name: "ONLINE UPS E² Series 1KVA 24VDC-IB",
     price: 23690,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fonline-ups-e-series-1kva-24vdc-ib-3-1720443145490.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/online-ups-e-series-1kva-24vdc-ib-3-1720443145490.jpg"],
     salient_features: [
       "Inbuilt OVCD (Over Voltage Cut-Off Device) with Surge Protection.",
       "Static Bypass – improves Reliability & Alarm for Mute Mode",
@@ -563,7 +566,7 @@ export const mockProducts = [
     id: "68e363f1c2cd3850595a5bbd",
     name: "ON LINE UPS 5.5KVA, 1ph: 1ph, 192V iMAXX SERIES",
     price: 96490,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fon-line-ups-55kva-1ph-1ph-192v-imaxx-series-2-1720500208772.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/on-line-ups-55kva-1ph-1ph-192v-imaxx-series-2-1720500208772.jpg"],
     salient_features: [
       "DSP Technology with IGBT Based Inverter.",
       "Inbuilt OVCD (Over Voltage Cut-Off Device) With Surge Protection.",
@@ -579,7 +582,7 @@ export const mockProducts = [
     id: "68e36a5a2fb02bfaca57d385",
     name: "ONLINE UPS MAX LiFe 5KVA 1PH:1PH 48V",
     price: 89991,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fonline-ups-max-life-5kva-1ph1ph-48v-2-1720837349693.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/online-ups-max-life-5kva-1ph1ph-48v-2-1720837349693.jpg"],
     salient_features: [
       "True Double-Conversion.",
       "Sine-wave Output. Unity Power Factor.",
@@ -596,7 +599,7 @@ export const mockProducts = [
     id: "68e382a76cd476b4f8a2197d",
     name: "ONLINE UPS 6KVA 1PH:1PH 192V MAX+",
     price: 86490,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fon-line-ups-6kva-1ph1ph-192v-max-2-1720217535991.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/on-line-ups-6kva-1ph1ph-192v-max-2-1720217535991.jpg"],
     salient_features: [
       "Unity Power Factor Output With 20-Battery Option.",
       "High Efficiency up to 94% & True Double-Conversion.",
@@ -612,7 +615,7 @@ export const mockProducts = [
     id: "68e3880ddad0acdbc79c1820",
     name: "ON LINE UPS 1KVA 1PH:1PH 36V-IB MAX+",
     price: 28390,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fon-line-ups-1kva-1ph1ph-36v-ib-max-2-1720380687197.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/on-line-ups-1kva-1ph1ph-36v-ib-max-2-1720380687197.jpg"],
     salient_features: [
       "High Frequency and Double Conversion Online Technology.",
       "High End IGBT Based.",
@@ -628,7 +631,7 @@ export const mockProducts = [
     id: "68e38cb469cbad3d52055df8",
     name: "ON LINE UPS 1KVA 1PH:1PH 36V MAX+",
     price: 25190,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fon-line-ups-1kva-1ph1ph-36v-max-2-1720254405005.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/on-line-ups-1kva-1ph1ph-36v-max-2-1720254405005.jpg"],
     salient_features: [
       "High Frequency and Double Conversion Online Technology.",
       "Wide Input Voltage Range & Advanced PFC Technology",
@@ -640,7 +643,7 @@ export const mockProducts = [
     id: "68e3994c3095179f54cd3ed8",
     name: "ON LINE UPS 2KVA 1PH:1PH 72V-IB MAX+",
     price: 43890,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fon-line-ups-2kva-1ph1ph-72v-ib-max-2-1720670822821.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/on-line-ups-2kva-1ph1ph-72v-ib-max-2-1720670822821.jpg"],
     salient_features: [
       "High Frequency and Double Conversion Online Technology",
       "Wide Input Voltage Range & Advanced PFC Technology",
@@ -656,7 +659,7 @@ export const mockProducts = [
     id: "68e3a1e2f8f5da0f1d7eaf47",
     name: "ONLINE UPS 2KVA 1PH:1PH 72V MAX+",
     price: 36090,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fon-line-ups-2kva-1ph1ph-72v-max-2-1720584860074.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/on-line-ups-2kva-1ph1ph-72v-max-2-1720584860074.jpg"],
     salient_features: [
       "High Frequency and Double Conversion Online Technology.",
       "Wide Input Voltage Range & Advanced PFC Technology",
@@ -671,7 +674,7 @@ export const mockProducts = [
     id: "68e3a66d13fce2f4c442df6e",
     name: "ON LINE UPS 3KVA 1PH:1PH 72V-IB MAX+",
     price: 49390,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fon-line-ups-3kva-1ph1ph-72v-ib-max-2-1720172887495.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/on-line-ups-3kva-1ph1ph-72v-ib-max-2-1720172887495.jpg"],
     salient_features: [
       "High Frequency and Double Conversion Online Technology. High End IGBT Based",
       "Wide Input Voltage Range & Advanced PFC Technology",
@@ -683,7 +686,7 @@ export const mockProducts = [
     id: "68e3aa50dce0e37cacb5952f",
     name: "ON LINE UPS 3KVA 1PH:1PH 72V MAX+",
     price: 41490,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fon-line-ups-3kva-1ph1ph-72v-max-2-1720395528723.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/on-line-ups-3kva-1ph1ph-72v-max-2-1720395528723.jpg"],
     salient_features: [
       "High Frequency and Double Conversion Online Technology.",
       "Wide Input Voltage Range & Advanced PFC Technology",
@@ -699,7 +702,7 @@ export const mockProducts = [
     id: "68e4b33bb470fc9d7c7957e8",
     name: "550 Watt/24V non DCR bi Facial Solar Panel",
     price: 24350,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F535-Watt-24V-DCR-Bi-Facial-1721983160969.png&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/535-Watt-24V-DCR-Bi-Facial-1721983160969.png"],
     salient_features: ["Anti-Reflective (AR) Coated Glass for Enhanced Power"],
     features: [],
     category: "Solar",
@@ -708,7 +711,7 @@ export const mockProducts = [
     id: "68f8af0eb661e38f180b0be3",
     name: "Microtek iMERLYN UPS 1850 (24V) | Advanced Digital Wave Inverter | 1600VA/1275W",
     price: 10990,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FListing-image-00--10--1758727340538.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/Listing-image-00--10--1758727340538.jpg"],
     salient_features: [
       "1600VA/1275W high-capacity inverter for homes, offices, and shops",
       "Advanced Digital Wave Technology ensures stable and efficient operation",
@@ -724,7 +727,7 @@ export const mockProducts = [
     id: "68f8b45e58c9dc3ece28203f",
     name: "Microtek UPS LUXE 1900 (24V) | Pure Sine Wave Inverter | 1650VA/1320W",
     price: 12990,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FListing-image-00--11--1759666383597.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/Listing-image-00--11--1759666383597.jpg"],
     salient_features: [
       "1650VA/1320W high-capacity inverter for homes, offices, and shops.",
       "Pure Sine Wave output ensures stable and safe power for sensitive devices.",
@@ -740,7 +743,7 @@ export const mockProducts = [
     id: "69a5373892c5fa996b03e5aa",
     name: "Microtek Lithium Battery 100Ah/25.6V (MLB2560060) – LiFePO4, 2.56kWh, >3500 Cycles",
     price: 53990,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2F25-1765009755764.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/25-1765009755764.jpg"],
     salient_features: [
       "Advanced LiFePO4 Technology: Superior safety, long life, and stable power output.",
       "Long Cycle Life: Delivers more than 3500 cycles at 80% DOD – over 10+ years of performance.",
@@ -756,7 +759,7 @@ export const mockProducts = [
     id: "69a5383692c5fa996b03e5ab",
     name: "Lithium Iron 100Ah Battery | Deep Cycle Rechargeable Battery | Fast Charging, Long Life",
     price: 29990,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2FArtboard-1-1764264265357.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/Artboard-1-1764264265357.jpg"],
     salient_features: [
       "High-Performance Deep Cycle Battery: LiFePO₄ chemistry – over 4000 cycles at 80% DOD.",
       "Fast Charging and High Efficiency: Low internal resistance for quick recharging.",
@@ -772,7 +775,7 @@ export const mockProducts = [
     id: "69a562d71d5e141158ecacab",
     name: "JUMBO HOME UPS - JM SW 2750+/24V",
     price: 21000,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fjumbo-home-ups-model-jm-sw-275024v-working-power-22kva1760w-2-1720515029572.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/jumbo-home-ups-model-jm-sw-275024v-working-power-22kva1760w-2-1720515029572.jpg"],
     salient_features: [
       "DSP/High-end micro controller based PWM technology using MOSFET",
       "ACEC (Analog Compare Error Correction) technology for Pure Sine Wave generation",
@@ -788,7 +791,7 @@ export const mockProducts = [
     id: "69a56b27cc14c32d8bee8793",
     name: "JUMBO HOME UPS - JM SW 8000+/72V",
     price: 62990,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fjumbo-home-ups-model-jm-sw-800072v-working-power-7kva5600w-1-1720253769159.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/jumbo-home-ups-model-jm-sw-800072v-working-power-7kva5600w-1-1720253769159.jpg"],
     salient_features: [
       "DSP/High-end micro controller based PWM technology",
       "ACEC technology for Pure Sine Wave generation",
@@ -804,7 +807,7 @@ export const mockProducts = [
     id: "69a5721925413d7ba63a216e",
     name: "JUMBO HOME UPS - JM SW 3000+/24V",
     price: 27990,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fjumbo-home-ups-model-jm-sw-300024v-working-power-25kva2000w-1-1719957092032.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/jumbo-home-ups-model-jm-sw-300024v-working-power-25kva2000w-1-1719957092032.jpg"],
     salient_features: [
       "2.5KVA / 2000W capacity",
       "DSP/High-end micro controller based PWM technology",
@@ -819,7 +822,7 @@ export const mockProducts = [
     id: "69a5760c8d5e6bced2c98831",
     name: "JUMBO HOME UPS - JM SW 3500+/24V",
     price: 28990,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fjumbo-home-ups-model-jm-sw-350024v-working-power-28kva2240w-1-1719786583658.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/jumbo-home-ups-model-jm-sw-350024v-working-power-28kva2240w-1-1719786583658.jpg"],
     salient_features: [
       "2.8KVA / 2240W capacity",
       "DSP/High-end micro controller based PWM technology",
@@ -834,21 +837,19 @@ export const mockProducts = [
     id: "69a7bf3a457e4cbdfc8df167",
     name: "JUMBO HOME UPS - JM SW 3750+/36V",
     price: 29990,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fjumbo-home-ups-model-jm-sw-375036v-working-power-32kva2560w-1-1720363379823.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/jumbo-home-ups-model-jm-sw-375036v-working-power-32kva2560w-1-1720363379823.jpg"],
     salient_features: [
       "3.2KVA / 2560W capacity",
       "DSP/High-end micro controller based PWM technology",
     ],
-    features: [
-      "Boost Based PWM Controlled Intelligent Multistage Battery Management.",
-    ],
+    features: ["Boost Based PWM Controlled Intelligent Multistage Battery Management."],
     category: "High Capacity UPS",
   },
   {
     id: "69a7c2fd0bd4429b43146dbe",
     name: "JUMBO HOME UPS - JM SW 4000+/48V",
     price: 35990,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fjumbo-home-ups-model-jm-sw-400048v-working-power-37kva2960w-1-1720332634167.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/jumbo-home-ups-model-jm-sw-400048v-working-power-37kva2960w-1-1720332634167.jpg"],
     salient_features: [
       "3.7KVA / 2960W capacity",
       "DSP/High-end micro controller based PWM technology",
@@ -860,7 +861,7 @@ export const mockProducts = [
     id: "69a7c726060827e5fced7196",
     name: "JUMBO HOME UPS - JM SW 4500+/36V",
     price: 36490,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fjumbo-home-ups-model-jm-sw-450036v-working-power-4kva3200w-1-1720334369551.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/jumbo-home-ups-model-jm-sw-450036v-working-power-4kva3200w-1-1720334369551.jpg"],
     salient_features: [
       "4KVA / 3200W capacity",
       "DSP/High-end micro controller based PWM technology",
@@ -872,7 +873,7 @@ export const mockProducts = [
     id: "69a7d60848ab499e6f6311df",
     name: "JUMBO HOME UPS - JM SW 5500+/48V",
     price: 49990,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fjumbo-home-ups-model-jm-sw-550048v-working-power-52kva4160w-1-1719984730317.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/jumbo-home-ups-model-jm-sw-550048v-working-power-52kva4160w-1-1719984730317.jpg"],
     salient_features: [
       "5.2KVA / 4160W capacity",
       "DSP/High-end micro controller based PWM technology",
@@ -884,7 +885,7 @@ export const mockProducts = [
     id: "69a7d87b51b736d5c9f0f651",
     name: "JUMBO HOME UPS - JM SW 2500+/24V",
     price: 20790,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fjumbo-home-ups-model-jm-sw-250024v-working-power-2kva1600w-2-1719806117104.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/jumbo-home-ups-model-jm-sw-250024v-working-power-2kva1600w-2-1719806117104.jpg"],
     salient_features: [
       "2KVA / 1600W capacity",
       "Static UPS LCD Display",
@@ -900,7 +901,7 @@ export const mockProducts = [
     id: "69a7dd4ce3ea74572bcd7066",
     name: "JUMBO HOME UPS - JM SW 6000+/72V",
     price: 57990,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fjumbo-home-ups-model-jm-sw-600072v-working-power-57kva4560w-1-1720517821551.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/jumbo-home-ups-model-jm-sw-600072v-working-power-57kva4560w-1-1720517821551.jpg"],
     salient_features: [
       "5.7KVA / 4560W capacity",
       "DSP/High-end micro controller based PWM technology",
@@ -912,7 +913,7 @@ export const mockProducts = [
     id: "69a7ee934bcc4baf48f5e919",
     name: "Hi-GRADE JUMBO UPS JM SW 6500i/96V",
     price: 59990,
-    images: ["https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Fhi-grade-jumbo-ups-jm-sw-6500i96v-2-1719802897536.jpg&w=3840&q=75"],
+    images: ["https://cms.microtek.in/upload/product/hi-grade-jumbo-ups-jm-sw-6500i96v-2-1719802897536.jpg"],
     salient_features: [
       "Best Suited for most High Capacity Sophisticated Applications",
       "Generator Compatible",
