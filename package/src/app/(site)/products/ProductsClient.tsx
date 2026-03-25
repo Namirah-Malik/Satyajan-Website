@@ -178,8 +178,12 @@ const ProductsContent = () => {
 
     // Apply category tab filter
     if (filter !== 'all') {
-      base = base.filter(p => p.category?.toLowerCase() === filter.toLowerCase());
-    }
+
+base = base.filter(p => {
+  const pCat = p.category?.toLowerCase().replace(/s$/, '') || '';
+  const fCat = filter.toLowerCase().replace(/s$/, '');
+  return pCat === fCat;
+});    }
 
     // Apply free-text search if no single category resolved
     if (urlSearch && filter === 'all') {

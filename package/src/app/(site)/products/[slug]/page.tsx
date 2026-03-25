@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import ProductDetailsClient from '@/components/ProductDetailsClient';
+import { mockProducts } from '@/mock/products';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,7 @@ async function getPrisma() {
 }
 
 async function fetchProduct(slug: string): Promise<any | null> {
+  // 1. Try local database
   try {
     const db = await getPrisma();
     if (db) {
@@ -36,6 +38,13 @@ async function fetchProduct(slug: string): Promise<any | null> {
     }
   } catch (e) { console.error('DB error:', e); }
 
+  // 2. Check mock data (correct images, most reliable)
+  const mockMatch = mockProducts.find(
+    (p: any) => p.id === slug || p.slug === slug
+  );
+  if (mockMatch) return mockMatch;
+
+  // 3. Live API as last resort
   try {
     const res = await fetch(`https://satyajan.com/api/products/${slug}`, {
       next: { revalidate: 3600 },
@@ -49,17 +58,28 @@ async function fetchProduct(slug: string): Promise<any | null> {
   return null;
 }
 
-// ── Extract a valid URL from any image shape ──────────────────────────────────
-// Live API returns images as objects: { src, alt, width, height }
-// DB may return plain strings
 function extractImageSrc(img: any): string {
   if (!img) return '';
-  if (typeof img === 'string') return img;
-  // object shapes from live API
-  return img.src || img.url || img.image || img.href || '';
+  let src = typeof img === 'string' ? img : (img.src || img.url || img.image || img.href || '');
+
+  if (src.includes('/api/image-proxy?url=')) {
+    try { src = decodeURIComponent(src.split('/api/image-proxy?url=')[1]); } catch {}
+  }
+
+  let i = 0;
+  while (src.includes('/_next/image') && i++ < 5) {
+    try {
+      const u = new URL(src.startsWith('/') ? `https://www.microtek.in${src}` : src);
+      const inner = u.searchParams.get('url');
+      if (inner) src = decodeURIComponent(inner); else break;
+    } catch { break; }
+  }
+
+  if (src.startsWith('//')) src = `https:${src}`;
+  if (src.startsWith('/http')) src = src.replace(/^\//, '');
+  return src;
 }
 
-// ── Strip "wishlist shareicon" UI artifacts ───────────────────────────────────
 function cleanName(name: string): string {
   return (name || '')
     .replace(/\s*wishlist\s*shareicon\s*/gi, '')
@@ -82,13 +102,12 @@ export async function generateMetadata(
     };
   }
 
-  const name  = cleanName(product.name);
+  const name = cleanName(product.name);
   const title = `${name} – Price, Specs & Buy Online | Satyajan`;
   const description = product.description
     ? `${product.description.slice(0, 140)}… Buy online at Satyajan Energy Solutions, Hyderabad.`
     : `Buy ${name} at Satyajan Energy Solutions. Best price in Hyderabad. EMI available.`;
 
-  // Safe image extraction for OG
   const rawFirstImage = Array.isArray(product.images) ? product.images[0] : null;
   const ogImage = extractImageSrc(rawFirstImage) || 'https://satyajan.com/images/og-default.jpg';
   const url = `https://satyajan.com/products/${product.slug ?? slug}`;
@@ -128,32 +147,22 @@ export default async function Details({ params }: { params: Promise<{ slug: stri
   const dbProduct = await fetchProduct(slug);
   if (!dbProduct) return notFound();
 
-  // ── Clean name ──────────────────────────────────────────────────────────────
   const name = cleanName(dbProduct.name);
 
-  // ── Normalize images → always { src: string }[] with valid URLs ─────────────
   const rawImages: any[] = Array.isArray(dbProduct.images) ? dbProduct.images : [];
   const images = rawImages
-  .map(img => {
-    let src = extractImageSrc(img);
-    // Fix protocol-relative URLs
-    if (src.startsWith('//')) src = `https:${src}`;
-    // Fix double-slash artifacts
-    if (src.startsWith('/http')) src = src.replace(/^\//, '');
-    // ✅ Route ALL external URLs through the local proxy
-    if (src.startsWith('http://') || src.startsWith('https://')) {
-      src = `/api/image-proxy?url=${encodeURIComponent(src)}`;
-    }
-    return { src };
-  })
-  .filter(img => img.src && img.src.length > 0);
+    .map(img => {
+      const src = extractImageSrc(img);
+      if (!src || !src.startsWith('http')) return null;
+      return { src: `/api/image-proxy?url=${encodeURIComponent(src)}` };
+    })
+    .filter((img): img is { src: string } => !!img?.src);
 
   const product = {
     id: slug,
     name,
     price: dbProduct.price || 0,
-        images: images,          // ← was: rawImages, now: the proxied images array
-
+    images,
     salient_features: Array.isArray(dbProduct.salient_features)
       ? dbProduct.salient_features.map((f: any) =>
           typeof f === 'string' ? f : f?.value || f?.label || f?.text || ''
