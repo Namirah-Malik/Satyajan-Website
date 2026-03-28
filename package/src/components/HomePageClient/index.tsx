@@ -8,6 +8,17 @@ import * as LucideIcons from 'lucide-react'
 import { companyInfo, products, benefits, testimonials, faqs } from '@/mock/data'
 import SolarSavingsCalculator from '@/components/SolarSavingsCalculator'
 
+// ── Category map: mock/data category → products page filter value ─────────────
+const categoryFilterMap: Record<string, string> = {
+  'solar':      'Solar',
+  'inverter':   'Inverter',
+  'jumbo-ups':  'High Capacity UPS',
+  'online-ups': 'ONLINE UPS',
+  'battery':    'Battery',
+  'lithium':    'New Lithium Battery',
+  'combos':     'Combo',
+}
+
 // ── Scroll Reveal Hook ────────────────────────────────────────────────────────
 function useScrollReveal() {
   useEffect(() => {
@@ -86,10 +97,6 @@ const GlassCard = ({
     {children}
   </div>
 )
-  //<div className={`bg-white/40 backdrop-blur-lg rounded-2xl md:rounded-3xl shadow-xl border border-white/30 transition-all duration-300 hover:shadow-2xl ${className}`}>
-   // {children}
-  //</div>
-//)
 
 const PlayfulIcon = ({ icon, ringColor, bgColor }: { icon: string; ringColor: string; bgColor: string }) => (
   <div className={`relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 ${bgColor} rounded-full shadow-lg mb-3 flex-shrink-0`}>
@@ -98,7 +105,6 @@ const PlayfulIcon = ({ icon, ringColor, bgColor }: { icon: string; ringColor: st
   </div>
 )
 
-// ── Stat Card with animated counter ──────────────────────────────────────────
 function StatCard({ value, label }: { value: string; label: string }) {
   const num = parseInt(value.replace(/\D/g, ''))
   const suffix = value.replace(/[0-9,]/g, '')
@@ -113,7 +119,6 @@ function StatCard({ value, label }: { value: string; label: string }) {
   )
 }
 
-// ── Marquee ticker ────────────────────────────────────────────────────────────
 const MARQUEE_ITEMS = [
   'Solar Panel Installation', 'Battery Replacement', 'Inverter Setup & Repair',
   'Free Consultation', '24/7 Support', 'Easy EMI Options',
@@ -210,7 +215,6 @@ export default function HomePageClient() {
   const visibleFaqs = faqs.filter((f: any) => !removedFaqs.includes(f.question))
   const allProducts = products.filter((p: any) => p.name !== 'Combos')
 
-  // ── Original product card style (from doc 29) with sr animation class ──
   const renderProductCard = (product: any) => (
     <div key={product.id} className="sr group rounded-2xl bg-white shadow-md border border-gray-100 overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full">
       <div className="relative w-full bg-white flex-shrink-0" style={{ aspectRatio: '16/9' }}>
@@ -234,8 +238,9 @@ export default function HomePageClient() {
             </li>
           ))}
         </ul>
+        {/* ✅ Fixed: each button now links to its specific category */}
         <Link
-          href="/products"
+          href={`/products?category=${encodeURIComponent(categoryFilterMap[product.category] || product.category)}`}
           className="w-full bg-gradient-to-r from-emerald-500 to-teal-400 text-white py-2 rounded-xl flex items-center justify-center gap-1.5 font-semibold hover:shadow-lg transition-all text-xs sm:text-sm mt-auto"
         >
           View Products <ArrowRight className="w-3 h-3" />
@@ -249,8 +254,6 @@ export default function HomePageClient() {
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <section id="hero" className="relative pt-16 sm:pt-20 md:pt-24 pb-0 overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-yellow-50">
-
-        {/* Floating background particles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute w-72 h-72 bg-emerald-400/10 rounded-full -top-20 -right-20 animate-float-slow" />
           <div className="absolute w-48 h-48 bg-teal-400/10 rounded-full bottom-10 -left-16 animate-float-medium" />
@@ -305,13 +308,12 @@ export default function HomePageClient() {
             </div>
           </div>
         </div>
-       {/* ── Marquee inside hero ── */}
         <div className="relative z-10">
           <MarqueeTicker />
         </div>
-
         <WavyDivider />
       </section>
+
       {/* ── ABOUT ────────────────────────────────────────────────────── */}
       <section id="about" className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 max-w-7xl mx-auto">
         <div className="sr text-center mb-6 sm:mb-10 md:mb-12">

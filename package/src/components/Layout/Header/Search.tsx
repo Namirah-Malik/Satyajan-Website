@@ -11,7 +11,6 @@ type SearchProps = {
 };
 
 type Product = {
-  id: string;
   name: string;
   slug: string;
   price: number;
@@ -22,7 +21,12 @@ type Product = {
   salient_features?: string[];
 };
 
-// ── Maps search keywords → actual API category values ─────────────────────────
+// ── NOTE: window.__productCache is declared in ProductsClient.tsx ─────────────
+// Search.tsx reuses it without re-declaring to avoid the TypeScript conflict.
+// Both files share the same 5-minute cache via window.__productCache.
+const CACHE_TTL = 5 * 60 * 1000;
+
+// ── Category map ──────────────────────────────────────────────────────────────
 const CATEGORY_MAP: Record<string, string[]> = {
   'solar':    ['Solar', 'Solar Inverter', 'Solar Battery'],
   'inverter': ['Inverter', 'Solar Inverter'],
@@ -36,9 +40,6 @@ const CATEGORY_MAP: Record<string, string[]> = {
 };
 
 // ── Image URL fixer ───────────────────────────────────────────────────────────
-// Converts wrapped Next.js image URLs to direct cms.microtek.in URLs
-// Before: https://www.microtek.in/_next/image?url=https%3A%2F%2Fcms.microtek.in%2Fupload%2Fproduct%2Ffilename.jpg&w=3840&q=75
-// After:  https://cms.microtek.in/upload/product/filename.jpg
 function resolveImageUrl(src: string): string {
   if (!src) return '';
   try {
@@ -47,13 +48,11 @@ function resolveImageUrl(src: string): string {
       const inner = parsed.searchParams.get('url');
       if (inner) return decodeURIComponent(inner);
     }
-  } catch {
-    // fall through
-  }
+  } catch { /* fall through */ }
   return src;
 }
 
-// ── Resolve category param for "View all" navigation ─────────────────────────
+// ── Resolve category for navigation ──────────────────────────────────────────
 function resolveCategoryParam(q: string): string | null {
   const lower = q.toLowerCase().trim();
   if (CATEGORY_MAP[lower]) return CATEGORY_MAP[lower][0];
@@ -62,6 +61,45 @@ function resolveCategoryParam(q: string): string | null {
   );
   if (partial) return partial[1][0];
   return null;
+}
+
+// ── Normalize a raw product into the Search Product type ─────────────────────
+function normalizeForSearch(p: any): Product | null {
+  const slug = p.slug || p.id || '';
+  const name = (p.name || '')
+    .replace(/\s*wishlist\s*shareicon\s*/gi, '')
+    .replace(/\s*shareicon\s*/gi, '')
+    .replace(/\s*wishlist\s*/gi, '')
+    .trim();
+  if (!name || !slug) return null;
+
+  const images: { src: string }[] = Array.isArray(p.images)
+    ? p.images
+        .map((img: any) => {
+          let src = typeof img === 'string' ? img : img?.src || img?.url || '';
+          src = resolveImageUrl(src);
+          if (src && src.startsWith('http')) {
+            src = `/api/image-proxy?url=${encodeURIComponent(src)}`;
+          }
+          return src && src.trim() ? { src: src.trim() } : null;
+        })
+        .filter(Boolean) as { src: string }[]
+    : [];
+
+  return {
+    name,
+    slug,
+    price: Number(p.price || p.rate || 0),
+    category: p.category || '',
+    images,
+    features: Array.isArray(p.features)
+      ? p.features.map((f: any) => typeof f === 'string' ? f : f?.value || f?.label || '').filter(Boolean)
+      : [],
+    salient_features: Array.isArray(p.salient_features)
+      ? p.salient_features.map((f: any) => typeof f === 'string' ? f : f?.value || f?.label || '').filter(Boolean)
+      : [],
+    description: p.description || '',
+  };
 }
 
 const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
@@ -74,46 +112,35 @@ const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
   const fetchedRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // ── Fetch all products once ───────────────────────────────────────────────
+  // ── Fetch products — reuses window cache if available ─────────────────────
   const fetchProducts = useCallback(async () => {
     if (fetchedRef.current) return;
     setLoading(true);
     try {
+      const cache = (window as any).__productCache;
+      const now = Date.now();
+
+      // ✅ Reuse cache from ProductsClient if fresh — zero extra API call
+      if (cache && now - cache.ts < CACHE_TTL && Array.isArray(cache.products)) {
+        const mapped = cache.products
+          .map(normalizeForSearch)
+          .filter(Boolean) as Product[];
+        setProducts(mapped);
+        fetchedRef.current = true;
+        return;
+      }
+
+      // Cache miss — fetch fresh
       const res = await fetch('/api/products');
       const data = await res.json();
       const productList = Array.isArray(data.products) ? data.products : [];
 
-      const mapped: Product[] = productList.map((p: any) => {
-        // ✅ Resolve each image URL to direct cms.microtek.in format
-        const images: { src: string }[] = Array.isArray(p.images)
-          ? p.images
-              .map((img: any) => {
-                let src = typeof img === 'string' ? img : img?.src || img?.url || '';
-                src = resolveImageUrl(src);
-                return src && src.trim() ? { src: src.trim() } : null;
-              })
-              .filter(Boolean) as { src: string }[]
-          : [];
+      // Populate cache for ProductsClient
+      (window as any).__productCache = { products: productList, ts: now };
 
-        const slug = p.slug || p.id || '';
-
-        return {
-          id: p.id || slug,
-          name: (p.name || '').trim(),
-          slug,
-          price: Number(p.price || p.rate || 0),
-          category: p.category || '',
-          images,
-          features: Array.isArray(p.features)
-            ? p.features.map((f: any) => typeof f === 'string' ? f : f?.value || f?.label || '').filter(Boolean)
-            : [],
-          salient_features: Array.isArray(p.salient_features)
-            ? p.salient_features.map((f: any) => typeof f === 'string' ? f : f?.value || f?.label || '').filter(Boolean)
-            : [],
-          description: p.description || '',
-        };
-      }).filter((p: Product) => p.name && p.slug);
-
+      const mapped = productList
+        .map(normalizeForSearch)
+        .filter(Boolean) as Product[];
       setProducts(mapped);
       fetchedRef.current = true;
     } catch (e) {
@@ -135,7 +162,7 @@ const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ── Navigate to products page with correct param ──────────────────────────
+  // ── Navigate to products page ─────────────────────────────────────────────
   const navigateToProducts = useCallback((q: string) => {
     const trimmed = q.trim();
     if (!trimmed) { router.push('/products'); return; }
@@ -147,10 +174,9 @@ const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
     }
   }, [router]);
 
-  // ── Smart filtered results with category scoring ──────────────────────────
+  // ── Smart filtered results ────────────────────────────────────────────────
   const filtered = query.trim().length < 1 ? [] : (() => {
     const q = query.toLowerCase().trim();
-
     const matchedCategories = CATEGORY_MAP[q] ||
       Object.entries(CATEGORY_MAP)
         .filter(([key]) => key.includes(q) || q.includes(key))
@@ -161,17 +187,11 @@ const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
         const nameLower = item.name.toLowerCase();
         const catLower = item.category.toLowerCase();
         let score = 0;
-
-        if (
-          matchedCategories.length > 0 &&
-          matchedCategories.some(c => c.toLowerCase() === catLower)
-        ) score += 100;
-
+        if (matchedCategories.length > 0 && matchedCategories.some(c => c.toLowerCase() === catLower)) score += 100;
         if (nameLower.includes(q)) score += 50;
         if (catLower.includes(q)) score += 40;
         if ((item.description || '').toLowerCase().includes(q)) score += 5;
         if (score > 0 && item.features.some(f => f.toLowerCase().includes(q))) score += 2;
-
         return { item, score };
       })
       .filter(({ score }) => score > 0)
@@ -180,7 +200,7 @@ const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
       .slice(0, 9);
   })();
 
-  // ── Build "View all" href ─────────────────────────────────────────────────
+  // ── "View all" href ───────────────────────────────────────────────────────
   const viewAllHref = (() => {
     const trimmed = query.trim();
     if (!trimmed) return '/products';
@@ -211,14 +231,8 @@ const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
           placeholder="Search products..."
           value={query}
           autoComplete="off"
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setShowResults(true);
-          }}
-          onFocus={() => {
-            setShowResults(true);
-            fetchProducts();
-          }}
+          onChange={(e) => { setQuery(e.target.value); setShowResults(true); }}
+          onFocus={() => { setShowResults(true); fetchProducts(); }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && query.trim()) {
               setShowResults(false);
@@ -251,11 +265,7 @@ const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
               }
             </span>
             {filtered.length > 0 && (
-              <Link
-                href={viewAllHref}
-                className="text-xs text-primary font-semibold hover:underline"
-                onClick={() => setShowResults(false)}
-              >
+              <Link href={viewAllHref} className="text-xs text-primary font-semibold hover:underline" onClick={() => setShowResults(false)}>
                 View all →
               </Link>
             )}
@@ -264,9 +274,15 @@ const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
           {/* Body */}
           <div className="max-h-[440px] overflow-y-auto">
             {loading ? (
-              <div className="flex items-center justify-center gap-2 py-10 text-gray-400">
-                <Icon icon="svg-spinners:3-dots-fade" width={28} />
-                <span className="text-sm font-medium">Loading products…</span>
+              <div className="grid grid-cols-3 divide-x divide-y divide-gray-100">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="p-3 animate-pulse">
+                    <div className="aspect-square rounded-xl bg-gray-100 mb-2" />
+                    <div className="h-3 bg-gray-100 rounded-full w-2/3 mb-1" />
+                    <div className="h-3 bg-gray-100 rounded-full w-full mb-1" />
+                    <div className="h-3 bg-gray-100 rounded-full w-1/2" />
+                  </div>
+                ))}
               </div>
             ) : filtered.length > 0 ? (
               <div className="grid grid-cols-3 divide-x divide-y divide-gray-100">
@@ -280,13 +296,13 @@ const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
                       className="flex flex-col items-start p-3 hover:bg-emerald-50/60 transition-colors group"
                       onClick={() => { setShowResults(false); setQuery(''); }}
                     >
-                      {/* Image */}
                       <div className="w-full aspect-square rounded-xl overflow-hidden bg-gray-50 mb-2 flex items-center justify-center border border-gray-100">
                         {showImg ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={imgSrc}
                             alt={item.name}
+                            loading="lazy"
                             className="w-full h-full object-contain p-1.5"
                             onError={() => setImgErrors(prev => ({ ...prev, [item.slug]: true }))}
                           />
@@ -296,20 +312,14 @@ const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
                           </div>
                         )}
                       </div>
-
-                      {/* Category badge */}
                       {item.category && (
                         <span className="text-[9px] font-bold text-white bg-primary px-1.5 py-0.5 rounded-full mb-1">
                           {item.category}
                         </span>
                       )}
-
-                      {/* Name */}
                       <span className="text-[11px] font-bold text-gray-800 leading-snug line-clamp-2 w-full group-hover:text-primary transition-colors">
                         {item.name}
                       </span>
-
-                      {/* Price */}
                       {item.price > 0 && (
                         <span className="text-[11px] font-extrabold text-primary mt-1">
                           ₹{item.price.toLocaleString('en-IN')}
@@ -326,11 +336,7 @@ const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
                   <p className="text-sm font-semibold text-gray-500">No products found</p>
                   <p className="text-xs text-gray-400 mt-1">Try: "Solar", "Battery", "Inverter", "UPS", "Combo"</p>
                 </div>
-                <Link
-                  href="/products"
-                  className="text-xs text-primary font-semibold hover:underline mt-1"
-                  onClick={() => setShowResults(false)}
-                >
+                <Link href="/products" className="text-xs text-primary font-semibold hover:underline mt-1" onClick={() => setShowResults(false)}>
                   Browse all products →
                 </Link>
               </div>
@@ -343,11 +349,7 @@ const Search: React.FC<SearchProps> = ({ sticky, isHomepage }) => {
               <span className="text-xs text-gray-400">
                 Showing {filtered.length} of {products.length} products
               </span>
-              <Link
-                href={viewAllHref}
-                className="text-xs text-primary hover:underline font-semibold"
-                onClick={() => setShowResults(false)}
-              >
+              <Link href={viewAllHref} className="text-xs text-primary hover:underline font-semibold" onClick={() => setShowResults(false)}>
                 Browse all →
               </Link>
             </div>
