@@ -234,6 +234,8 @@ const videoUrl = VIDEO_SKUS.includes(product.SKU) ? `/videos/${product.SKU}.mp4`
       </main>
 
       <CallMeBackModal isOpen={showModal} onClose={closeModal} />
+      
     </>
+    
   );
 }

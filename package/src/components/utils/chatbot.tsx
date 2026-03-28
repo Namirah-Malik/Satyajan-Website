@@ -11,6 +11,7 @@ interface Message {
 
 export default function Chatbox() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showPopup, setShowPopup] = useState(true);
   const [step, setStep] = useState<'initial' | 'collecting_info' | 'submitted'>('initial');
   const [initialQuestion, setInitialQuestion] = useState('');
   const [messages, setMessages] = useState<Message[]>([
@@ -83,19 +84,45 @@ export default function Chatbox() {
 
   return (
     <>
+      {/* ── Dismissible Popup above chat bubble ── */}
+      {showPopup && !isOpen && (
+        <div className="fixed bottom-24 right-6 z-50 animate-fade-in-up">
+          <div className="relative bg-white rounded-2xl shadow-xl px-4 py-3 max-w-[220px] border border-gray-100">
+            {/* X to dismiss popup */}
+            <button
+              onClick={() => setShowPopup(false)}
+              className="absolute -top-2 -right-2 w-5 h-5 bg-gray-700 hover:bg-gray-900 text-white rounded-full flex items-center justify-center transition-colors"
+              aria-label="Dismiss"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            {/* Popup content — click opens chat */}
+            <button
+              onClick={() => { setIsOpen(true); setShowPopup(false); }}
+              className="text-left w-full"
+            >
+              <p className="text-sm font-semibold text-gray-800">👋 Hi there!</p>
+              <p className="text-xs text-gray-500 mt-0.5">Have a question? We're here to help.</p>
+            </button>
+            {/* Triangle pointer */}
+            <div className="absolute -bottom-2 right-6 w-4 h-4 bg-white border-b border-r border-gray-100 rotate-45" />
+          </div>
+        </div>
+      )}
+
       {/* ── Chat Bubble Icon ── */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => { setIsOpen(!isOpen); setShowPopup(false); }}
         className="fixed bottom-6 right-6 w-16 h-16 bg-blue-600 rounded-full text-white flex items-center justify-center shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-110 z-50"
         aria-label="Open chat"
       >
         {isOpen ? (
-          // X icon when open
           <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
           </svg>
         ) : (
-          // Chat icon when closed
           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
@@ -110,7 +137,6 @@ export default function Chatbox() {
           <div className="bg-blue-600 p-4 rounded-t-xl text-white text-center relative">
             <h3 className="font-bold">Contact Us</h3>
             <p className="text-sm opacity-90">"We'll respond as soon as we can."</p>
-            {/* ── X close button ── */}
             <button
               onClick={() => setIsOpen(false)}
               className="absolute top-2.5 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 transition-colors"

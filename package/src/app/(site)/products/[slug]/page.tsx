@@ -29,6 +29,7 @@ async function getPrisma() {
 }
 
 async function fetchProduct(slug: string): Promise<any | null> {
+  // 1. Try database first
   try {
     const db = await getPrisma();
     if (db) {
@@ -41,13 +42,13 @@ async function fetchProduct(slug: string): Promise<any | null> {
     console.error('DB error:', e);
   }
 
-  // ✅ Use mock data (important for correct images)
+  // 2. Try mock data
   const mockMatch = mockProducts.find(
     (p: any) => p.id === slug || p.slug === slug
   );
   if (mockMatch) return mockMatch;
 
-  // ✅ Fallback API
+  // 3. Fallback to live API
   try {
     const res = await fetch(`https://satyajan.com/api/products/${slug}`, {
       next: { revalidate: 3600 },
@@ -63,6 +64,7 @@ async function fetchProduct(slug: string): Promise<any | null> {
   return null;
 }
 
+// ── Unwrap any image shape into a clean direct URL ────────────────────────────
 function extractImageSrc(img: any): string {
   if (!img) return '';
   let src =
@@ -70,12 +72,14 @@ function extractImageSrc(img: any): string {
       ? img
       : img.src || img.url || img.image || img.href || '';
 
+  // Unwrap already-proxied URLs
   if (src.includes('/api/image-proxy?url=')) {
     try {
       src = decodeURIComponent(src.split('/api/image-proxy?url=')[1]);
     } catch {}
   }
 
+  // Unwrap Next.js image optimizer wrappers
   let i = 0;
   while (src.includes('/_next/image') && i++ < 5) {
     try {
@@ -90,9 +94,20 @@ function extractImageSrc(img: any): string {
     }
   }
 
+  // Fix protocol-relative and malformed URLs
   if (src.startsWith('//')) src = `https:${src}`;
   if (src.startsWith('/http')) src = src.replace(/^\//, '');
   return src;
+}
+
+// ── Normalize a features array to plain strings ───────────────────────────────
+function normalizeFeatures(arr: any[]): string[] {
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map((f: any) =>
+      typeof f === 'string' ? f : f?.value || f?.label || f?.text || ''
+    )
+    .filter(Boolean);
 }
 
 function cleanName(name: string): string {
@@ -121,27 +136,27 @@ export async function generateMetadata({
 
   const name = cleanName(product.name);
   const title = `${name} – Price, Specs & Buy Online | Satyajan`;
-
   const description = product.description
-    ? `${product.description.slice(
-        0,
-        140
-      )}… Buy online at Satyajan Energy Solutions, Hyderabad.`
-    : `Buy ${name} at Satyajan Energy Solutions.`;
+    ? `${product.description.slice(0, 140)}… Buy online at Satyajan Energy Solutions, Hyderabad.`
+    : `Buy ${name} at Satyajan Energy Solutions. Best price in Hyderabad. EMI available.`;
 
-  const rawFirstImage = Array.isArray(product.images)
-    ? product.images[0]
-    : null;
-
+  const rawFirstImage = Array.isArray(product.images) ? product.images[0] : null;
   const ogImage =
-    extractImageSrc(rawFirstImage) ||
-    'https://satyajan.com/images/og-default.jpg';
-
+    extractImageSrc(rawFirstImage) || 'https://satyajan.com/images/og-default.jpg';
   const url = `https://satyajan.com/products/${product.slug ?? slug}`;
 
   return {
     title,
     description,
+    keywords: [
+      name,
+      `${name} price`,
+      `${name} Hyderabad`,
+      `buy ${name}`,
+      product.category ?? 'energy product',
+      'Satyajan Energy Solutions',
+      'Microtek dealer Hyderabad',
+    ],
     alternates: { canonical: url },
     openGraph: {
       type: 'website',
@@ -149,7 +164,7 @@ export async function generateMetadata({
       title,
       description,
       siteName: 'Satyajan Energy Solutions',
-      images: [{ url: ogImage }],
+      images: [{ url: ogImage, width: 800, height: 600, alt: name }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -171,26 +186,62 @@ export default async function Details({
 
   const name = cleanName(dbProduct.name);
 
-  const rawImages: any[] = Array.isArray(dbProduct.images)
-    ? dbProduct.images
-    : [];
-
+  // ── Normalize images → proxied { src }[] ─────────────────────────────────
+  const rawImages: any[] = Array.isArray(dbProduct.images) ? dbProduct.images : [];
   const images = rawImages
     .map((img) => {
       const src = extractImageSrc(img);
-      if (!src || !src.startsWith('http')) return null;
-      return { src: `/api/image-proxy?url=${encodeURIComponent(src)}` };
+      if (!src) return null;
+      // Local images (e.g. /images/products/...) — serve directly, no proxy
+      if (src.startsWith('/') && !src.startsWith('/http')) return { src };
+      // External images — route through proxy
+      if (src.startsWith('http://') || src.startsWith('https://')) {
+        return { src: `/api/image-proxy?url=${encodeURIComponent(src)}` };
+      }
+      return null;
     })
     .filter((img): img is { src: string } => !!img?.src);
 
+  // ── Build the full product object with ALL fields ─────────────────────────
   const product = {
     id: slug,
     name,
-    price: dbProduct.price || 0,
+    price: dbProduct.price || dbProduct.rate || 0,
     images,
+
+    // ✅ Restored: salient features (key highlights)
+    salient_features: normalizeFeatures(dbProduct.salient_features),
+
+    // ✅ Restored: product features
+    features: normalizeFeatures(dbProduct.features),
+
+    // ✅ Restored: specifications table
+    specifications: Array.isArray(dbProduct.specifications)
+      ? dbProduct.specifications
+      : [],
+
+    // ✅ Restored: description
     description: dbProduct.description || '',
+
+    // ✅ Restored: category (mapped to display name)
     category:
-      categoryMap[dbProduct.category || ''] || dbProduct.category || '',
+      categoryMap[dbProduct.category?.toLowerCase() || ''] ||
+      dbProduct.category ||
+      '',
+    categorySlug: dbProduct.category || '',
+
+    // ✅ Restored: SKU
+    SKU:
+      dbProduct.SKU ||
+      dbProduct.sku ||
+      `899-A${dbProduct.category?.charAt(0)?.toUpperCase() || 'I'}N-${
+        dbProduct.name?.match(/\d+/)?.[0] || slug.slice(-4)
+      }`,
+
+    // ✅ Restored: spec summary row (first 3 specs)
+    data: Array.isArray(dbProduct.specifications)
+      ? dbProduct.specifications.slice(0, 3)
+      : [],
   };
 
   const formattedPrice = product.price

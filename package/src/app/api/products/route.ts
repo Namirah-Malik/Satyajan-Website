@@ -20,11 +20,9 @@ function extractDirectUrl(raw: any): string {
   let url = typeof raw === 'string' ? raw : (raw?.src || raw?.url || raw?.image || '');
   if (typeof url !== 'string') return '';
   url = url.replace(/\s+/g, '');
-  // Strip existing proxy wrapper
   if (url.includes('/api/image-proxy?url=')) {
     try { url = decodeURIComponent(url.split('/api/image-proxy?url=')[1]); } catch {}
   }
-  // Unwrap microtek next.js optimizer URLs
   let i = 0;
   while (url.includes('/_next/image') && i++ < 5) {
     try {
@@ -43,8 +41,10 @@ function cleanProduct(raw: any) {
   const images = rawImages
     .map((img: any) => {
       const src = extractDirectUrl(img);
-      if (!src || !src.startsWith('http')) return null;
-      // ✅ Wrap through proxy here so card gets proxied URL directly
+      if (!src) return null;
+      // Local images served directly, external ones proxied
+      if (src.startsWith('/') && !src.startsWith('/http')) return { src };
+      if (!src.startsWith('http')) return null;
       return { src: `/api/image-proxy?url=${encodeURIComponent(src)}` };
     })
     .filter(Boolean) as { src: string }[];
@@ -70,19 +70,26 @@ function cleanProduct(raw: any) {
   return { ...raw, name, images, features, salient_features, slug, price };
 }
 
+// ── Cache headers for performance ─────────────────────────────────────────────
+const CACHE_HEADERS = {
+  'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+};
+
 export async function GET() {
+  // 1. Try database
   try {
     const db = await getPrisma();
     if (db) {
       const raw = await db.product.findMany({ orderBy: { createdAt: "desc" } });
       const products = raw.map(cleanProduct);
       const categories = [...new Set(products.map((p: any) => p.category).filter(Boolean))];
-      return NextResponse.json({ products, categories });
+      return NextResponse.json({ products, categories }, { headers: CACHE_HEADERS });
     }
   } catch (e) {
     console.error("DB error:", e);
   }
 
+  // 2. Try live API
   try {
     const liveRes = await fetch("https://satyajan.com/api/products", {
       next: { revalidate: 3600 },
@@ -92,15 +99,17 @@ export async function GET() {
       if (liveData?.products?.length) {
         const products = liveData.products.map(cleanProduct);
         const categories = [...new Set(products.map((p: any) => p.category).filter(Boolean))];
-        return NextResponse.json({ products, categories });
+        return NextResponse.json({ products, categories }, { headers: CACHE_HEADERS });
       }
     }
   } catch (e) {
     console.error("Live API fetch error:", e);
   }
 
-  return NextResponse.json({
-    products: mockProducts.map(cleanProduct),
-    categories: mockCategories,
-  });
+  // 3. ✅ Fixed: mock fallback — products variable is now defined
+  const products = mockProducts.map(cleanProduct);
+  return NextResponse.json(
+    { products, categories: mockCategories },
+    { headers: CACHE_HEADERS }
+  );
 }
