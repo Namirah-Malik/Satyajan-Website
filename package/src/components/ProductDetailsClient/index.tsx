@@ -9,7 +9,6 @@ import { useCart } from '@/context/CartContext';
 import { useState } from 'react';
 import EMICalculator from '@/components/EMI/EMICalculator';
 
-
 const ProductGallery = dynamic<{ images: { src: string }[]; name: string }>(
   () => import('@/components/Home/Product/ProductGallery'),
 );
@@ -25,15 +24,10 @@ export default function ProductDetailsClient({ product, images, formattedPrice, 
   const { showModal, closeModal } = useScrollModal({ triggerTimeMs: 60000, showOnFooterReach: true });
   const { addToCart } = useCart();
   const [adding, setAdding] = useState(false);
-  // ✅ NEW: tab state for image vs video
-  const [mediaTab, setMediaTab] = useState<'images' | 'video'>('images');
 
   const price = typeof product.price === 'number' ? product.price : Number(product.price) || 0;
   const mainImage = images?.[0]?.src || '/images/fallback.jpg';
 
-  const VIDEO_SKUS = ['899-951-1075']; // ✅ only add SKUs that have videos
-const [videoExists, setVideoExists] = useState(true);
-const videoUrl = VIDEO_SKUS.includes(product.SKU) ? `/videos/${product.SKU}.mp4` : null;
   const handleAddToCart = () => {
     setAdding(true);
     addToCart({
@@ -48,92 +42,51 @@ const videoUrl = VIDEO_SKUS.includes(product.SKU) ? `/videos/${product.SKU}.mp4`
 
   return (
     <>
-      <main className="min-h-screen pt-28 sm:pt-36 pb-16">
+      <main className="min-h-screen pt-24 sm:pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
-<div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start">
+          {/* ── TOP SECTION: Image + Info side by side ── */}
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-10 items-start">
 
-            {/* LEFT: Image/Video gallery */}
-
-<div className="w-full sm:w-[45%] flex-shrink-0 sm:sticky sm:top-28">
-
-              {/* ✅ Tab switcher — only show if product has a video */}
-              {videoUrl && (
-                <div className="flex gap-2 mb-3">
-                  <button
-                    onClick={() => setMediaTab('images')}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                      mediaTab === 'images'
-                        ? 'bg-primary text-white shadow-md'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Icon icon="ph:images-fill" width={16} />
-                    Photos
-                  </button>
-                  <button
-                    onClick={() => setMediaTab('video')}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                      mediaTab === 'video'
-                        ? 'bg-primary text-white shadow-md'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Icon icon="ph:play-circle-fill" width={16} />
-                    Video
-                  </button>
-                </div>
-              )}
+            {/* LEFT: Image gallery */}
+            <div className="w-full sm:w-[42%] flex-shrink-0 sm:sticky sm:top-28">
               <div className="rounded-2xl border border-gray-200 bg-white shadow p-4">
-                {mediaTab === 'images' || !videoUrl ? (
-                  <ProductGallery images={images} name={product.name} />
-                ) : (
-
-
-<div className="relative w-full rounded-xl overflow-hidden bg-black" style={{ height: '420px' }}>
-                  <video
-  src={videoUrl!}
-  controls
-  autoPlay
-  loop
-  muted
-  playsInline
-  controlsList="nodownload noremoteplayback"
-  disablePictureInPicture
-
-  className="w-full h-full object-cover absolute inset-0"
-
-  poster={mainImage}
-  onError={() => setVideoExists(false)}
->
-  Your browser does not support the video tag.
-</video>
-                  </div>
-                )}
+                <ProductGallery images={images} name={product.name} />
               </div>
             </div>
 
-            {/* RIGHT: Product info — unchanged */}
-            <div className="flex-1 flex flex-col gap-5">
+            {/* RIGHT: Product info */}
+            <div className="flex-1 flex flex-col gap-4">
 
-              <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2">
-                  {product.name}
-                </h1>
-                <p className="text-sm text-gray-400">SKU: {product.SKU}</p>
-              </div>
+              {/* Category badge */}
+              {product.category && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider w-fit border border-primary/20">
+                  {product.category}
+                </span>
+              )}
 
+              {/* Product name */}
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
+                {product.name}
+              </h1>
+
+              {/* SKU */}
+              <p className="text-sm text-gray-500">SKU: {product.SKU}</p>
+
+              {/* Price */}
               <div>
                 <span className="text-3xl sm:text-4xl font-bold text-primary">
                   {formattedPrice}
                 </span>
               </div>
 
+              {/* EMI Calculator */}
               {price > 0 && <EMICalculator price={price} />}
 
+              {/* About This Product */}
               {product.description && (
                 <div className="border border-gray-200 rounded-xl p-5 bg-gray-50">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">
                     About This Product
                   </p>
                   <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
@@ -142,6 +95,7 @@ const videoUrl = VIDEO_SKUS.includes(product.SKU) ? `/videos/${product.SKU}.mp4`
                 </div>
               )}
 
+              {/* Action buttons */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleAddToCart}
@@ -163,6 +117,7 @@ const videoUrl = VIDEO_SKUS.includes(product.SKU) ? `/videos/${product.SKU}.mp4`
                 </Link>
               </div>
 
+              {/* Specs summary table (3-col: Model | Capacity | Waveform) */}
               {product.data && Array.isArray(product.data) && product.data.some((i: any) => i?.labal) && (
                 <div className="border border-gray-200 rounded-xl overflow-hidden">
                   <div className="grid grid-cols-3 divide-x divide-gray-200">
@@ -179,6 +134,7 @@ const videoUrl = VIDEO_SKUS.includes(product.SKU) ? `/videos/${product.SKU}.mp4`
                 </div>
               )}
 
+              {/* Key Highlights (salient_features) — green pills */}
               {Array.isArray(product.salient_features) && product.salient_features.length > 0 && (
                 <div>
                   <h3 className="text-base font-bold text-gray-900 mb-3">Key Highlights</h3>
@@ -193,6 +149,7 @@ const videoUrl = VIDEO_SKUS.includes(product.SKU) ? `/videos/${product.SKU}.mp4`
                 </div>
               )}
 
+              {/* Product Features list */}
               {Array.isArray(product.features) && product.features.length > 0 && (
                 <div className="border border-gray-200 rounded-xl p-5 bg-blue-50/40">
                   <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
@@ -210,6 +167,7 @@ const videoUrl = VIDEO_SKUS.includes(product.SKU) ? `/videos/${product.SKU}.mp4`
                 </div>
               )}
 
+              {/* Full specifications table */}
               {Array.isArray(product.specifications) && product.specifications.length > 0 && (
                 <div>
                   <h3 className="text-base font-bold text-gray-900 mb-3">Specifications</h3>
@@ -228,14 +186,27 @@ const videoUrl = VIDEO_SKUS.includes(product.SKU) ? `/videos/${product.SKU}.mp4`
                 </div>
               )}
 
+              {/* Category link */}
+              {product.category && (
+                <div className="pt-2 border-t border-gray-100">
+                  <p className="text-sm text-gray-500">
+                    Category:{' '}
+                    <Link
+                      href={`/products?category=${encodeURIComponent(product.category)}`}
+                      className="text-primary font-semibold hover:underline"
+                    >
+                      {product.category}
+                    </Link>
+                  </p>
+                </div>
+              )}
+
             </div>
           </div>
         </div>
       </main>
 
       <CallMeBackModal isOpen={showModal} onClose={closeModal} />
-      
     </>
-    
   );
 }
