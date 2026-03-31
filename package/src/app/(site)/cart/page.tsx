@@ -176,7 +176,7 @@ export default function CartPage() {
               {cartItems.map((item) => (
                 <div key={item.id} className="flex flex-col sm:flex-row gap-4 pb-6 mb-6 border-b border-gray-200 last:border-b-0 last:pb-0 last:mb-0">
                   
-                  <div className="w-full sm:w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden border border-gray-100 bg-gray-50">
+                  <Link href={`/products/${item.id}`} className="w-full sm:w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 block hover:opacity-90 transition-opacity">
   {/* eslint-disable-next-line @next/next/no-img-element */}
   <img
     src={item.image || '/images/fallback.jpg'}
@@ -186,7 +186,7 @@ export default function CartPage() {
       (e.target as HTMLImageElement).src = '/images/fallback.jpg';
     }}
   />
-</div>
+</Link>
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold text-dark mb-1">{item.name}</h3>
                     <p className="text-sm text-gray-500 mb-2">SKU: {item.SKU}</p>
