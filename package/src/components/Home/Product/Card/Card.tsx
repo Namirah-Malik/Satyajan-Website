@@ -23,7 +23,7 @@ function proxyImageUrl(src: string | null): string | null {
 }
 
 const PropertyCard: React.FC<{ item: PropertyHomes }> = ({ item }) => {
-  const { name, rate, slug, images, features, category, description } = item
+  const { name, rate, slug, images, features, category } = item
   const { addToCart } = useCart()
   const [adding, setAdding] = useState(false)
   const [imgError, setImgError] = useState(false)
@@ -39,15 +39,11 @@ const PropertyCard: React.FC<{ item: PropertyHomes }> = ({ item }) => {
 
   const mainImage = proxyImageUrl(rawImage);
   const showImage = mainImage && !imgError;
-
-  const formattedRate = rate && !isNaN(Number(rate))
-    ? Number(rate).toLocaleString('en-IN')
-    : null;
-
+  const formattedRate = rate && !isNaN(Number(rate)) ? Number(rate).toLocaleString('en-IN') : null;
   const price = Number(rate) || 0;
-  const SKU = slug && slug.trim()
-    ? slug.toUpperCase().replace(/\s+/g, '-')
-    : `PROD-${Date.now()}`;
+  const SKU = slug?.trim() ? slug.toUpperCase().replace(/\s+/g, '-') : `PROD-${Date.now()}`;
+  const visibleFeatures = features?.slice(0, 3) || [];
+  const extraCount = Math.max(0, (features?.length || 0) - 3);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -58,12 +54,12 @@ const PropertyCard: React.FC<{ item: PropertyHomes }> = ({ item }) => {
   };
 
   return (
-    <div className="w-full transition-transform duration-200 sm:hover:-translate-y-0.5">
-      <div className="rounded-xl border border-gray-200 bg-white overflow-hidden flex flex-col h-full shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="w-full transition-transform duration-200 hover:-translate-y-0.5">
+      <div className="rounded-xl border border-gray-200 bg-white overflow-hidden flex flex-col h-full shadow-sm hover:shadow-lg transition-shadow duration-200">
 
-        {/* IMAGE
-            Mobile  → 4:3 ratio (wider, prominent like Microtek)
-            Desktop → square (original) */}
+        {/* ── IMAGE ─────────────────────────────────────────────────────
+            Mobile : 4:3 ratio (Microtek style, prominent)
+            Desktop: square                                              */}
         <Link href={slug ? `/products/${slug}` : '#'} className="block flex-shrink-0">
           <div className="relative w-full bg-gray-50 overflow-hidden aspect-[4/3] sm:aspect-square">
             {showImage ? (
@@ -73,63 +69,34 @@ const PropertyCard: React.FC<{ item: PropertyHomes }> = ({ item }) => {
                 alt={name}
                 loading="lazy"
                 onError={() => setImgError(true)}
-                className="w-full h-full object-contain p-3 sm:p-3 hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-contain p-4 hover:scale-105 transition-transform duration-300"
               />
             ) : (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                <Icon icon="ph:lightning-fill" className="text-gray-300" width={40} />
+                <Icon icon="ph:lightning-fill" className="text-gray-300" width={48} />
               </div>
             )}
+            {/* Category badge — on image for mobile, hidden (shown below) for desktop */}
             {category && (
-              <span className="absolute top-1.5 left-1.5 text-[9px] sm:text-[10px] font-bold text-white bg-primary/90 px-1.5 py-0.5 rounded-full z-10">
+              <span className="sm:hidden absolute top-2 left-2 text-[9px] font-bold text-white bg-primary/90 px-1.5 py-0.5 rounded-full z-10">
                 {category}
               </span>
             )}
           </div>
         </Link>
 
-        {/* CONTENT */}
-        <div className="p-3 sm:p-4 flex flex-col gap-2 flex-1 border-t border-gray-100">
+        {/* ── CONTENT ───────────────────────────────────────────────── */}
+        <div className="flex flex-col flex-1 p-3 sm:p-5">
 
-          {/* Name — centered on mobile, left on desktop */}
-          <Link href={slug ? `/products/${slug}` : '#'}>
-            <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2 hover:text-primary transition-colors text-center sm:text-left">
+          {/* ════════════════════════════════════════════════════════
+              MOBILE layout (< sm) — Microtek style: centered, simple
+              ════════════════════════════════════════════════════════ */}
+          <div className="flex flex-col gap-2 sm:hidden">
+            <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2 text-center">
               {name}
             </h3>
-          </Link>
-
-          {/* SKU — show on mobile only */}
-          <p className="text-[10px] text-gray-400 text-center sm:hidden">
-            SKU: {SKU.slice(0, 24)}
-          </p>
-
-          {/* Description — desktop only */}
-          {description && (
-            <p className="hidden sm:block text-xs text-gray-500 line-clamp-2 leading-relaxed">
-              {description}
-            </p>
-          )}
-
-          {/* Features — desktop only */}
-          {features && features.length > 0 && (
-            <ul className="hidden sm:flex flex-col gap-1 flex-1">
-              {features.slice(0, 2).map((feature, idx) => (
-                <li key={idx} className="flex items-start gap-1 text-xs text-gray-500">
-                  <Icon icon="ph:check-circle-fill" width={11} className="text-primary mt-0.5 flex-shrink-0" />
-                  <span className="line-clamp-1">{feature}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <div className="flex-1" />
-
-          {/* Price
-              Mobile  → centered with tax note
-              Desktop → left-aligned, no tax note */}
-          <div className="mt-1">
-            {/* Mobile price */}
-            <div className="flex flex-col items-center sm:hidden">
+            <p className="text-[10px] text-gray-400 text-center">SKU: {SKU.slice(0, 24)}</p>
+            <div className="flex flex-col items-center">
               {formattedRate ? (
                 <>
                   <span className="text-lg font-extrabold text-primary">₹{formattedRate}</span>
@@ -139,57 +106,100 @@ const PropertyCard: React.FC<{ item: PropertyHomes }> = ({ item }) => {
                 <span className="text-xs text-gray-400">Price on request</span>
               )}
             </div>
-            {/* Desktop price */}
-            <div className="hidden sm:flex items-center justify-between gap-1">
+            <div className="flex gap-2 mt-1">
+              <Link
+                href={slug ? `/products/${slug}` : '#'}
+                className="flex-1 text-center py-2 border border-primary text-primary rounded-lg text-xs font-semibold hover:bg-primary hover:text-white transition-colors"
+              >
+                View More
+              </Link>
+              <button
+                onClick={handleAddToCart}
+                disabled={adding}
+                className="flex-1 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-dark transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+              >
+                {adding
+                  ? <Icon icon="svg-spinners:3-dots-fade" width={14} />
+                  : <><Icon icon="solar:cart-large-4-bold" width={14} /> Cart</>
+                }
+              </button>
+            </div>
+          </div>
+
+          {/* ════════════════════════════════════════════════════════
+              DESKTOP layout (≥ sm) — matches official satyajan.com
+              ════════════════════════════════════════════════════════ */}
+          <div className="hidden sm:flex flex-col flex-1 gap-3">
+
+            {/* Category label — uppercase small text like official site */}
+            {category && (
+              <p className="text-xs font-bold text-primary uppercase tracking-wider">
+                {category}
+              </p>
+            )}
+
+            {/* Product name — full, not truncated */}
+            <Link href={slug ? `/products/${slug}` : '#'}>
+              <h3 className="text-base font-bold text-gray-900 leading-snug hover:text-primary transition-colors">
+                {name}
+              </h3>
+            </Link>
+
+            {/* Key Features section */}
+            {visibleFeatures.length > 0 && (
+              <div className="flex flex-col gap-1.5 flex-1">
+                <p className="text-xs font-semibold text-gray-700">Key Features:</p>
+                <ul className="flex flex-col gap-1.5">
+                  {visibleFeatures.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-xs text-gray-600">
+                      <Icon icon="ph:check-circle-fill" width={13} className="text-primary mt-0.5 flex-shrink-0" />
+                      <span className="line-clamp-2">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                {extraCount > 0 && (
+                  <Link
+                    href={slug ? `/products/${slug}` : '#'}
+                    className="text-xs text-primary font-medium hover:underline mt-0.5"
+                  >
+                    +{extraCount} more features
+                  </Link>
+                )}
+              </div>
+            )}
+
+            <div className="flex-1" />
+
+            {/* Price pill + View Details — matches official site exactly */}
+            <div className="flex items-center justify-between gap-2 mt-1">
               {formattedRate ? (
-                <span className="text-base font-extrabold text-primary">₹{formattedRate}</span>
+                <span className="bg-gray-100 text-primary font-bold text-sm px-3 py-1.5 rounded-lg">
+                  ₹{formattedRate}
+                </span>
               ) : (
                 <span className="text-xs text-gray-400">Price on request</span>
               )}
               <Link
                 href={slug ? `/products/${slug}` : '#'}
-                className="text-xs text-primary font-semibold hover:underline whitespace-nowrap"
+                className="text-sm text-primary font-semibold hover:underline flex items-center gap-1 whitespace-nowrap"
               >
-                Details →
+                View Details <Icon icon="solar:arrow-right-linear" width={14} />
               </Link>
             </div>
-          </div>
 
-          {/* Buttons
-              Mobile  → "View More" + "Add to Cart" side by side (Microtek style)
-              Desktop → single "Add to Cart" full width */}
-
-          {/* Mobile buttons */}
-          <div className="flex gap-2 sm:hidden mt-1">
-            <Link
-              href={slug ? `/products/${slug}` : '#'}
-              className="flex-1 text-center py-2 border border-primary text-primary rounded-lg text-xs font-semibold hover:bg-primary hover:text-white transition-colors"
-            >
-              View More
-            </Link>
+            {/* Full-width Add to Cart button — matches official site */}
             <button
               onClick={handleAddToCart}
               disabled={adding}
-              className="flex-1 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-dark transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+              className="w-full py-2.5 bg-primary text-white rounded-lg font-semibold text-sm hover:bg-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-50 active:scale-95"
             >
               {adding
-                ? <Icon icon="svg-spinners:3-dots-fade" width={14} />
-                : <><Icon icon="solar:cart-large-4-bold" width={14} /> Cart</>
+                ? <><Icon icon="svg-spinners:3-dots-fade" width={18} /> Adding…</>
+                : <><Icon icon="solar:cart-large-4-bold" width={18} /> Add to Cart</>
               }
             </button>
           </div>
 
-          {/* Desktop button */}
-          <button
-            onClick={handleAddToCart}
-            disabled={adding}
-            className="hidden sm:flex w-full py-2 px-2 bg-primary text-white rounded-full hover:bg-dark duration-200 text-xs font-semibold items-center justify-center gap-1 disabled:opacity-50 active:scale-95 transition-transform"
-          >
-            {adding
-              ? <><Icon icon="svg-spinners:3-dots-fade" width={14} /> Adding…</>
-              : <><Icon icon="solar:cart-large-4-bold" width={14} /> Add to Cart</>
-            }
-          </button>
         </div>
       </div>
     </div>
