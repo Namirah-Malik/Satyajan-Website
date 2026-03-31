@@ -4,7 +4,7 @@ import './globals.css'
 import Header from '@/components/Layout/Header'
 import Footer from '@/components/Layout/Footer'
 import NextTopLoader from 'nextjs-toploader';
-import ScrollToTop from '@/components/shared/ScrollToTop';
+//import ScrollToTop from '@/components/shared/ScrollToTop';
 import Chatbox from '@/components/utils/chatbot';
 import CallMeBackTrigger from '@/components/CallMeBackTrigger';
 import { CartProvider } from '@/context/CartContext';
@@ -57,7 +57,6 @@ export default function RootLayout({
           <NextTopLoader color="#07be8a" />
           <Header />
           {children}
-          <ScrollToTop />
           <Footer />
           <CallMeBackTrigger />
           <Chatbox />
