@@ -86,9 +86,8 @@ export default function Chatbox() {
     <>
       {/* ── Dismissible Popup above chat bubble ── */}
       {showPopup && !isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 animate-fade-in-up">
+        <div className="fixed bottom-28 sm:bottom-24 right-4 sm:right-6 z-50 animate-fade-in-up">
           <div className="relative bg-white rounded-2xl shadow-xl px-4 py-3 max-w-[220px] border border-gray-100">
-            {/* X to dismiss popup */}
             <button
               onClick={() => setShowPopup(false)}
               className="absolute -top-2 -right-2 w-5 h-5 bg-gray-700 hover:bg-gray-900 text-white rounded-full flex items-center justify-center transition-colors"
@@ -98,7 +97,6 @@ export default function Chatbox() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            {/* Popup content — click opens chat */}
             <button
               onClick={() => { setIsOpen(true); setShowPopup(false); }}
               className="text-left w-full"
@@ -106,16 +104,15 @@ export default function Chatbox() {
               <p className="text-sm font-semibold text-gray-800">👋 Hi there!</p>
               <p className="text-xs text-gray-500 mt-0.5">Have a question? We're here to help.</p>
             </button>
-            {/* Triangle pointer */}
             <div className="absolute -bottom-2 right-6 w-4 h-4 bg-white border-b border-r border-gray-100 rotate-45" />
           </div>
         </div>
       )}
 
-      {/* ── Chat Bubble Icon ── */}
+      {/* ── Chat Bubble — raised above bottom nav on mobile ── */}
       <button
         onClick={() => { setIsOpen(!isOpen); setShowPopup(false); }}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-blue-600 rounded-full text-white flex items-center justify-center shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-110 z-50"
+        className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 bg-blue-600 rounded-full text-white flex items-center justify-center shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-110 z-50"
         aria-label="Open chat"
       >
         {isOpen ? (
@@ -131,7 +128,7 @@ export default function Chatbox() {
 
       {/* ── Chat Window ── */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-80 sm:w-96 h-[500px] bg-gray-50 rounded-xl shadow-2xl flex flex-col z-50 animate-fade-in-up">
+        <div className="fixed bottom-36 sm:bottom-24 right-4 sm:right-6 w-[calc(100vw-2rem)] max-w-sm sm:w-96 h-[60vh] sm:h-[500px] bg-gray-50 rounded-xl shadow-2xl flex flex-col z-50 animate-fade-in-up">
 
           {/* Header */}
           <div className="bg-blue-600 p-4 rounded-t-xl text-white text-center relative">

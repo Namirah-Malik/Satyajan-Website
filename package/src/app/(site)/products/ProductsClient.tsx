@@ -44,7 +44,7 @@ const SkeletonCard = () => (
 );
 
 const SkeletonGrid = () => (
-  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
+  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6 lg:gap-8">
     {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
   </div>
 );
@@ -312,7 +312,7 @@ const ProductsContent = () => {
             </div>
           </GlassCard>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6 lg:gap-8">
             {filtered.map((item, idx) => (
               // ✅ Fixed: use slug not id (id doesn't exist on PropertyHomes type)
               <PropertyCard key={item.slug || idx} item={item} />

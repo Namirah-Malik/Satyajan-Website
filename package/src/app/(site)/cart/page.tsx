@@ -3,7 +3,6 @@
 import { useCart } from '@/context/CartContext';
 import { Icon } from '@iconify/react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CartEMISummary, { TENURES, calcEMI } from '@/components/EMI/CartEMISummary';
@@ -176,9 +175,18 @@ export default function CartPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               {cartItems.map((item) => (
                 <div key={item.id} className="flex flex-col sm:flex-row gap-4 pb-6 mb-6 border-b border-gray-200 last:border-b-0 last:pb-0 last:mb-0">
-                  <div className="relative w-full sm:w-32 h-32 flex-shrink-0">
-                    <Image src={item.image} alt={item.name} fill className="object-cover rounded-lg" unoptimized={true} />
-                  </div>
+                  
+                  <div className="w-full sm:w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden border border-gray-100 bg-gray-50">
+  {/* eslint-disable-next-line @next/next/no-img-element */}
+  <img
+    src={item.image || '/images/fallback.jpg'}
+    alt={item.name}
+    className="w-full h-full object-contain p-2"
+    onError={(e) => {
+      (e.target as HTMLImageElement).src = '/images/fallback.jpg';
+    }}
+  />
+</div>
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold text-dark mb-1">{item.name}</h3>
                     <p className="text-sm text-gray-500 mb-2">SKU: {item.SKU}</p>
